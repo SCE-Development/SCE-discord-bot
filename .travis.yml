@@ -2,4 +2,6 @@ language: node_js
 node_js:
   - "lts/*"
 install:
-  - echo "Travis installed"
+  - npm install
+scripts:
+  - npm run lint
