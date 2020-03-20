@@ -1,5 +1,5 @@
 const fs = require('fs');
-const Discord = require("discord.js");
+const Discord = require('discord.js');
 const { prefix, API_TOKEN } = require('./config.json');
 
 const client = new Discord.Client();
@@ -17,11 +17,11 @@ for (const file of commandFiles) {
 }
 
 client.once('ready', () => {
-    console.log("Ready")
-    client.user.setActivity("Managing the SCE")
+    console.log('Ready')
+    client.user.setActivity('Managing the SCE')
 })
 
-client.on("message", message => {
+client.on('message', message => {
     //prevent bot from calling itself
     if (!message.content.startsWith(prefix) || message.author.bot) { return; }
 
