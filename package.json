@@ -10,7 +10,8 @@
   "dependencies": {
     "discord.js": "^11.6.2",
     "express": "^4.16.4",
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.2",
+    "require-dir": "^1.2.0"
   },
   "engines": {
     "node": "8.x"
