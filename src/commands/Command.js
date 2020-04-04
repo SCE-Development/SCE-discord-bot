@@ -13,4 +13,4 @@ module.exports = class Command {
   async execute(message, args) {
     this.executeCommand(message, args);
   }
-}
+};

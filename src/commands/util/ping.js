@@ -6,6 +6,7 @@ module.exports = new Command({
   category: 'information',
   aliases: [],
   permissions: 'general',
+  // eslint-disable-next-line
   execute: (message, args) => {
     message.channel.send('pong');
   },
