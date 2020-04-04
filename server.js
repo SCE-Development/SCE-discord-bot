@@ -1,19 +1,19 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const { prefix, API_TOKEN } = require('./config.json');
+const requireDir = require('require-dir');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 const cooldowns = new Discord.Collection();
 
-const commandFiles = fs.readdirSync('./src/commands').filter(file => file.endsWith('.js'));
+const commandFiles = requireDir('./src/commands', { recurse: true });
 
-for (const file of commandFiles) {
-    const command = require(`./src/commands/${file}`);
-
-    // set a new item in the Collection
-    // with the key as the command name and the value as the exported module
-    client.commands.set(command.name, command);
+for (const directory in commandFiles) {
+    for (const file in commandFiles[directory]) {
+        const command = require(`./src/commands/${directory}/${file}`);
+        client.commands.set(command.name, command);
+    }
 }
 
 client.once('ready', () => {
