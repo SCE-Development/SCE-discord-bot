@@ -1,11 +1,13 @@
+const Command = require('../Command');
+
 //LOCK NORMAL USERS FROM USING THIS!!!  
-module.exports = {
+module.exports = new Command({
   name: 'cct',
   description: 'create channel (text)',
   category: 'mod',
   aliases: [],
   permissions: 'admin',
-  execute(message, args) {
+  execute: (message, args) => {
     if (args.join(' ') == '') {
       message.channel.send('You need to give the name of the channel!');
       return;
@@ -19,4 +21,4 @@ module.exports = {
       message.channel.send(author + ' created ' + str);
     }
   },
-};
+});
