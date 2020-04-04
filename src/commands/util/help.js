@@ -1,11 +1,13 @@
 const Discord = require('discord.js');
-module.exports = {
+const Command = require('../Command');
+
+module.exports = new Command({
   name: 'help',
   description: 'List commands and info about commands',
   category: 'information',
   aliases: ['commands'],
   permissions: 'general',
-  execute(message, args) {
+  execute: (message, args) => {
     const { commands } = message.client;
     //list of categories
     const categories = (commands.map(command => command.category))
@@ -41,4 +43,4 @@ module.exports = {
       console.log('hi');
     }
   }
-};
+});
