@@ -4,6 +4,12 @@ The SCE has a [discord server](https://discord.gg/e2Dsgd9) where
 its members gather online. The purpose of this bot is to manage 
 the Discord server with custom commands.
 
+## How to use
+1. Obtain API token from SCE slack
+1. Create a `config.json` file with the similar format as `config.example.json`
+1. In the terminal, run `npm start`
+1. Test out the bot in the discord channel!
+
 ## Purpose of this bot
 
 We are currently using Dyno/Tatsumaki/Reactionrole/Owobot to manage
