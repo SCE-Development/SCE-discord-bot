@@ -39,7 +39,28 @@
                 "allowEmptyCatch": true
             }
         ],
+        "no-warning-comments": [
+            2,
+            {
+                "terms": [
+                    "todo",
+                    "fixme",
+                    "any other term"
+                ],
+                "location": "anywhere"
+            }
+        ],
+        "spaced-comment": [
+            2,
+            "always",
+            {
+                "markers": [
+                    "/"
+                ]
+            }
+        ],
         "no-extra-semi": "error",
-        "no-var": 0
+        "no-var": 2,
+        "eol-last": 2
     }
 }

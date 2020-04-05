@@ -49,6 +49,6 @@ class CooldownManager {
     }
     return cooldownTime;
   }
-};
+}
 
 module.exports = { CooldownManager };

@@ -1,6 +1,6 @@
 const Command = require('../Command');
 
-//LOCK NORMAL USERS FROM USING THIS!!!  
+// LOCK NORMAL USERS FROM USING THIS!!!  
 module.exports = new Command({
   name: 'cct',
   description: 'create channel (text)',
@@ -13,8 +13,7 @@ module.exports = new Command({
       return;
     }
     const author = message.member;
-    var str = args.join(' ');
-    //message.channel.send(author.haspermission("MANAGE_CHANNELS"))
+    const str = args.join(' ');
     if (author.permissions.has('MANAGE_CHANNELS') ||
       author.permissions.has('ADMINISTRATOR')) {
       message.guild.createChannel(str);

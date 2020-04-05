@@ -7,13 +7,13 @@ const client = new Discord.Client();
 const commandHandler = new CommandHandler('./commands', prefix);
 
 client.once('ready', () => {
-    commandHandler.initialize();
-    client.user.setActivity('Managing the SCE')
-    console.log('Ready')
-})
-
-client.on('message', message => {
-    commandHandler.handleMessage(message);
+  commandHandler.initialize();
+  client.user.setActivity('Managing the SCE');
+  console.log('Ready');
 });
 
-client.login(API_TOKEN)
+client.on('message', message => {
+  commandHandler.handleMessage(message);
+});
+
+client.login(API_TOKEN);
