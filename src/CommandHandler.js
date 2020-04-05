@@ -95,6 +95,6 @@ class CommandHandler {
       command.execute(message, args);
     } catch (Exception) { }
   }
-};
+}
 
 module.exports = { CommandHandler };
