@@ -8,6 +8,6 @@ module.exports = new Command({
   permissions: 'general',
   // eslint-disable-next-line
   execute: (message, args) => {
-    message.channel.send('pong');
+    message.channel.send(args == '' ? 'pong' : args.join(' '));
   },
 });
