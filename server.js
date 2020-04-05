@@ -26,7 +26,7 @@ client.once('ready', () => {
 
 client.on('message', message => {
     //prevent bot from calling itself
-    if (!message.content.startsWith(prefix) || message.author.bot) { return; }
+    if (!message.content.toLowerCase().startsWith(prefix) || message.author.bot) { return; }
 
 
     const args = message.content.slice(prefix.length).split(/ +/);
