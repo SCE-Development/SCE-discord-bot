@@ -1,6 +1,7 @@
 const Command = require('./commands/Command');
 const { CooldownManager } = require('./util/CooldownManager');
 const { INVALID_TIME } = require('./util/constants');
+const { parseCommandParameters } = require('./util/CommandParser');
 
 const Discord = require('discord.js');
 const requireDir = require('require-dir');
@@ -59,8 +60,9 @@ class CommandHandler {
     if (this.botIsCallingItself(message)) {
       return;
     }
-    const args = message.content.slice(this.prefix.length).split(/ +/);
+    let args = message.content.slice(this.prefix.length).split(/ +/);
     const commandName = args.shift().toLowerCase();
+    args = parseCommandParameters(args.join(' '));
 
     if (!this.commandMap.has(commandName)) {
       return;
