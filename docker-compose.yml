@@ -1,0 +1,13 @@
+version: '3'
+services:
+  bot:
+    container_name: bot
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    restart: 'on-failure'
+    networks:
+      - core-v4_sce-local
+networks:
+  core-v4_sce-local:
+    external: true
