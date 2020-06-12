@@ -1,4 +1,5 @@
 {
     "prefix": "s!",
-    "API_TOKEN": "token goes here"
+    "API_TOKEN": "token goes here",
+    "SCE_GOOGLE_API_URL": "http://localhost:8082"
 }
