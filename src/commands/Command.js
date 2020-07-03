@@ -1,7 +1,7 @@
 module.exports = class Command {
   constructor(args) {
     this.name = args.name;
-    this.alias = args.alias;
+    this.aliases = args.aliases;
     this.desc = args.desc;
     this.params = args.params;
     this.example = args.example;
