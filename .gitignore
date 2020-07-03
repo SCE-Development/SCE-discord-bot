@@ -1,6 +1,7 @@
 # Node modules
 node_modules/
-
+.idea/
+.vscode/
 # tokens
 .env
 config.json

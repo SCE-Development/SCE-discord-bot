@@ -8,8 +8,9 @@
     "lint": "./node_modules/.bin/eslint ./"
   },
   "dependencies": {
-    "discord.js": "^11.6.2",
+    "discord.js": "^11.6.4",
     "express": "^4.16.4",
+    "node-fetch": "^2.6.0",
     "nodemon": "^2.0.2",
     "require-dir": "^1.2.0"
   },
