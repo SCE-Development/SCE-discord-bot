@@ -38,6 +38,7 @@ class CommandHandler {
         const command = require(`${this.commandPath}/${directory}/${file}`);
         if (command instanceof Command) {
           this.commandMap.set(command.name, command);
+          command.aliases.map(alias => this.commandMap.set(alias, command));
         }
       }
     }
