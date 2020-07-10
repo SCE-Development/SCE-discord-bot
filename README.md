@@ -13,10 +13,14 @@ the Discord server with custom commands.
 ## How to set up Calendar Event API
 1. Follow steps 1 & 2 from `How to use`
 1. Locate your `Calendar ID` in you Google Calendar settings:
+
 ![image](https://user-images.githubusercontent.com/47675634/87125869-0ec97280-c240-11ea-815b-ed13596cef6b.PNG)
+
 Select which calendar you want to access through the API.
 Scroll down to `Integrate Calendar` and copy your `Calendar Id`:
+
 ![image](https://user-images.githubusercontent.com/47675634/87126195-a3cc6b80-c240-11ea-96a3-24c5b91ad256.PNG)
+
 1. Add this into your `config.json` int the `EVENTS_CAL` section.
 1. If you want to use your primary calendar, for `EVENTS_CAL` put `primary`.
 1. Follow the rest of `How to use`.
