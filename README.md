@@ -26,7 +26,6 @@ Scroll down to `Integrate Calendar` and copy your `Calendar Id`:
 1. Follow the rest of `How to use`.
 
 
-
 ## Purpose of this bot
 
 We are currently using Dyno/Tatsumaki/Reactionrole/Owobot to manage
