@@ -1,7 +1,6 @@
 {
     "prefix": "s!",
     "API_TOKEN": "token goes here",
-    "SCE_GITHUB_API_URL": "http://localhost:8085",
-    "SCE_GOOGLE_API_URL": "http://localhost:8082",
+    "SCE_CLOUD_API_URL": "http://localhost:8082",
     "EVENTS_CAL": ""
 }
