@@ -9,9 +9,7 @@ class GithubFetcher {
   /**
    * Creates GithubFetcher object
    */
-  constructor() {
-
-  }
+  constructor() {}
 
   /**
    * This function retrieves a list of users that have contributed to a
@@ -21,7 +19,7 @@ class GithubFetcher {
    */
   fetchLeaderboard(repo) {
     return new Promise((resolve, reject) => {
-      fetch(`${SCE_GITHUB_API_URL}/api/routes/` +
+      fetch(`${SCE_GITHUB_API_URL}/api/github/` +
       `getContributorsInPastMonthFromRepo?repository=${repo}`
       )
         .then(data => data.json())
@@ -42,7 +40,7 @@ class GithubFetcher {
    */
   fetchPullRequests(repo) {
     return new Promise((resolve, reject) => {
-      fetch(`${SCE_GITHUB_API_URL}/api/routes/` +
+      fetch(`${SCE_GITHUB_API_URL}/api/github/` +
         `getPullRequestsFromRepo?repository=${repo}`
       )
         .then(data => data.json())
@@ -67,7 +65,7 @@ class GithubFetcher {
    */
   fetchCommits(repo) {
     return new Promise((resolve, reject) => {
-      fetch(`${SCE_GITHUB_API_URL}/api/routes/` +
+      fetch(`${SCE_GITHUB_API_URL}/api/github/` +
         `getCommitsFromRepo?repository=${repo}`
       )
         .then(data => data.json())
