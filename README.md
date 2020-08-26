@@ -11,19 +11,21 @@ the Discord server with custom commands.
 1. Test out the bot in the discord channel!
 
 ## How to set up Calendar Event API
-1. Follow steps 1 & 2 from `How to use`
+1. Obtain API token from SCE slack
+1. Create a `config.json` file with similar format as `config.example.json`
 1. Locate your `Calendar ID` in you Google Calendar settings:
 
-![image](https://user-images.githubusercontent.com/47675634/87125869-0ec97280-c240-11ea-815b-ed13596cef6b.PNG)
+  ![image](https://user-images.githubusercontent.com/47675634/87125869-0ec97280-c240-11ea-815b-ed13596cef6b.PNG)
 
-Select which calendar you want to access through the API.
-Scroll down to `Integrate Calendar` and copy your `Calendar Id`:
+4. Select which calendar you want to access through the API
+5. Scroll down to `Integrate Calendar` and copy your `Calendar Id`:
 
-![image](https://user-images.githubusercontent.com/47675634/87126195-a3cc6b80-c240-11ea-96a3-24c5b91ad256.PNG)
+  ![image](https://user-images.githubusercontent.com/47675634/87126195-a3cc6b80-c240-11ea-96a3-24c5b91ad256.PNG)
 
-1. Add this into your `config.json` int the `EVENTS_CAL` section.
-1. If you want to use your primary calendar, for `EVENTS_CAL` put `primary`.
-1. Follow the rest of `How to use`.
+6. Add this into your `config.json` int the `EVENTS_CAL` section
+6. If you want to use your primary calendar, for `EVENTS_CAL` put `primary`
+6. In the terminal, run `npm start`
+6. Test out the bot in the discord channel!
 
 
 ## Purpose of this bot
