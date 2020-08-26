@@ -13,9 +13,9 @@ module.exports = new Command({
     }
     const author = message.member;
     const user = message.guild.member(args[0].match(/(\d+)/)[0]);
-    console.log(args[0]);
     let reason = args.slice(1).join(' ');
-    if (author.permissions.has('ADMINISTRATOR')) {
+    if (author.permissions.has('ADMINISTRATOR') ||
+      author.roles.get('623673983665045514')) {
       user.kick(reason)
         .then(() => {
           if (reason) {
