@@ -20,57 +20,57 @@ module.exports = new Command({
     const messageGenerator = new GithubMessageGenerator();
 
     switch(args[0]) {
-    case 'pr':
-      messageGenerator.generatePullRequestMessage(args[1])
-        .then(prMessage => {
-          message.channel.send(prMessage);
-        })
-        .catch(_ => {
-          message.channel.send(_);
-        });
-      break;
-  
-    case 'leaderboard':
-      messageGenerator.generateLeaderboardMessage(args[1])
-        .then(leaderboardMessage => {
-          leaderboardMessage.forEach(embed => {
-            message.channel.send(embed);
+      case 'pr':
+        messageGenerator.generatePullRequestMessage(args[1])
+          .then(prMessage => {
+            message.channel.send(prMessage);
+          })
+          .catch(_ => {
+            message.channel.send(_);
           });
-        })
-        .catch(_ => {
-          message.channel.send(_);
-        });
-      break;
-
-    case 'commits':
-      // Check if 3rd argument (optional) is a number
-      if(args[2] && isNaN(args[2])) {
-        message.channel.send(
-          `Invalid Value: ${args[2]} Please enter a number`
-        );
         break;
-      }
-      messageGenerator.generateCommitMessage(args[1], args[2])
-        .then(commitMessage => {
-          message.channel.send(commitMessage);
-        })
-        .catch(_ => {
-          message.channel.send(_);
-        });
-      break;
+    
+      case 'leaderboard':
+        messageGenerator.generateLeaderboardMessage(args[1])
+          .then(leaderboardMessage => {
+            leaderboardMessage.forEach(embed => {
+              message.channel.send(embed);
+            });
+          })
+          .catch(_ => {
+            message.channel.send(_);
+          });
+        break;
 
-    default:
-      // Help
-      message.channel.send(
-        new Discord.RichEmbed()
-          .setDescription('Unrecognized parameter try using:')
-          .addField('pr <repo>', 'View pull requests')
-          .addField('leaderboard <repo>', 'Top 5 contributors')
-          .addField(
-            'commits <repo> <num>',
-            'Merged commits - <num> (optional, Limit: 25)'
-          )
-      );
+      case 'commits':
+        // Check if 3rd argument (optional) is a number
+        if(args[2] && isNaN(args[2])) {
+          message.channel.send(
+            `Invalid Value: ${args[2]} Please enter a number`
+          );
+          break;
+        }
+        messageGenerator.generateCommitMessage(args[1], args[2])
+          .then(commitMessage => {
+            message.channel.send(commitMessage);
+          })
+          .catch(_ => {
+            message.channel.send(_);
+          });
+        break;
+
+      default:
+        // Help
+        message.channel.send(
+          new Discord.RichEmbed()
+            .setDescription('Unrecognized parameter try using:')
+            .addField('pr <repo>', 'View pull requests')
+            .addField('leaderboard <repo>', 'Top 5 contributors')
+            .addField(
+              'commits <repo> <num>',
+              'Merged commits - <num> (optional, Limit: 25)'
+            )
+        );
     }
   },
 });
