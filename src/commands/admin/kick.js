@@ -13,9 +13,15 @@ module.exports = new Command({
     }
     const author = message.member;
     const user = message.guild.member(args[0].match(/(\d+)/)[0]);
-    console.log(args[0]);
     let reason = args.slice(1).join(' ');
-    if (author.permissions.has('ADMINISTRATOR')) {
+    if (author.permissions.has('ADMINISTRATOR') ||
+      author.roles.get('623673983665045514')) {
+      if (user.permissions.has('ADMINISTRATOR') ||
+        user.roles.get('623673983665045514')) {
+        message.channel.send('Not enough permissions to kick. '
+          + user + ' not kicked.');
+        return;
+      }
       user.kick(reason)
         .then(() => {
           if (reason) {
@@ -23,7 +29,6 @@ module.exports = new Command({
               + ' because ' + reason);
             message.channel.send(user + ' has been kicked because '
               + reason);
-
           } else {
             user.send('You have been kicked from ' + message.guild);
             message.channel.send(user + ' has been kicked');
