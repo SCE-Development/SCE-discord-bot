@@ -16,6 +16,12 @@ module.exports = new Command({
     let reason = args.slice(1).join(' ');
     if (author.permissions.has('ADMINISTRATOR') ||
       author.roles.get('623673983665045514')) {
+      if (user.permissions.has('ADMINISTRATOR') ||
+        user.roles.get('623673983665045514')) {
+        message.channel.send('Not enough permissions to kick. '
+          + user + ' not kicked.');
+        return;
+      }
       user.kick(reason)
         .then(() => {
           if (reason) {
@@ -23,7 +29,6 @@ module.exports = new Command({
               + ' because ' + reason);
             message.channel.send(user + ' has been kicked because '
               + reason);
-
           } else {
             user.send('You have been kicked from ' + message.guild);
             message.channel.send(user + ' has been kicked');
