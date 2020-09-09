@@ -18,6 +18,9 @@ module.exports = new Command({
       author.permissions.has('ADMINISTRATOR')) {
       message.guild.createChannel(str);
       message.channel.send(author + ' created ' + str);
+    } else {
+      message.channel.send(`${author} does not have permission 
+        to make channels!`);
     }
   },
 });

@@ -1,6 +1,7 @@
 {
-    "prefix": "s!",
     "API_TOKEN": "token goes here",
-    "SCE_CLOUD_API_URL": "http://localhost:8082",
-    "EVENTS_CAL": ""
+    "EVENTS_CAL": "",
+    "OfficerRole": "XXXXXXXXXXXXXXXXXX",
+    "prefix": "s!",
+    "SCE_CLOUD_API_URL": "http://localhost:8082"
 }

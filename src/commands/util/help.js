@@ -26,6 +26,7 @@ module.exports = new Command({
       for (let i = 0; i < categories.length; i++) {
         dict[categories[i]] = [];
       }
+      // tmp is all the unique commands
       let tmp = Array.from(new Set(commands.array()));
       for (let j = 0; j < tmp.length; j++) {
         dict[tmp[j].category].push(tmp[j].name);
@@ -49,7 +50,7 @@ module.exports = new Command({
         if (field == 'executeCommand' || !info || info.length == 0) return;
         let infoText = info;
         if (field == 'aliases') infoText = info.join(', ');
-        if (field != 'name' && field != 'aliases'){
+        if (field != 'name' && field != 'aliases') {
           infoText = capitalize(infoText);
         }
         helpEmbed.addField(capitalize(field), infoText);
