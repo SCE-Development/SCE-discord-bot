@@ -2,7 +2,7 @@ const Command = require('../Command');
 const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
-  name: 'deleteStudyChannel',
+  name: 'deletestudychannel',
   description: 'delete an existing study channel (text)',
   category: 'mod',
   aliases: ['dsc'],

@@ -1,7 +1,7 @@
 const Command = require('../Command');
 
 module.exports = new Command({
-  name: 'joinStudyChannel',
+  name: 'joinstudychannel',
   description: 'Join a study channel',
   category: 'member services',
   aliases: ['jsc'],

@@ -2,10 +2,10 @@ const Command = require('../Command');
 
 // LOCK NORMAL USERS FROM USING THIS!!!  
 module.exports = new Command({
-  name: 'cct',
+  name: 'createchanneltext',
   description: 'create channel (text)',
   category: 'mod',
-  aliases: [],
+  aliases: ['cct'],
   permissions: 'admin',
   execute: (message, args) => {
     if (args.join(' ') == '') {

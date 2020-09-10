@@ -2,7 +2,7 @@ const Command = require('../Command');
 const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
-  name: 'createStudyChannel',
+  name: 'createstudychannel',
   description: 'create new study channel (text)',
   category: 'mod',
   aliases: ['csc'],
