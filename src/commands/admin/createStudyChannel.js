@@ -76,7 +76,7 @@ module.exports = new Command({
     
     let everyoneRole = roles.array().filter(
       (x) => x.name == '@everyone'
-    )[0]
+    )[0];
 
     // Create the channel
     let newChannelOptions = {

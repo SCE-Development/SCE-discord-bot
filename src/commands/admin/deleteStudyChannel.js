@@ -37,6 +37,22 @@ module.exports = new Command({
       return;
     }
 
+    // Delete the role
+    let classRole = roles.array().filter(
+      (x) => x.name == newChannelName
+    );
+    let targetRole;
+    // If role exists - change its permissions
+    if (classRole.length > 0) {
+      targetRole = classRole[0];
+      // Delete role
+      await targetRole.delete()
+        .then(
+          message.channel.send(`Deleted role ${targetRole.name}`));
+    } else {
+      message.channel.send('No role to delete!');
+    }
+
     // Set study category
     studyChannel = studyChannel[0];
 
@@ -53,24 +69,10 @@ module.exports = new Command({
       let targetChannel = textChannels[0];
       await targetChannel.delete()
         .then(
-          message.channel.send(`Deleted channel ${targetChannel.name}`)
-        );
-    }
-
-    // Delete the role
-    let classRole = roles.array().filter(
-      (x) => x.name == newChannelName
-    );
-    let targetRole;
-    // If role exists - change its permissions
-    if (classRole.length > 0) {
-      targetRole = classRole[0];
-      // Delete role
-      await targetRole.delete()
-        .then(
-          message.channel.send(`Deleted role ${targetRole.name}`));
-    } else {
-      message.channel.send('No role to delete!');
+          await message.channel.send(`Deleted channel ${targetChannel.name}`)
+            .catch()
+        )
+        .catch();
     }
   },
 });
