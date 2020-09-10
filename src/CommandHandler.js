@@ -71,8 +71,8 @@ class CommandHandler {
       const cooldownStatus = this.cooldownManager.needsToCoolDown(
         message.author.id, this.commandMap.get(commandName));
       if (cooldownStatus !== INVALID_TIME) {
-        message.channel.send(`please wait ${cooldownStatus.toFixed(1)}
-        more second(s) before reusing the \`${commandName}\` command.`);
+        message.channel.send(`please wait ${cooldownStatus.toFixed(1)} `
+          + `more second(s) before reusing the \`${commandName}\` command.`);
         return;
       }
       try {

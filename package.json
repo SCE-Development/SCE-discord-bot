@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
-    "lint": "./node_modules/.bin/eslint ./"
+    "lint": "./node_modules/.bin/eslint ./",
+    "fix": "./node_modules/.bin/eslint ./ --fix"
   },
   "dependencies": {
     "discord.js": "^11.6.4",
