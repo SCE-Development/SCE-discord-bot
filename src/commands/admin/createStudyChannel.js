@@ -73,6 +73,10 @@ module.exports = new Command({
           targetRole = res;
         });
     }
+    
+    let everyoneRole = roles.array().filter(
+      (x) => x.name == '@everyone'
+    )[0]
 
     // Create the channel
     let newChannelOptions = {
@@ -81,6 +85,10 @@ module.exports = new Command({
         {
           id: targetRole.id,
           allow: 1024
+        },
+        {
+          id: everyoneRole.id,
+          deny: 1024
         }
       ]
     };
