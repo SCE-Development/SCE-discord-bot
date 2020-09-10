@@ -29,12 +29,11 @@ module.exports = new Command({
       // tmp is all the unique commands
       let tmp = Array.from(new Set(commands.array()));
       for (let j = 0; j < tmp.length; j++) {
-        dict[tmp[j].category].push(tmp[j].name);
+        dict[tmp[j].category].push(`\`${tmp[j].name}\``);
       }
 
       Object.entries(dict).forEach(([category, commands]) => {
         let commandString = commands.join(', ');
-        commandString = capitalize(commandString);
         let categoryString = capitalize(category);
         helpEmbed.addField(categoryString, commandString);
       });
@@ -46,11 +45,15 @@ module.exports = new Command({
         .setTitle(capitalize(command));
       // Grab command info
       const commandInfo = commands.get(command);
+      if (!commandInfo){
+        message.channel.send(`Command ${command} does not exist!`);
+        return;
+      }
       Object.entries(commandInfo).forEach(([field, info]) => {
         if (field == 'executeCommand' || !info || info.length == 0) return;
         let infoText = info;
         if (field == 'aliases') infoText = info.join(', ');
-        if (field != 'name' && field != 'aliases') {
+        if (field != 'name' && field != 'aliases' && field != 'example') {
           infoText = capitalize(infoText);
         }
         helpEmbed.addField(capitalize(field), infoText);
