@@ -2,7 +2,7 @@ const Command = require('../Command');
 const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
-  name: 'createStudyChannel',
+  name: 'createstudychannel',
   description: 'create new study channel (text)',
   category: 'mod',
   aliases: ['csc'],
@@ -73,6 +73,10 @@ module.exports = new Command({
           targetRole = res;
         });
     }
+    
+    let everyoneRole = roles.array().filter(
+      (x) => x.name == '@everyone'
+    )[0];
 
     // Create the channel
     let newChannelOptions = {
@@ -81,6 +85,10 @@ module.exports = new Command({
         {
           id: targetRole.id,
           allow: 1024
+        },
+        {
+          id: everyoneRole.id,
+          deny: 1024
         }
       ]
     };
