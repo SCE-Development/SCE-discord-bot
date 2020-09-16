@@ -1,5 +1,5 @@
 const Command = require('../Command');
-const { isAdmin } = require('../../util/Permission');
+const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
   name: 'ban',
@@ -15,9 +15,9 @@ module.exports = new Command({
     const author = message.member;
     const user = message.guild.member(args[0].match(/(\d+)/)[0]);
     let reason = args.slice(1).join(' ');
-    if (isAdmin(author)) {
-      // Don't ban admins
-      if (isAdmin(user)) {
+    if (isOfficer(author)) {
+      // Don't ban officers
+      if (isOfficer(user)) {
         message.channel.send('Not enough permissions to ban. '
           + user + ' not banned.');
         return;

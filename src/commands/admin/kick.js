@@ -1,5 +1,5 @@
 const Command = require('../Command');
-const { isAdmin } = require('../../util/Permission');
+const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
   name: 'kick',
@@ -16,9 +16,9 @@ module.exports = new Command({
     const user = message.guild.member(args[0].match(/(\d+)/)[0]);
     let reason = args.slice(1).join(' ');
     // Check if author can kick
-    if (isAdmin(author)) {
+    if (isOfficer(author)) {
       // Officers may not kick each other
-      if (isAdmin(user)) {
+      if (isOfficer(user)) {
         message.channel.send('Not enough permissions to kick. '
           + user + ' not kicked.');
         return;
