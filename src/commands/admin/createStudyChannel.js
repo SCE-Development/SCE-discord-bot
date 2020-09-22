@@ -31,21 +31,31 @@ module.exports = new Command({
     }
     // Set study category
     studyCategory = studyCategory[0];
-    
+
     // Alphabetize arrays
     let studyChannels = channels.array().filter(
       (x) => (x.type == 'text' && x.parentID == studyCategory.id)
     ).sort(
-      (x, y) => {
-        if (x.name < y.name) return -1;
-        else return 1;
+      (a, b) => {
+        let aprefix = a.name.match(/\D{2,3}/);
+        let bprefix = b.name.match(/\D{2,3}/);
+        if (aprefix < bprefix) {
+          return -1;
+        } else if (aprefix > bprefix) {
+          return 1;
+        } else {
+          let asuffix = a.name.match(/\d{2,3}/);
+          let bsuffix = b.name.match(/\d{2,3}/);
+          if (Number(asuffix) < Number(bsuffix)) return -1;
+          else return 1;
+        }
       }
     );
     let minNumber = Math.min(...studyChannels.map((x) => x.position));
-    for (let i = minNumber; i < (minNumber + studyChannels.length); i++){
-      let currentChannel = studyChannels[i-minNumber];
-      if (currentChannel.position != i){
-        currentChannel.edit({position: i});
+    for (let i = minNumber; i < (minNumber + studyChannels.length); i++) {
+      let currentChannel = studyChannels[i - minNumber];
+      if (currentChannel.position != i) {
+        currentChannel.edit({ position: i });
       }
     }
 
@@ -58,7 +68,7 @@ module.exports = new Command({
       message.channel.send('You need to give the name of the class!');
       return;
     }
-    
+
     const newChannelName = args[0].toLowerCase();
 
     let textChannels = channels.array().filter(
@@ -95,7 +105,7 @@ module.exports = new Command({
           targetRole = res;
         });
     }
-    
+
     let everyoneRole = roles.array().filter(
       (x) => x.name == '@everyone'
     )[0];

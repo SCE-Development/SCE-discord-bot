@@ -27,8 +27,21 @@ module.exports = new Command({
     let textChannels = channels.array().filter(
       (x) => (x.type == 'text' && x.parentID == studyChannel.id)
     );
-    textChannels = textChannels.map((channel) => '`'+channel.name+'`');
-    textChannels.sort();
+    textChannels = textChannels.map((channel) => '`' + channel.name + '`');
+    textChannels.sort((a, b) => {
+      let aprefix = a.match(/\D{2,3}/);
+      let bprefix = b.match(/\D{2,3}/);
+      if (aprefix < bprefix) {
+        return -1;
+      } else if (aprefix > bprefix) {
+        return 1;
+      } else {
+        let asuffix = a.match(/\d{2,3}/);
+        let bsuffix = b.match(/\d{2,3}/);
+        if (Number(asuffix) < Number(bsuffix)) return -1;
+        else return 1;
+      }
+    });
     const listEmbed = new Discord.RichEmbed()
       .setTitle('List all the study channels')
       .setColor('#ccffff')
