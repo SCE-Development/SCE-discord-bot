@@ -30,17 +30,17 @@ module.exports = new Command({
       )
     );
     textChannels = textChannels.map((channel) => '`' + channel.name + '`');
-    textChannels.sort((channel1, channel2) => {
-      let channel1prefix = channel1.match(/\D{2,3}/);
-      let channel2prefix = channel2.match(/\D{2,3}/);
-      if (channel1prefix < channel2prefix) {
+    textChannels.sort((a, b) => {
+      let aprefix = a.match(/\D{2,3}/);
+      let bprefix = b.match(/\D{2,3}/);
+      if (aprefix < bprefix) {
         return -1;
-      } else if (channel1prefix > channel2prefix) {
+      } else if (aprefix > bprefix) {
         return 1;
       } else {
-        let channel1suffix = channel1.match(/\d{2,3}/);
-        let channel2suffix = channel2.match(/\d{2,3}/);
-        if (Number(channel1suffix) < Number(channel2suffix)) return -1;
+        let asuffix = a.match(/\d{2,3}/);
+        let bsuffix = b.match(/\d{2,3}/);
+        if (Number(asuffix) < Number(bsuffix)) return -1;
         else return 1;
       }
     });
