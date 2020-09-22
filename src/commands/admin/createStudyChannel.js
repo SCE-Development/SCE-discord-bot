@@ -2,7 +2,7 @@ const Command = require('../Command');
 const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
-  name: 'createstudychannel',
+  name: 'createstudyCategory',
   description: 'create new study channel (text)',
   category: 'mod',
   aliases: ['csc'],
@@ -17,30 +17,52 @@ module.exports = new Command({
       return;
     }
 
+    // Study category does not exist
+    let studyCategory = channels.array().filter(
+      (x) => x.type == 'category' && x.name == 'study'
+    );
+    if (studyCategory.length == 0) {
+      message.channel.send('Create a study category first!');
+      return;
+    }
+    if (studyCategory.length > 1) {
+      message.channel.send('Ambiguous command. Delete a study category first');
+      return;
+    }
+    // Set study category
+    studyCategory = studyCategory[0];
+    
+    // Alphabetize arrays
+    let studyChannels = channels.array().filter(
+      (x) => (x.type == 'text' && x.parentID == studyCategory.id)
+    ).sort(
+      (x, y) => {
+       if (x.name < y.name) return -1
+       else return 1
+      }
+    );
+    let minNumber = Math.min(...studyChannels.map((x) => x.position));
+    for (let i = minNumber; i < (minNumber + studyChannels.length); i++){
+      let currentChannel = studyChannels[i-minNumber];
+      if (currentChannel.position != i){
+        currentChannel.edit({position: i});
+      }
+    }
+
     // Incorrect arguments
+    if (args.length == 0) {
+      message.channel.send('You have successfully sorted the channels!');
+      return;
+    }
     if (args.length != 1) {
       message.channel.send('You need to give the name of the class!');
       return;
     }
+    
     const newChannelName = args[0].toLowerCase();
 
-    // Study category does not exist
-    let studyChannel = channels.array().filter(
-      (x) => x.type == 'category' && x.name == 'study'
-    );
-    if (studyChannel.length == 0) {
-      message.channel.send('Create a study category first!');
-      return;
-    }
-    if (studyChannel.length > 1) {
-      message.channel.send('Ambiguous command. Delete a study category first');
-      return;
-    }
-
-    // Set study category
-    studyChannel = studyChannel[0];
     let textChannels = channels.array().filter(
-      (x) => (x.type == 'text' && x.parentID == studyChannel.id
+      (x) => (x.type == 'text' && x.parentID == studyCategory.id
         && x.name == newChannelName)
     );
 
@@ -80,7 +102,7 @@ module.exports = new Command({
 
     // Create the channel
     let newChannelOptions = {
-      parent: studyChannel.id,
+      parent: studyCategory.id,
       permissionOverwrites: [
         {
           id: targetRole.id,
