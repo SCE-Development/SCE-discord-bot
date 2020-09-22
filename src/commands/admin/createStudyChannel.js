@@ -2,7 +2,7 @@ const Command = require('../Command');
 const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
-  name: 'createstudyCategory',
+  name: 'createstudychannel',
   description: 'create new study channel (text)',
   category: 'mod',
   aliases: ['csc'],
@@ -37,8 +37,8 @@ module.exports = new Command({
       (x) => (x.type == 'text' && x.parentID == studyCategory.id)
     ).sort(
       (x, y) => {
-       if (x.name < y.name) return -1
-       else return 1
+        if (x.name < y.name) return -1;
+        else return 1;
       }
     );
     let minNumber = Math.min(...studyChannels.map((x) => x.position));
