@@ -2,7 +2,7 @@ const Command = require('../Command');
 
 module.exports = new Command({
   name: 'joinstudychannel',
-  description: 'Join a study channel',
+  description: 'Join or leave a study channel',
   category: 'member services',
   aliases: ['jsc'],
   permissions: 'member',
@@ -27,10 +27,21 @@ module.exports = new Command({
     if (classRole.length > 0) {
       targetRole = classRole[0];
       // Assign the role to the user
-      await author.addRole(targetRole)
-        .then(() =>
-          message.channel.send(author + ` has joined ${targetClass}`)
-        );
+      
+      if(author.roles.array().map((x) => x.name).includes(targetClass)) {
+        await author.removeRole(targetRole)
+          .then(() =>
+            message.channel.send(author + ` has left the ${targetClass} `
+            + 'channel')
+          );
+      }
+      else {
+        await author.addRole(targetRole)
+          .then(() =>
+            message.channel.send(author + ` has joined ${targetClass}`)
+          );
+      }
+      
     } else {
       message.channel.send(`The class ${targetClass} has not been set up yet. `
         + 'Message an officer to create the channel!');
