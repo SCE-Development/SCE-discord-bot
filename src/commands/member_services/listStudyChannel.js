@@ -27,8 +27,8 @@ module.exports = new Command({
     let textChannels = channels.array().filter(
       (x) => (x.type == 'text' && x.parentID == studyChannel.id)
     );
-    
     textChannels = textChannels.map((channel) => '`'+channel.name+'`');
+    textChannels.sort();
     const listEmbed = new Discord.RichEmbed()
       .setTitle('List all the study channels')
       .setColor('#ccffff')
