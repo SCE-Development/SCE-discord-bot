@@ -79,7 +79,7 @@ else if (args.length == 2) {
   const forceRegex = RegExp(/(-f)|(-{0,}force)/i);
   const forceIndex = args.findIndex((element) => {
     return forceRegex.test(element);
-  });
+  })
   if (forceIndex == -1) {
     message.channel.send('To create a channel not class specific, '
       + 'use force!');
@@ -91,7 +91,7 @@ else if (args.length == 2) {
       + 'Please provide a channel name');
     return;
   }
-  newChannelName = args[0].toLowerCase();
+  newChannelName = args[0];
 }
 else {
   // Too many arguments
@@ -99,7 +99,6 @@ else {
   return;
 }
 
-const newChannelName = args[0].toLowerCase();
 
 let textChannels = channels.array().filter(
   (channel) => (
@@ -139,7 +138,7 @@ if (classRole.length > 0) {
 }
 
 let everyoneRole = roles.array().filter(
-  (role) => role.name == '@everyone'
+  (x) => x.name == '@everyone'
 )[0];
 
 // Create the channel
