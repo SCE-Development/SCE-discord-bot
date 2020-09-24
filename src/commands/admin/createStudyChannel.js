@@ -11,6 +11,7 @@ module.exports = new Command({
   execute: async (message, args) => {
     const author = message.member;
     const { channels, roles } = message.guild;
+    let newChannelName;
     // Check for author permissions
     if (!isOfficer(author)) {
       message.channel.send('You do not have sufficient permissions!');
@@ -19,7 +20,7 @@ module.exports = new Command({
 
     // Study category does not exist
     let studyCategory = channels.array().filter(
-      (x) => x.type == 'category' && x.name == 'study'
+      (channel) => channel.type == 'category' && channel.name == 'study'
     );
     if (studyCategory.length == 0) {
       message.channel.send('Create a study category first!');
@@ -31,39 +32,79 @@ module.exports = new Command({
     }
     // Set study category
     studyCategory = studyCategory[0];
-    
+
     // Alphabetize arrays
     let studyChannels = channels.array().filter(
-      (x) => (x.type == 'text' && x.parentID == studyCategory.id)
-    ).sort(
-      (x, y) => {
-        if (x.name < y.name) return -1;
+      (channel) => (
+        channel.type == 'text' && channel.parentID == studyCategory.id
+      )
+    ).sort((channel1, channel2) => {
+      let channel1prefix = channel1.name.match(/\D{2,3}/);
+      let channel2prefix = channel2.name.match(/\D{2,3}/);
+      if (channel1prefix < channel2prefix) {
+        return -1;
+      } else if (channel1prefix > channel2prefix) {
+        return 1;
+      } else {
+        let channel1suffix = channel1.name.match(/\d{2,3}/);
+        let channel2suffix = channel2.name.match(/\d{2,3}/);
+        if (Number(channel1suffix) < Number(channel2suffix)) return -1;
         else return 1;
       }
-    );
+    });
     let minNumber = Math.min(...studyChannels.map((x) => x.position));
-    for (let i = minNumber; i < (minNumber + studyChannels.length); i++){
-      let currentChannel = studyChannels[i-minNumber];
-      if (currentChannel.position != i){
-        currentChannel.edit({position: i});
+    for (let i = minNumber; i < (minNumber + studyChannels.length); i++) {
+      let currentChannel = studyChannels[i - minNumber];
+      if (currentChannel.position != i) {
+        currentChannel.edit({ position: i });
       }
     }
 
-    // Incorrect arguments
     if (args.length == 0) {
+      // Sort channels
       message.channel.send('You have successfully sorted the channels!');
       return;
     }
-    if (args.length != 1) {
-      message.channel.send('You need to give the name of the class!');
+    else if (args.length == 1) {
+      // 1 argument - channel name
+      const regex = RegExp(/((CMPE)|(CS))+\d+/i);
+      if (!regex.test(args[0])) {
+        message.channel.send('This is not a valid class!');
+        return;
+      }
+      newChannelName = args[0].toLowerCase();
+    }
+    else if (args.length == 2) {
+      // 2 arguments: 1 must contain force
+      const forceRegex = RegExp(/(-f)|(-{0,}force)/i);
+      const forceIndex = args.findIndex((element) => {
+        return forceRegex.test(element);
+      });
+      if (forceIndex == -1) {
+        message.channel.send('To create a channel not class specific, '
+          + 'use force!');
+        return;
+      }
+      args.splice(forceIndex, forceIndex + 1);
+      if (forceRegex.test(args[0])) {
+        message.channel.send('You have provided 2 force parameters! '
+          + 'Please provide a channel name');
+        return;
+      }
+      newChannelName = args[0];
+    }
+    else {
+      // Too many arguments
+      message.channel.send('Too many arguments!');
       return;
     }
-    
-    const newChannelName = args[0].toLowerCase();
+
 
     let textChannels = channels.array().filter(
-      (x) => (x.type == 'text' && x.parentID == studyCategory.id
-        && x.name == newChannelName)
+      (channel) => (
+        channel.type == 'text'
+        && channel.parentID == studyCategory.id
+        && channel.name == newChannelName)
     );
 
     // Check if this exists already
@@ -74,7 +115,7 @@ module.exports = new Command({
 
     // Create a new role
     let classRole = roles.array().filter(
-      (x) => x.name == newChannelName
+      (role) => role.name == newChannelName
     );
     let targetRole;
     // If role exists - change its permissions
@@ -95,9 +136,9 @@ module.exports = new Command({
           targetRole = res;
         });
     }
-    
+
     let everyoneRole = roles.array().filter(
-      (x) => x.name == '@everyone'
+      (role) => role.name == '@everyone'
     )[0];
 
     // Create the channel
@@ -122,7 +163,5 @@ module.exports = new Command({
       .catch(() => {
         message.channel.send('There was an error creating the channel');
       });
-
-
   },
 });
