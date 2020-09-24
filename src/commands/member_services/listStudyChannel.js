@@ -12,33 +12,35 @@ module.exports = new Command({
   execute: async (message, args) => {
     const { channels } = message.guild;
 
-    const studyChannels = channels.array().filter(
-      (x) => x.type == 'category' && x.name == 'study'
+    const studyCategory = channels.array().filter(
+      (channel) => channel.type == 'category' && channel.name == 'study'
     );
-    if (studyChannels.length == 0) {
+    if (studyCategory.length == 0) {
       message.channel.send('Create a study category first!');
       return;
     }
-    if (studyChannels.length > 1) {
+    if (studyCategory.length > 1) {
       message.channel.send('Ambiguous command. Delete a study category first');
       return;
     }
-    let studyChannel = studyChannels[0];
+    let studyChannel = studyCategory[0];
     let textChannels = channels.array().filter(
-      (x) => (x.type == 'text' && x.parentID == studyChannel.id)
+      (channel) => (
+        channel.type == 'text' && channel.parentID == studyChannel.id
+      )
     );
     textChannels = textChannels.map((channel) => '`' + channel.name + '`');
-    textChannels.sort((a, b) => {
-      let aprefix = a.match(/\D{2,3}/);
-      let bprefix = b.match(/\D{2,3}/);
-      if (aprefix < bprefix) {
+    textChannels.sort((channel1, channel2) => {
+      let channel1prefix = channel1.match(/\D{2,3}/);
+      let channel2prefix = channel2.match(/\D{2,3}/);
+      if (channel1prefix < channel2prefix) {
         return -1;
-      } else if (aprefix > bprefix) {
+      } else if (channel1prefix > channel2prefix) {
         return 1;
       } else {
-        let asuffix = a.match(/\d{2,3}/);
-        let bsuffix = b.match(/\d{2,3}/);
-        if (Number(asuffix) < Number(bsuffix)) return -1;
+        let channel1suffix = channel1.match(/\d{2,3}/);
+        let channel2suffix = channel2.match(/\d{2,3}/);
+        if (Number(channel1suffix) < Number(channel2suffix)) return -1;
         else return 1;
       }
     });
