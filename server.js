@@ -1,9 +1,10 @@
 const Discord = require('discord.js');
 const { prefix, API_TOKEN } = require('./config.json');
 const { CommandHandler } = require('./src/CommandHandler');
-const { 
-  VoiceChannelChangeHandler 
+const {
+  VoiceChannelChangeHandler
 } = require('./src/VoiceChannelChangeHandler');
+const mongoose = require('mongoose');
 
 const startBot = async () => {
   const client = new Discord.Client();
@@ -25,5 +26,12 @@ const startBot = async () => {
 
   client.login(API_TOKEN);
 };
+
+// Conenct to mongoose
+mongoose.connect('mongodb://localhost/Discord', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
 
 startBot();
