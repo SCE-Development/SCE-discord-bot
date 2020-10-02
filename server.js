@@ -26,7 +26,17 @@ const startBot = async () => {
 
   client.login(API_TOKEN);
 };
+// Make express app
+const app = express();
 
+// Graphql
+app.use('/graphql', graphqlHTTP({
+  schema: RootQueryType,
+  graphiql: true
+}))
+
+// start app
+app.listen(5000, () => console.log('Server running'));
 // Conenct to mongoose
 mongoose.connect('mongodb://localhost/Discord', {
   useNewUrlParser: true,
