@@ -26,22 +26,40 @@ const startBot = async () => {
 
   client.login(API_TOKEN);
 };
-// Make express app
-const app = express();
 
-// Graphql
-app.use('/graphql', graphqlHTTP({
-  schema: RootQueryType,
-  graphiql: true
-}))
-
-// start app
-app.listen(5000, () => console.log('Server running'));
 // Conenct to mongoose
-mongoose.connect('mongodb://localhost/Discord', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+const startDatabase = async () => {
+  await mongoose.connect('mongodb://localhost/Discord', {
+    autoIndex: true,
+    poolSize: 50,
+    bufferMaxEntries: 0,
+    keepAlive: 120,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
+
+  mongoose.set('useCreateIndex', true);
+  mongoose.connection.once('open', () => {
+    console.log('Connected to Mongo');
+  });
+};
+
+const startServer = async () => {
+  const server = new ApolloServer({
+    schema,
+    playground: true,
+    introspection: true
+  });
+  // Express app
+  const app = express();
+
+  server.applyMiddleware({ app });
+
+  // start app
+  app.listen(5000, () => console.log('Server running'));
+};
 
 
 startBot();
+startDatabase();
+startServer();
