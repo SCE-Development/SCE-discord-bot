@@ -1,10 +1,9 @@
 const Command = require('../Command');
 const { isOfficer } = require('../../util/Permission');
-const e = require('express');
 
 module.exports = new Command({
   name: 'mute',
-  description: 'Mute someone',
+  description: 'Mute someone, or unmutes if the person is muted.',
   category: 'Server management',
   aliases: [],
   permissions: 'admin',
@@ -23,14 +22,13 @@ module.exports = new Command({
     }
     if (args.join(' ') == '') {
       message.channel.send('You need to give a user to mute.');
-      // or set perms
       return;
     }
-    const { channels, roles } = message.guild;
+    const roles = message.guild;
     let reason = args.slice(1).join(' ');
     // Check if muted role exists
     let mutedRole = roles.array().filter(
-      (x) => x.name == "Muted"
+      (x) => x.name == 'Muted'
     );
     let targetRole;
     // If role does not exist, create role
@@ -40,7 +38,7 @@ module.exports = new Command({
     } else {
       await message.guild.createRole(
         {
-          name: "Muted",
+          name: 'Muted',
           permissions: 0
         }
       )
@@ -48,38 +46,34 @@ module.exports = new Command({
           targetRole = res;
         });
     }
-    // Set permissions: cannot speak in any channel
-    const replacementPerms = {
-      id: targetRole.id,
-      deny: 2048
-    }
 
-    await message.channel.replacePermissionOverwrites({ // .guild doesn't work, .channel does
-      overwrites: [replacementPerms],
-    })
-      .then(() => {
-        if (user.roles.array().map((x) => x.name).includes("Muted")) {
-          user.removeRole(targetRole)
-            .then(() =>
-              message.channel.send(user + ' has been unmuted.')
-            );
-        }
-        else {
-          user.addRole(targetRole)
-            .then(() => {
-              if (reason) {
-                message.channel.send(user + ' has been muted for ' + reason + '.');
-                message.user.send('You have been muted for ' + reason + '.')
-              } else {
-                message.channel.send(user + ' has been muted.');
-                message.user.send('You have been muted. No reason was given.')
-              }
-            }
-            );
-        }
-      })
-      .catch(() => {
-        message.channel.send('There was an error in editing permissions!')
+    for (let i = 0; i < message.guild.channels.array().length; i++) {
+      await message.guild.channels.array()[i].overwritePermissions(targetRole, {
+        SEND_MESSAGES: false,
+        ADD_REACTIONS: false
       });
+    }
+    // Checks if user has role: if has role, removes it; if not, adds it
+    if (user.roles.array().map((x) => x.name).includes('Muted')) {
+      await user.removeRole(targetRole)
+        .then(() =>
+          message.channel.send(user + ' has been unmuted.')
+        );
+    }
+    else {
+      await user.addRole(targetRole)
+        .then(() => {
+          if (reason) {
+            message.channel.send(user + ' has been muted for ' + reason + '.');
+            message.user.send('You have been muted for ' + reason + '.');
+          } else {
+            message.channel.send(user + ' has been muted.');
+            message.user.send('You have been muted. No reason was given.');
+          }
+        })
+        .catch(() => {
+          message.channel.send('Error message.');
+        });
+    }
   }
 });
