@@ -91,7 +91,7 @@ module.exports = new Command({
           + 'Please provide a channel name');
         return;
       }
-      newChannelName = args[0];
+      newChannelName = args[0].toLowerCase();
     }
     else {
       // Too many arguments

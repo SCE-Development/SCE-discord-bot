@@ -5,3 +5,6 @@ node_modules/
 # tokens
 .env
 config.json
+
+jerry-discord-gen.pem
+
