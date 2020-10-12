@@ -1,15 +1,6 @@
 const { Message } = require('discord.js');
 const Command = require('../Command');
 
-// var author, vcID, vc, oriname, changemsg;
-
-/*
-The problem to solve:
- - need cooldown for each voice channel
- - no cooldown when edit didn't execute
-   - make command to remove cooldown
-*/
-
 const command = new Command({
   name: 'setvoicetopic',
   description: 'Rename Voice Channel',
@@ -17,54 +8,56 @@ const command = new Command({
   aliases: ['svt'],
   permissions: 'member',
   example: 's!setvoicetopic',
-  cooldown: 600,
   execute: async (message, args) => {
-    console.log("Cmd Start");
-    var str = args.join('');
-    if (str === '') {
-      message.channel.send('You need to give the name of the channel!');
+    // Check if a user gave topic for args
+    if (!args.length) {
+      await message.channel.send('You need to give the name of the channel!').then((msg) => {msg.delete(5000);});
       return "error";
     }
     str = args.join(' ');
+    // Check if guild is still available
     if (!message.guild.available) {
-      message.channel.send('The server (guild) is unavailable');
+      await message.channel.send('The server (guild) is unavailable').then((msg) => {msg.delete(5000);});
       return "error";
     }
+    // Check if a user is in voicechannel
     if (!message.member.voiceChannelID) {
-      message.channel.send('You are not in a voice chat!');
+      await message.channel.send('You are not in a voice chat!').then((msg) => {msg.delete(5000);});
       return "error";
     }
 
     const author = message.member;
+    // Check if a user has permission to change channel name
     if (author.permissions.has('MANAGE_CHANNELS') || author.permissions.has('ADMINISTRATOR')) {
+      const vcID = message.member.voiceChannelID;
+      const vc = author.guild.channels.get(vcID);
+      const oriname = vc.name;
+      // Function that edits the name
+      const fin = new Promise(async function(resolve, reject){
+        vc.edit({name: str+" ::("+oriname+")"}).then(() => {resolve();});
+        setTimeout(function(){reject('timeout')},3000);
+      }).then((res) => {return res;});
+
       try {
-        // console.log("wait vcID");
-        const vcID = message.member.voiceChannelID;
-        // console.log("wait vc");
-        const vc = author.guild.channels.get(vcID);
-        const oriname = vc.name;
-        // console.log(vcID, oriname, vc);
-        const fin = vc.edit({name: str+" ("+oriname+")"});
-        console.log("awaiting for edit");
-        console.log(await Promise.all([vcID, vc, fin]));
+        await fin;
+        await message.channel.send('Successfully changed Name!').then((msg) => {msg.delete(5000);});
       } catch (error) {
-        console.log(error);
+        await message.channel.send('You are on cooldown!').then((msg) => {msg.delete(5000);});
+      } finally {
+        message.delete(5000);
       }
     }
-    console.log('end of cmd');
     return "end async";
   },
 });
 
+// function that rename the channel back when the channel is empty
 function handleChangeVoiceChannel(oldMember, newMember) {
-  console.log("VC changed");
   const ovcID = oldMember.voiceChannelID;
   if (ovcID) {
     const ovc = oldMember.guild.channels.get(ovcID);
-    console.log(ovc.members.size);
     if (ovc.members.size === 0) {
-      const sname = ovc.name.split("(");
-      console.log("sname:",sname.length,sname);
+      const sname = ovc.name.split("::(");
       if (sname.length >= 1) {
         const oriname = sname[sname.length-1];
         ovc.edit({name: oriname.substring(0, oriname.length - 1)}).catch(console.error);

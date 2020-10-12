@@ -16,7 +16,7 @@ const startBot = async () => {
     commandHandler.handleMessage(message);
   });
 
-  client.on("voiceStateUpdate", function(oldMember, newMember){
+  client.on("voiceStateUpdate", (oldMember, newMember) => {
     handleChangeVoiceChannel(oldMember, newMember);
   });
 

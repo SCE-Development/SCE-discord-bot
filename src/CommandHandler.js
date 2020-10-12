@@ -36,6 +36,7 @@ class CommandHandler {
     for (const directory in commandFiles) {
       for (const file in commandFiles[directory]) {
         const command = require(`${this.commandPath}/${directory}/${file}`);
+        // console.log(command);
         if (command instanceof Command) {
           this.commandMap.set(command.name, command);
           command.aliases.map(alias => this.commandMap.set(alias, command));
@@ -69,10 +70,11 @@ class CommandHandler {
     const commandName = args.shift().toLowerCase();
     args = parseCommandParameters(args.join(' '));
 
-    if (commandName === "ccc" || commandName === 'clearcooldown')
-    {
-      this.cooldownManager.
-    } else if (!this.commandMap.has(commandName)) {
+    // if (commandName === "ccc" || commandName === 'clearcooldown')
+    // {
+    //   this.cooldownManager.
+    // } else 
+    if (!this.commandMap.has(commandName)) {
       console.log('no such command');
       return;
     } else {
@@ -101,7 +103,6 @@ class CommandHandler {
    * @param {Object} args Any arguments sent from the user.
    */
   executeCommand(commandName, message, args) {
-    // console.log(this.commandMap);
     const command = this.commandMap.get(commandName);
     try {
       command.execute(message, args);
