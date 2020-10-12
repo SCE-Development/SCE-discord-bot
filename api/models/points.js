@@ -15,10 +15,15 @@ const PointSchema = mongoose.Schema(
       unique: true
     },
     points: {
-      type: Number
+      type: Number,
+      min: [0, 'Cannot be negative'],
+      required: true,
+      default: 0,
     },
     lastTalked: {
-      type: String
+      type: Date,
+      required: true,
+      default: Date.now
     },
   },
   { collection: 'Point' }

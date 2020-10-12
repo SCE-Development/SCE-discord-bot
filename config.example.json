@@ -1,5 +1,6 @@
 {
     "API_TOKEN": "token goes here",
+    "database": "Discord",
     "EVENTS_CAL": "",
     "OfficerRole": "XXXXXXXXXXXXXXXXXX",
     "prefix": "s!",

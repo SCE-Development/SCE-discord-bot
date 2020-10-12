@@ -91,7 +91,7 @@ module.exports = new Command({
           + 'Please provide a channel name');
         return;
       }
-      newChannelName = args[0];
+      newChannelName = args[0].toLowerCase();
     }
     else {
       // Too many arguments
@@ -136,37 +136,32 @@ module.exports = new Command({
           targetRole = res;
         });
     }
-  )
-  .then((res) => {
-    targetRole = res;
-  });
-}
 
-let everyoneRole = roles.array().filter(
-  (role) => role.name == '@everyone'
-)[0];
+    let everyoneRole = roles.array().filter(
+      (role) => role.name == '@everyone'
+    )[0];
 
-// Create the channel
-let newChannelOptions = {
-  parent: studyCategory.id,
-  permissionOverwrites: [
-    {
-      id: targetRole.id,
-      allow: 1024
-    },
-    {
-      id: everyoneRole.id,
-      deny: 1024
-    }
-  ]
-};
-message.guild.createChannel(newChannelName, newChannelOptions)
-  .then(() => {
-    message.channel.send(author + ' created a study channel for '
-      + newChannelName);
-  })
-  .catch(() => {
-    message.channel.send('There was an error creating the channel');
-  });
+    // Create the channel
+    let newChannelOptions = {
+      parent: studyCategory.id,
+      permissionOverwrites: [
+        {
+          id: targetRole.id,
+          allow: 1024
+        },
+        {
+          id: everyoneRole.id,
+          deny: 1024
+        }
+      ]
+    };
+    message.guild.createChannel(newChannelName, newChannelOptions)
+      .then(() => {
+        message.channel.send(author + ' created a study channel for '
+          + newChannelName);
+      })
+      .catch(() => {
+        message.channel.send('There was an error creating the channel');
+      });
   },
 });
