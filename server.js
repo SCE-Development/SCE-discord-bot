@@ -1,7 +1,8 @@
 const Discord = require('discord.js');
 const { prefix, API_TOKEN } = require('./config.json');
 const { CommandHandler } = require('./src/CommandHandler');
-const { handleChangeVoiceChannel } = require('./src/commands/member_services/setvoicetopic');
+const { handleChangeVoiceChannel } = 
+require('./src/commands/member_services/setvoicetopic');
 
 const startBot = async () => {
   const client = new Discord.Client();
@@ -16,7 +17,7 @@ const startBot = async () => {
     commandHandler.handleMessage(message);
   });
 
-  client.on("voiceStateUpdate", (oldMember, newMember) => {
+  client.on('voiceStateUpdate', (oldMember, newMember) => {
     handleChangeVoiceChannel(oldMember, newMember);
   });
 
