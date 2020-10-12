@@ -8,6 +8,7 @@ module.exports = class Command {
     this.permissions = args.permissions;
     this.category = args.category;
     this.executeCommand = args.execute;
+    this.cooldown = args.cooldown;
   }
 
   async execute(message, args) {

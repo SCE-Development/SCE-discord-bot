@@ -39,6 +39,10 @@ class CommandHandler {
         if (command instanceof Command) {
           this.commandMap.set(command.name, command);
           command.aliases.map(alias => this.commandMap.set(alias, command));
+        } else if (command.command instanceof Command) {
+          const cmd = command.command;
+          this.commandMap.set(cmd.name, cmd);
+          cmd.aliases.map(alias => this.commandMap.set(alias, cmd));
         }
       }
     }
@@ -65,7 +69,11 @@ class CommandHandler {
     const commandName = args.shift().toLowerCase();
     args = parseCommandParameters(args.join(' '));
 
-    if (!this.commandMap.has(commandName)) {
+    if (commandName === "ccc" || commandName === 'clearcooldown')
+    {
+      this.cooldownManager.
+    } else if (!this.commandMap.has(commandName)) {
+      console.log('no such command');
       return;
     } else {
       const cooldownStatus = this.cooldownManager.needsToCoolDown(
@@ -93,6 +101,7 @@ class CommandHandler {
    * @param {Object} args Any arguments sent from the user.
    */
   executeCommand(commandName, message, args) {
+    // console.log(this.commandMap);
     const command = this.commandMap.get(commandName);
     try {
       command.execute(message, args);
