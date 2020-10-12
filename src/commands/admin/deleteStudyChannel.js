@@ -22,7 +22,7 @@ module.exports = new Command({
       message.channel.send('You need to give the name of the class!');
       return;
     }
-    const newChannelName = args[0].toLowerCase();
+    const targetChannel = args[0].toLowerCase();
 
     // Study category does not exist
     let studyChannel = channels.array().filter(
@@ -39,7 +39,7 @@ module.exports = new Command({
 
     // Delete the role
     let classRole = roles.array().filter(
-      (x) => x.name == newChannelName
+      (x) => x.name == targetChannel
     );
     let targetRole;
     // If role exists - change its permissions
@@ -58,8 +58,11 @@ module.exports = new Command({
 
     // Find targetted channel
     let textChannels = channels.array().filter(
-      (x) => (x.type == 'text' && x.parentID == studyChannel.id
-        && x.name == newChannelName)
+      (x) => (
+        x.type == 'text'
+        && x.parentID == studyChannel.id
+        && x.name == String(targetChannel).replace(/\s/g, '-')
+      )
     );
 
     // Delete channel
