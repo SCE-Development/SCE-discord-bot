@@ -2,7 +2,7 @@ const Command = require('../Command');
 
 module.exports = new Command({
   name: 'setvoicetopic',
-  description: 'Rename Voice Channel',
+  description: 'Rename Voice Channel, but can be only done 1 per 10 min',
   category: '',
   aliases: ['svt'],
   permissions: 'member',
@@ -46,7 +46,8 @@ module.exports = new Command({
         await message.channel.send('Successfully changed Name!')
           .then((msg) => {msg.delete(5000);});
       } catch (error) {
-        await message.channel.send('You are on cooldown!')
+        await 
+        message.channel.send('You are on cooldown! Try again in 10 minutes.')
           .then((msg) => {msg.delete(5000);});
       } finally {
         message.delete(5000);
