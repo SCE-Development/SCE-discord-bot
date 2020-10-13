@@ -40,10 +40,6 @@ class CommandHandler {
         if (command instanceof Command) {
           this.commandMap.set(command.name, command);
           command.aliases.map(alias => this.commandMap.set(alias, command));
-        } else if (command.command instanceof Command) {
-          const cmd = command.command;
-          this.commandMap.set(cmd.name, cmd);
-          cmd.aliases.map(alias => this.commandMap.set(alias, cmd));
         }
       }
     }
