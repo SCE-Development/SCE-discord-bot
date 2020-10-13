@@ -2,8 +2,8 @@ const Command = require('../Command');
 
 module.exports = new Command({
   name: 'setvoicetopic',
-  description: 'Rename Voice Channel, but can be only done 1 per 10 min',
-  category: '',
+  description: 'Rename Voice Channel, but can be only done 2 per 10 min',
+  category: 'member services',
   aliases: ['svt'],
   permissions: 'member',
   example: 's!setvoicetopic',
@@ -30,33 +30,30 @@ module.exports = new Command({
 
     const author = message.member;
     // Check if a user has permission to change channel name
-    if (author.permissions.has('MANAGE_CHANNELS') || 
-    author.permissions.has('ADMINISTRATOR')) {
-      const vcID = message.member.voiceChannelID;
-      const vc = author.guild.channels.get(vcID);
-      let oriname = vc.name;
-      // Check if channel has been renamed or not
-      const re = /(?<=: : \().+(?=\))/;
-      if (re.test(oriname)) {
-        oriname = oriname.match(re)[0];
-      }
-      // Function that edits the name
-      const fin = new Promise((resolve, reject) => {
-        vc.edit({name: str+'  : : ('+oriname+')'}).then(() => {resolve();});
-        setTimeout(() => {reject('timeout');}, 3000);
-      }).then((res) => {return res;});
+    const vcID = message.member.voiceChannelID;
+    const vc = author.guild.channels.get(vcID);
+    let oriname = vc.name;
+    // Check if channel has been renamed or not
+    const re = /(?<=: : \().+(?=\))/;
+    if (re.test(oriname)) {
+      oriname = oriname.match(re)[0];
+    }
+    // Function that edits the name
+    const fin = new Promise((resolve, reject) => {
+      vc.edit({name: str+'  : : ('+oriname+')'}).then(() => {resolve();});
+      setTimeout(() => {reject('timeout');}, 3000);
+    }).then((res) => {return res;});
 
-      try {
-        await fin;
-        await message.channel.send('Successfully changed Name!')
-          .then((msg) => {msg.delete(5000);});
-      } catch (error) {
-        await 
-        message.channel.send('You are on cooldown! Try again in 10 minutes.')
-          .then((msg) => {msg.delete(5000);});
-      } finally {
-        message.delete(5000);
-      }
+    try {
+      await fin;
+      await message.channel.send('Successfully changed Name!')
+        .then((msg) => {msg.delete(5000);});
+    } catch (error) {
+      await 
+      message.channel.send('You are on cooldown! Try again in 10 minutes.')
+        .then((msg) => {msg.delete(5000);});
+    } finally {
+      message.delete(5000);
     }
   },
 });
