@@ -1,8 +1,9 @@
 const Discord = require('discord.js');
 const { prefix, API_TOKEN } = require('./config.json');
 const { CommandHandler } = require('./src/CommandHandler');
-const { VoiceChannelChangeHandler } = 
-require('./src/VoiceChannelChangeHandler');
+const { 
+  VoiceChannelChangeHandler 
+} = require('./src/VoiceChannelChangeHandler');
 
 const startBot = async () => {
   const client = new Discord.Client();

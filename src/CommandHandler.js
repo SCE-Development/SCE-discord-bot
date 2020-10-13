@@ -36,7 +36,6 @@ class CommandHandler {
     for (const directory in commandFiles) {
       for (const file in commandFiles[directory]) {
         const command = require(`${this.commandPath}/${directory}/${file}`);
-        // console.log(command);
         if (command instanceof Command) {
           this.commandMap.set(command.name, command);
           command.aliases.map(alias => this.commandMap.set(alias, command));
@@ -66,12 +65,7 @@ class CommandHandler {
     const commandName = args.shift().toLowerCase();
     args = parseCommandParameters(args.join(' '));
 
-    // if (commandName === "ccc" || commandName === 'clearcooldown')
-    // {
-    //   this.cooldownManager.
-    // } else 
     if (!this.commandMap.has(commandName)) {
-      console.log('no such command');
       return;
     } else {
       const cooldownStatus = this.cooldownManager.needsToCoolDown(

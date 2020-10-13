@@ -12,20 +12,20 @@ module.exports = new Command({
     if (!args.length) {
       await message.channel.send('You need to give the name of the channel!').
         then((msg) => {msg.delete(5000);});
-      return 'error';
+      return ;
     }
     const str = args.join(' ');
     // Check if guild is still available
     if (!message.guild.available) {
       await message.channel.send('The server (guild) is unavailable').
         then((msg) => {msg.delete(5000);});
-      return 'error';
+      return ;
     }
     // Check if a user is in voicechannel
     if (!message.member.voiceChannelID) {
       await message.channel.send('You are not in a voice chat!').
         then((msg) => {msg.delete(5000);});
-      return 'error';
+      return ;
     }
 
     const author = message.member;
@@ -36,9 +36,9 @@ module.exports = new Command({
       const vc = author.guild.channels.get(vcID);
       const oriname = vc.name;
       // Function that edits the name
-      const fin = new Promise(function(resolve, reject){
+      const fin = new Promise((resolve, reject) => {
         vc.edit({name: str+'  : : ('+oriname+')'}).then(() => {resolve();});
-        setTimeout(function(){reject('timeout');}, 3000);
+        setTimeout(() => {reject('timeout');}, 3000);
       }).then((res) => {return res;});
 
       try {
@@ -52,6 +52,5 @@ module.exports = new Command({
         message.delete(5000);
       }
     }
-    return 'end async';
   },
 });
