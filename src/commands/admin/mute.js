@@ -46,7 +46,7 @@ module.exports = new Command({
           targetRole = res;
         });
     }
-
+    // Changes the permissions for every channel
     for (let i = 0; i < message.guild.channels.array().length; i++) {
       await message.guild.channels.array()[i].overwritePermissions(targetRole, {
         SEND_MESSAGES: false,
@@ -70,6 +70,7 @@ module.exports = new Command({
             message.channel.send(user + ' has been muted.');
             message.user.send('You have been muted. No reason was given.');
           }
+          return;
         })
         .catch(() => {
           message.channel.send('Error message.');
