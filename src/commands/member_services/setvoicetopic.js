@@ -34,7 +34,12 @@ module.exports = new Command({
     author.permissions.has('ADMINISTRATOR')) {
       const vcID = message.member.voiceChannelID;
       const vc = author.guild.channels.get(vcID);
-      const oriname = vc.name;
+      var oriname = vc.name;
+      const sname = oriname.split(': : (');
+      if (sname.length > 1) {
+        const slname = sname[sname.length-1];
+        oriname = slname.substring(0,slname.length-1);
+      }
       // Function that edits the name
       const fin = new Promise((resolve, reject) => {
         vc.edit({name: str+'  : : ('+oriname+')'}).then(() => {resolve();});
