@@ -34,11 +34,11 @@ module.exports = new Command({
     author.permissions.has('ADMINISTRATOR')) {
       const vcID = message.member.voiceChannelID;
       const vc = author.guild.channels.get(vcID);
-      var oriname = vc.name;
-      const sname = oriname.split(': : (');
-      if (sname.length > 1) {
-        const slname = sname[sname.length-1];
-        oriname = slname.substring(0,slname.length-1);
+      let oriname = vc.name;
+      // Check if channel has been renamed or not
+      const re = /(?<=: : \().+(?=\))/;
+      if (re.test(oriname)) {
+        oriname = oriname.match(re)[0];
       }
       // Function that edits the name
       const fin = new Promise((resolve, reject) => {

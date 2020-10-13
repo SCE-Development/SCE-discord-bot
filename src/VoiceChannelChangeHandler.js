@@ -12,10 +12,10 @@ class VoiceChannelChangeHandler {
     if (ovcID) {
       const ovc = oldMember.guild.channels.get(ovcID);
       if (ovc.members.size === 0) {
-        const sname = ovc.name.split(': : (');
-        if (sname.length > 1) {
-          const oriname = sname[sname.length-1];
-          ovc.edit({name: oriname.substring(0, oriname.length - 1)})
+        const re = /(?<=: : \().+(?=\))/;
+        if (re.test(ovc.name)) {
+          const oriname = ovc.name.match(re)[0];
+          ovc.edit({name: oriname})
             .catch(console.error);
         }
       }
