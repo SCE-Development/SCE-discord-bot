@@ -23,11 +23,11 @@ module.exports = new Command({
       args[0].match(/(\d+)/)
       && args[0].match(/(\d+)/)[0]);
     if (!user) {
-      message.channel.send('You need to mention a user to mute!');
+      message.channel.send('You need to mention a valid user to mute!');
       return;
     }
     // User must be in the server to mute them
-    if (!message.guild.member.id) {
+    if (!user.id) {
       message.channel.send('That user doesn\'t exist!');
       return;
     }
@@ -69,8 +69,7 @@ module.exports = new Command({
     if (user.roles.array().map((x) => x.name).includes('Muted')) {
       await user.removeRole(targetRole)
         .then(() =>
-          message.channel.send(user + ' **unmuted**.'),
-        user.send('You were unmuted.')
+          message.channel.send(user + ' **unmuted**.')
         );
     }
     else {
@@ -83,9 +82,6 @@ module.exports = new Command({
             message.channel.send(user + ' has been **muted**.');
             user.send('You have been muted. No reason was given.');
           }
-          return;
-        })
-        .catch(() => {
           return;
         });
     }
