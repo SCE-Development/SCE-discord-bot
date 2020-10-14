@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 const { schema } = require('./api/resolvers/index.js');
-const { port } = 5000;
+const port = 5000;
 
 const startBot = async () => {
   const client = new Discord.Client();
@@ -32,7 +32,7 @@ const startBot = async () => {
 };
 
 // Conenct to mongoose
-const startDatabase = async () => {
+const startDatabase = () => {
   const url = `mongodb://localhost/${database}`;
   mongoose.connect(url, {
     autoIndex: true,
