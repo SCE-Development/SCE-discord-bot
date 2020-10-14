@@ -9,10 +9,26 @@ module.exports = new Command({
   permissions: 'admin',
   execute: async (message, args) => {
     const author = message.member;
-    const user = message.guild.member(args[0].match(/(\d+)/)[0]);
     // Check if author can mute
     if (!isOfficer(author)) {
       message.channel.send(author + ', you do not have that permission!');
+      return;
+    }
+    // Must mention a user to mute them
+    if (args.join(' ') == '') {
+      message.channel.send('You need to mention a user to mute!');
+      return;
+    }
+    const user = message.guild.member(
+      args[0].match(/(\d+)/)
+      && args[0].match(/(\d+)/)[0]);
+    if (!user) {
+      message.channel.send('You need to mention a user to mute!');
+      return;
+    }
+    // User must be in the server to mute them
+    if (!message.guild.member.id) {
+      message.channel.send('That user doesn\'t exist!');
       return;
     }
     // Officers cannot mute other officers
@@ -20,11 +36,7 @@ module.exports = new Command({
       message.channel.send(author + ', you cannot mute other officers!');
       return;
     }
-    if (args.join(' ') == '') {
-      message.channel.send('You need to give a user to mute.');
-      return;
-    }
-    const roles = message.guild;
+    const { roles } = message.guild;
     let reason = args.slice(1).join(' ');
     // Check if muted role exists
     let mutedRole = roles.array().filter(
@@ -53,27 +65,28 @@ module.exports = new Command({
         ADD_REACTIONS: false
       });
     }
-    // Checks if user has role: if has role, removes it; if not, adds it
+    // If user has muterole, remove it; if not, add it
     if (user.roles.array().map((x) => x.name).includes('Muted')) {
       await user.removeRole(targetRole)
         .then(() =>
-          message.channel.send(user + ' has been unmuted.')
+          message.channel.send(user + ' **unmuted**.'),
+        user.send('You were unmuted.')
         );
     }
     else {
       await user.addRole(targetRole)
         .then(() => {
           if (reason) {
-            message.channel.send(user + ' has been muted for ' + reason + '.');
-            message.user.send('You have been muted for ' + reason + '.');
+            message.channel.send(user + ' was muted, **' + reason + '**');
+            user.send('You were muted, **' + reason + '**');
           } else {
-            message.channel.send(user + ' has been muted.');
-            message.user.send('You have been muted. No reason was given.');
+            message.channel.send(user + ' has been **muted**.');
+            user.send('You have been muted. No reason was given.');
           }
           return;
         })
         .catch(() => {
-          message.channel.send('Error message.');
+          return;
         });
     }
   }
