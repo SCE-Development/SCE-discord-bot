@@ -14,7 +14,7 @@ module.exports = new Command({
       message.channel.send(author + ', you do not have that permission!');
       return;
     }
-    // Must mention a user to mute them
+    // Must mention a user in the server to mute them
     if (args.join(' ') == '') {
       message.channel.send('You need to mention a user to mute!');
       return;
@@ -24,11 +24,6 @@ module.exports = new Command({
       && args[0].match(/(\d+)/)[0]);
     if (!user) {
       message.channel.send('You need to mention a valid user to mute!');
-      return;
-    }
-    // User must be in the server to mute them
-    if (!user.id) {
-      message.channel.send('That user doesn\'t exist!');
       return;
     }
     // Officers cannot mute other officers
