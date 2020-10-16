@@ -12,12 +12,7 @@ module.exports = new Command({
   execute: (message, args) => {
 
     const author = message.member;
-/*
-    if (!isOfficer(author)) {
-      message.channel.send('You do not have sufficient permissions!');
-      return;
-    }
-*/
+
     const capitalize = (message) => (message.charAt(0).toUpperCase()
       + message.slice(1));
     const { commands } = message.client;
