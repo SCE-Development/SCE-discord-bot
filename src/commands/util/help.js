@@ -65,7 +65,8 @@ module.exports = new Command({
       }
 
       if (commandInfo.permissions === 'admin' && !isOfficer(author)) {
-        message.channel.send(`You do not have permissions to use this command!`);
+        message.channel
+          .send('You do not have permissions to use this command!');
         return;
       }
 
