@@ -71,7 +71,7 @@ module.exports = new Command({
       await user.addRole(targetRole)
         .then(() => {
           if (reason) {
-            message.channel.send(user + `was **muted**, *${reason}*`);
+            message.channel.send(user + ` was **muted**, *${reason}*`);
             user.send(`You were **muted**, *${reason}*`);
           } else {
             message.channel.send(user + ' has been **muted**.');

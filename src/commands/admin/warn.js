@@ -26,7 +26,7 @@ module.exports = new Command({
       }
       if (reason) {
         user.send(`You were **warned**, *${reason}*`);
-        message.channel.send(user + `You were **warned**, *${reason}*`);
+        message.channel.send(user + ` was **warned**, *${reason}*`);
       } else {
         user.send('You have been **warned**. No reason was given.');
         message.channel.send(user + ' has been **warned**.');
