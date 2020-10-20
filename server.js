@@ -3,7 +3,7 @@ const { prefix, API_TOKEN, database } = require('./config.json');
 const { MessageHandler } = require('./src/handlers/MessageHandler');
 const {
   VoiceChannelChangeHandler
-} = require('./src/VoiceChannelChangeHandler');
+} = require('./src/handlers/VoiceChannelChangeHandler');
 const mongoose = require('mongoose');
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
