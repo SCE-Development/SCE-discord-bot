@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 const { schema } = require('./api/resolvers/index.js');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 const port = 5000;
 
 const startBot = async () => {

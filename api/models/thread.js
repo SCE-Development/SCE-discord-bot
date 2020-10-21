@@ -45,7 +45,7 @@ ThreadTC.addRelation(
     },
     projection: { threadMessages: true }
   }
-)
+);
 
 module.exports = {
   Thread,
