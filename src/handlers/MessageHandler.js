@@ -2,7 +2,7 @@ const handlersPath = '.';
 const utilPath = '../util';
 
 const { CommandHandler } = require(handlersPath + '/CommandHandler');
-const { NonPrefixHandler } = require(handlersPath + '/nonPrefixHandler');
+const { NonPrefixHandler } = require(handlersPath + '/NonPrefixHandler');
 const { createNonPrefixRegex } = require(utilPath + '/NonPrefixRegexCreator');
 
 /**

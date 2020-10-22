@@ -44,7 +44,7 @@ class CommandHandler {
   }
 
   /**
-   * Function to handle when a user sends command on discord.
+   * Function to handle when a user sends a command on discord.
    * @param {string} message An event triggered by a user's input.
    * @requires message author is not a bot
    * Informs user if the command is on cooldown.
