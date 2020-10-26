@@ -1,9 +1,9 @@
 const Discord = require('discord.js');
 const { prefix, API_TOKEN, database } = require('./config.json');
-const { CommandHandler } = require('./src/CommandHandler');
+const { MessageHandler } = require('./src/handlers/MessageHandler');
 const {
   VoiceChannelChangeHandler
-} = require('./src/VoiceChannelChangeHandler');
+} = require('./src/handlers/VoiceChannelChangeHandler');
 const mongoose = require('mongoose');
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
@@ -12,16 +12,16 @@ const port = 5000;
 
 const startBot = async () => {
   const client = new Discord.Client();
-  const commandHandler = new CommandHandler('./commands', prefix);
+  const messageHandler = new MessageHandler(prefix);
   const vcChangeHandler = new VoiceChannelChangeHandler();
   client.once('ready', () => {
-    commandHandler.initialize();
+    messageHandler.initialize();
     client.user.setActivity('Managing the SCE');
     console.log('Discord bot live');
   });
 
   client.on('message', message => {
-    commandHandler.handleMessage(message);
+    messageHandler.handleMessage(message);
   });
 
   client.on('voiceStateUpdate', (oldMember, newMember) => {
@@ -31,7 +31,7 @@ const startBot = async () => {
   client.login(API_TOKEN);
 };
 
-// Conenct to mongoose
+// Connect to mongoose
 const startDatabase = () => {
   const url = `mongodb://localhost/${database}`;
   mongoose.connect(url, {
