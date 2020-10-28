@@ -13,7 +13,25 @@ const PointSchema = mongoose.Schema(
       required: true,
       unique: true
     },
-    points: {
+    totalPoints: {
+      type: Number,
+      min: [0, 'Cannot be negative'],
+      required: true,
+      default: 0,
+    },
+    weekPoints: {
+      type: Number,
+      min: [0, 'Cannot be negative'],
+      required: true,
+      default: 0,
+    },
+    monthPoints: {
+      type: Number,
+      min: [0, 'Cannot be negative'],
+      required: true,
+      default: 0,
+    },
+    yearPoints: {
       type: Number,
       min: [0, 'Cannot be negative'],
       required: true,

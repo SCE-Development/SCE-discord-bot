@@ -10,4 +10,4 @@ module.exports = new Command({
     // Display how many points you have and your rank
     // Display 4 ranks: per week/month/year/all-time
   }
-})
+});
