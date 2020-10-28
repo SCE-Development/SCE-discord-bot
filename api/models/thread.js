@@ -37,7 +37,7 @@ const ThreadTC = composeMongoose(Thread);
 
 // Add relations
 ThreadTC.addRelation(
-  'messages',
+  'threadMessages',
   {
     resolver: () => ThreadMessageTC.mongooseResolvers.dataLoaderMany(),
     prepareArgs: {
