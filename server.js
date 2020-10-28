@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 const { schema } = require('./api/resolvers/index.js');
+const bodyParser = require('body-parser');
 const port = 5000;
 
 const startBot = async () => {
@@ -56,11 +57,13 @@ const startServer = async () => {
   });
   // Express app
   const app = express();
+  app.use(bodyParser.urlencoded({ extended: true }));
 
   server.applyMiddleware({ app });
 
   // start app
   app.listen(port, () => console.log(`Server running at port ${port}`));
+
 };
 
 

@@ -2,6 +2,7 @@
     "API_TOKEN": "token goes here",
     "database": "Discord",
     "EVENTS_CAL": "",
+    "DISCORD_API_URL": "http://localhost:5000",
     "OfficerRole": "XXXXXXXXXXXXXXXXXX",
     "prefix": "s!",
     "SCE_CLOUD_API_URL": "http://localhost:8082"
