@@ -81,7 +81,9 @@ module.exports = new Command({
           return;
         }
         if (field == 'aliases') infoText = info.join(', ');
-        if (field != 'name' && field != 'aliases' && field != 'example') infoText = capitalize(infoText);
+        if (field != 'name' && field != 'aliases' && field != 'example') {
+          infoText = capitalize(infoText);
+        }
 
         helpEmbed.addField(capitalize(field), infoText);
       });
