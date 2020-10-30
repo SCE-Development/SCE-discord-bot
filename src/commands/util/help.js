@@ -5,7 +5,7 @@ const Command = require('../Command');
 module.exports = new Command({
   name: 'help',
   description: 'List commands and info about commands',
-  params: '`s!help [commandName]`',
+  example: '`s!help [commandName]`',
   category: 'information',
   aliases: ['commands'],
   permissions: 'general',

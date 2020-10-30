@@ -5,7 +5,7 @@ module.exports = new Command({
   name: 'ban',
   description: 'Ban someone',
   category: 'Server management',
-  aliases: ['ban'],
+  aliases: [],
   permissions: 'admin',
   execute: (message, args) => {
     if (args.join(' ') == '') {
