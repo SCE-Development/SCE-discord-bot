@@ -3,7 +3,6 @@ module.exports = class Command {
     this.name = args.name;
     this.aliases = args.aliases;
     this.description = args.description;
-    this.params = args.params;
     this.example = args.example;
     this.permissions = args.permissions;
     this.category = args.category;

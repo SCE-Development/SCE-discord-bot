@@ -71,16 +71,18 @@ module.exports = new Command({
       }
 
       const helpEmbed = new Discord.RichEmbed()
-        .setColor('#ccffff')
-        .setTitle(capitalize(command));
+        .setColor('#ccffff');
       
       Object.entries(commandInfo).forEach(([field, info]) => {
         if (field == 'executeCommand' || !info || info.length == 0) return;
         let infoText = info;
-        if (field == 'aliases') infoText = info.join(', ');
-        if (field != 'name' && field != 'aliases' && field != 'example') {
-          infoText = capitalize(infoText);
+        if (field == 'name') {
+          helpEmbed.setTitle(capitalize(infoText));
+          return;
         }
+        if (field == 'aliases') infoText = info.join(', ');
+        if (field != 'name' && field != 'aliases' && field != 'example') infoText = capitalize(infoText);
+
         helpEmbed.addField(capitalize(field), infoText);
       });
       message.channel.send(helpEmbed);
