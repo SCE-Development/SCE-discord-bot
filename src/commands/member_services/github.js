@@ -12,10 +12,11 @@ module.exports = new Command({
   name: 'github',
   description: 'Displays following information from SCE github repos:\
   Contributor leaderboard, Pull requests, merged commits',
-  category: 'github',
   aliases: ['git'],
+  example: 's!git',
   permissions: 'general',
-
+  category: 'github',
+  disabled: true,
   execute: (message, args) => {
     const messageGenerator = new GithubMessageGenerator();
 

@@ -8,10 +8,11 @@ const { fetchEvents } = require('../../util/EventFetcher');
 module.exports = new Command({
   name: 'event',
   description: 'Displays upcoming events from the SCE calendar.',
-  category: 'information',
   aliases: ['events', 'calendar'],
+  example: 's!events',
   permissions: 'general',
-
+  category: 'information',
+  disabled: true,
   execute: (message, args) => {
     const numOfEvents = args[0] || 3;
     fetchEvents(numOfEvents)

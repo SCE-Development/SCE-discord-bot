@@ -83,6 +83,7 @@ class CommandHandler {
    */
   executeCommand(commandName, message, args) {
     const command = this.commandMap.get(commandName);
+
     try {
       command.execute(message, args);
     } catch (Exception) { }

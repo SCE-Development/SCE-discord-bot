@@ -5,10 +5,10 @@ const Command = require('../Command');
 module.exports = new Command({
   name: 'help',
   description: 'List commands and info about commands',
-  example: '`s!help [commandName]`',
-  category: 'information',
   aliases: ['commands'],
+  example: 's!help [commandName]',
   permissions: 'general',
+  category: 'information',
   execute: (message, args) => {
 
     const author = message.member;
@@ -72,7 +72,8 @@ module.exports = new Command({
 
       const helpEmbed = new Discord.RichEmbed()
         .setColor('#ccffff');
-      
+      let noAlias = true;
+
       Object.entries(commandInfo).forEach(([field, info]) => {
         if (field == 'executeCommand' || !info || info.length == 0) return;
         let infoText = info;
@@ -80,12 +81,26 @@ module.exports = new Command({
           helpEmbed.setTitle(capitalize(infoText));
           return;
         }
-        if (field == 'aliases') infoText = info.join(', ');
+
+        if (field == 'aliases') {
+          infoText = info.join(', ');
+          noAlias = false;
+        }
         if (field != 'name' && field != 'aliases' && field != 'example') {
           infoText = capitalize(infoText);
         }
 
-        helpEmbed.addField(capitalize(field), infoText);
+        if (field == 'description') {
+          helpEmbed.addField(capitalize(field), infoText, false);
+          return;
+        }
+
+        if (field == 'permissions') {
+          helpEmbed.addField('\u200b', '\u200b', true);
+          if (noAlias) helpEmbed.addField('\u200b', '\u200b', true);
+        }
+
+        helpEmbed.addField(capitalize(field), infoText, true);
       });
       message.channel.send(helpEmbed);
     }

@@ -4,9 +4,10 @@ const { isOfficer } = require('../../util/Permission');
 module.exports = new Command({
   name: 'ban',
   description: 'Ban someone',
-  category: 'Server management',
   aliases: [],
+  example: 's!ban @user <message>',
   permissions: 'admin',
+  category: 'Server management',
   execute: (message, args) => {
     if (args.join(' ') == '') {
       message.channel.send('You need to give a user to ban');
