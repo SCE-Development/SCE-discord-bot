@@ -18,7 +18,7 @@ module.exports = new Command({
     }
     const targetClass = args[0].toLowerCase();
 
-    // Assign the role
+    // Get role to be assigned
     let classRole = roles.array().filter(
       (x) => x.name == targetClass
     );
@@ -55,9 +55,10 @@ module.exports = new Command({
     // If role exists - change its permissions
     if (classRole.length > 0) {
       targetRole = classRole[0];
-      // Assign the role to the user
 
+      // Assign the role to the user
       if (author.roles.array().map((x) => x.name).includes(targetClass)) {
+        // If user has the role, remove them from the class
         await author.removeRole(targetRole)
           .then(() =>
             message.channel.send(author + ` has left the ${targetClass} `
@@ -65,6 +66,7 @@ module.exports = new Command({
           );
       }
       else {
+        // Subscribe user to a class
         await author.addRole(targetRole)
           .then(() =>
             message.channel.send(author + ` has joined ${targetClass}`)
