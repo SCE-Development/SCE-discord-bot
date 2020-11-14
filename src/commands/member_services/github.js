@@ -19,7 +19,7 @@ module.exports = new Command({
   execute: (message, args) => {
     const messageGenerator = new GithubMessageGenerator();
 
-    switch(args[0]) {
+    switch (args[0]) {
       case 'pr':
         messageGenerator.generatePullRequestMessage(args[1])
           .then(prMessage => {
@@ -29,7 +29,7 @@ module.exports = new Command({
             message.channel.send(_);
           });
         break;
-    
+
       case 'leaderboard':
         messageGenerator.generateLeaderboardMessage(args[1])
           .then(leaderboardMessage => {
@@ -44,7 +44,7 @@ module.exports = new Command({
 
       case 'commits':
         // Check if 3rd argument (optional) is a number
-        if(args[2] && isNaN(args[2])) {
+        if (args[2] && isNaN(args[2])) {
           message.channel.send(
             `Invalid Value: ${args[2]} Please enter a number`
           );

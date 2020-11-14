@@ -5,5 +5,5 @@
     "DISCORD_API_URL": "http://localhost:5000",
     "OfficerRole": "XXXXXXXXXXXXXXXXXX",
     "prefix": "s!",
-    "SCE_CLOUD_API_URL": "http://localhost:8082"
+    "SCE_API_URL": "http://sce.engr.sjsu.edu"
 }

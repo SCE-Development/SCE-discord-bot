@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { SCE_GOOGLE_API_URL } = require('../../config.json');
+const { SCE_API_URL } = require('../../config.json');
 const { EVENTS_CAL } = require('../../config.json');
 
 const calendar = ':calendar_spiral:';
@@ -12,9 +12,9 @@ const clock = ':clock3:';
  */
 function parseDate(dateTime) {
   const todaysDate = new Date();
-  const days = 
+  const days =
     ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
-  let months = 
+  let months =
     ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
       'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
   const eventDay = days[dateTime.getDay()];
@@ -53,7 +53,7 @@ function fetchEvents(numOfEvents) {
     let eventData = [];
     let fields = [];
     // eslint-disable-next-line
-      fetch(`${SCE_GOOGLE_API_URL}/api/Calendar/getCalendarEvents?calendarID=${EVENTS_CAL}&numOfEvents=${numOfEvents}`)
+    fetch(`${SCE_API_URL}/cloudapi/Calendar/getCalendarEvents?calendarID=${EVENTS_CAL}&numOfEvents=${numOfEvents}`)
       .then(data => data.json())
       .then(data => {
         eventData = data.calendarEvents;

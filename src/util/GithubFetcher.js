@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { SCE_GITHUB_API_URL } = require('../../config.json');
+const { SCE_API_URL } = require('../../config.json');
 
 /**
  * Class that communicates with SCE server's Github API to
@@ -9,7 +9,7 @@ class GithubFetcher {
   /**
    * Creates GithubFetcher object
    */
-  constructor() {}
+  constructor() { }
 
   /**
    * This function retrieves a list of users that have contributed to a
@@ -19,8 +19,8 @@ class GithubFetcher {
    */
   fetchLeaderboard(repo) {
     return new Promise((resolve, reject) => {
-      fetch(`${SCE_GITHUB_API_URL}/api/github/` +
-      `getContributorsInPastMonthFromRepo?repository=${repo}`
+      fetch(`${SCE_API_URL}/cloudapi/github/` +
+        `getContributorsInPastMonthFromRepo?repository=${repo}`
       )
         .then(data => data.json())
         .then(object => {
@@ -40,7 +40,7 @@ class GithubFetcher {
    */
   fetchPullRequests(repo) {
     return new Promise((resolve, reject) => {
-      fetch(`${SCE_GITHUB_API_URL}/api/github/` +
+      fetch(`${SCE_API_URL}/cloudapi/github/` +
         `getPullRequestsFromRepo?repository=${repo}`
       )
         .then(data => data.json())
@@ -65,7 +65,7 @@ class GithubFetcher {
    */
   fetchCommits(repo) {
     return new Promise((resolve, reject) => {
-      fetch(`${SCE_GITHUB_API_URL}/api/github/` +
+      fetch(`${SCE_API_URL}/cloudapi/github/` +
         `getCommitsFromRepo?repository=${repo}`
       )
         .then(data => data.json())
