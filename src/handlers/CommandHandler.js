@@ -36,8 +36,10 @@ class CommandHandler {
       for (const file in commandFiles[directory]) {
         const command = require(`${commandsPath}/${directory}/${file}`);
         if (command instanceof Command) {
-          this.commandMap.set(command.name, command);
-          command.aliases.map(alias => this.commandMap.set(alias, command));
+          if (!command.disabled) {
+            this.commandMap.set(command.name, command);
+            command.aliases.map(alias => this.commandMap.set(alias, command));
+          }
         }
       }
     }

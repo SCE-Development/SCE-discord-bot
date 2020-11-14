@@ -95,6 +95,11 @@ module.exports = new Command({
           return;
         }
 
+        if (field == 'example') {
+          helpEmbed.addField(capitalize(field), "`" + infoText + "`", true);
+          return;
+        }
+
         if (field == 'permissions') {
           helpEmbed.addField('\u200b', '\u200b', true);
           if (noAlias) helpEmbed.addField('\u200b', '\u200b', true);
