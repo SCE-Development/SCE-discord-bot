@@ -25,8 +25,8 @@ module.exports = new Command({
       const response = {responseData: [
         {
           threadID: 1000,
-          topic: 'Test Message',
-          threadMessages: [{ messageID: '778096468958380042' }]
+          topic: 'Long Message',
+          threadMessages: [{ messageID: '778111828462796810' }]
         },
         {
           threadID: 1001,
@@ -44,7 +44,8 @@ module.exports = new Command({
         const embed = new Discord.RichEmbed()
           .setTitle('Active Threads')
           .setDescription(
-            'All threads in this channel with activity in the past week'
+            'Use `|thread id|` to view the full thread\
+            or `|thread id| <message>` to add to the thread'
           );
 
         for (let i = 0; i < response.responseData.length; i++) {
@@ -58,17 +59,21 @@ module.exports = new Command({
           if (!checkIfActive(lastMessage)) {
             break;
           }
+          const blurb = (
+            lastMessage.member.displayName + 
+            ' on ' + 
+            lastMessage.createdAt.toLocaleDateString() + 
+            ', ' + 
+            lastMessage.content
+          ).substring(0, 150);
           // add the thread and display the last message
           if (thread.topic) {
             embed.addField(
               thread.topic + ' (id: ' + thread.threadID + ')',
-              lastMessage.content
+              blurb
             );
           } else {
-            embed.addField(
-              ' (id: ' + thread.threadID + ')',
-              lastMessage.content
-            );
+            embed.addField(' (id: ' + thread.threadID + ')', blurb);
           }
         }
 
@@ -82,6 +87,8 @@ module.exports = new Command({
       const response = { data: { threadID: 1000 } };
       const threadEmbed = new Discord.RichEmbed()
         .setTitle('New Thread')
+        .setDescription('Use `|thread id|` to view the full thread\
+        or `|thread id| <message>` to add to the thread')
         .addField('ID', response.data.threadID)
         .addField('Topic', message.content);
       message.channel.send(threadEmbed);

@@ -26,6 +26,8 @@ module.exports = new Command({
         const response = { data: { threadID: 1000 } };
         const threadEmbed = new Discord.RichEmbed()
           .setTitle('Created new thread')
+          .setDescription('Use `|thread id|` to view the full thread\
+          or `|thread id| <message>` to add to the thread')
           .addField('id', response.data.threadID);
         // check if there's a topic
         if (topic.length > 0) {
