@@ -87,17 +87,13 @@ const ThreadMutation = {
     resolve: async (source, args) => {
       const { threadID } = args;
       const thread = await Thread.findOne({ threadID: threadID });
-      console.log(thread);
       // error
       if (!thread) return null;
       // delete all threadMessages
-      const threadMessages = thread.threadMessages;
-      for (let i = 0; i < threadMessages.length; i++) {
-        const id = threadMessages[i];
-        await ThreadMessage.deleteOne({ _id: id });
-      }
-      console.log('done');
-      await Thread.deleteOne({ threadID: threadID });
+      await ThreadMessage.deleteMany({ _id: { $in: thread.threadMessages } });
+      await Thread.deleteOne({ _id: thread._id });
+
+      return thread;
     },
   },
 };
