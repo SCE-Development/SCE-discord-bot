@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const { isOfficer } = require('../../util/Permission');
 const Command = require('../Command');
-const { ThreadMutation } = require('../../APIFunctions/thread');
+const { CREATE_THREAD } = require('../../APIFunctions/thread');
 
 module.exports = new Command({
   name: 'threadmanager',
@@ -24,22 +24,18 @@ module.exports = new Command({
         // Create a thread
         const topic = args.slice(1).join(' ');
         // todo generate threadID
-        const threadID = 1000;
-        const thread = {
-          threadID: threadID,
-          creatorID: message.member.id,
-          guildID: message.guild.id,
-          messageID: message.id,
-        };
+        const threadID = '2002';
         const createThread = async () =>
-          await ThreadMutation.threadCreate(thread);
+          await CREATE_THREAD({
+            threadID: threadID,
+            creatorID: message.member.id,
+            guildID: message.guild.id,
+            topic: topic,
+            messageID: message.id,
+          });
 
-        if (topic.length > 0) {
-          thread.topic = topic;
-        }
-
-        createThread().then((thread) => {
-          if (thread === null) {
+        createThread().then((response) => {
+          if (response.error === true) {
             // Error
             message.channel.send('Oops! Could not create thread ' + topic);
             return;
@@ -83,17 +79,17 @@ module.exports = new Command({
           return;
         }
 
-        const removeThread = async () =>
-          await ThreadMutation.threadDelete({ threadID: id });
+        // const removeThread = async () =>
+        //   await DELETE_THREAD({ threadID: id });
 
-        removeThread().then((thread) => {
-          if (thread === null) {
-            // Error
-            message.channel.send('Oops! Could not remove thread ' + id);
-            return;
-          }
-          message.channel.send('Removed thread ' + id);
-        });
+        // removeThread().then((response) => {
+        //   if (response.error === true) {
+        //     // Error
+        //     message.channel.send('Oops! Could not remove thread ' + id);
+        //   } else {
+        //     message.channel.send('Removed thread ' + id);
+        //   }
+        // });
         break;
       }
 

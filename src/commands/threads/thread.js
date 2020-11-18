@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const Command = require('../Command');
-const { ThreadQuery, ThreadMutation } = require('../../APIFunctions/thread');
+const { THREAD_QUERY, CREATE_THREAD } = require('../../APIFunctions/thread');
 
 module.exports = new Command({
   name: 'thread',
@@ -23,7 +23,11 @@ module.exports = new Command({
         message.channel.fetchMessage(id).then((response) => response);
 
       const getActiveThreads = async () => {
-        const threads = await ThreadQuery.threadMany({});
+        const response = await THREAD_QUERY();
+        if (response.error === true) {
+          // Error
+          return null;
+        }
         const embed = new Discord.RichEmbed()
           .setTitle('Active Threads')
           .setDescription(
@@ -31,8 +35,8 @@ module.exports = new Command({
             `|thread id| <message>` to add to the thread'
           );
 
-        for (let i = 0; i < threads.responseData.length; i++) {
-          const thread = threads.responseData[i];
+        for (let i = 0; i < response.responseData.length; i++) {
+          const thread = response.responseData[i];
 
           let lastMessage = await requestMessage(
             thread.threadMessages[thread.threadMessages.length - 1].messageID
@@ -63,13 +67,19 @@ module.exports = new Command({
         return embed;
       };
 
-      getActiveThreads().then((embed) => message.channel.send(embed));
+      getActiveThreads().then((embed) => {
+        if (embed === null) {
+          message.channel.send('This channel has no threads');
+        } else {
+          message.channel.send(embed);
+        }
+      });
     } else {
       // Start new thread
       // todo generate threadID
-      const threadID = 1000;
+      const threadID = '1009';
       const createThread = async () =>
-        await ThreadMutation.threadCreate({
+        await CREATE_THREAD({
           threadID: threadID,
           creatorID: message.member.id,
           guildID: message.guild.id,
@@ -77,10 +87,10 @@ module.exports = new Command({
           messageID: message.id,
         });
 
-      createThread().then((thread) => {
-        if (thread === null) {
+      createThread().then((response) => {
+        if (response.error === true) {
           // error
-          message.channel.send('Oops! Could not create thread.');
+          message.channel.send('Oops! Could not create thread ' + param);
           return;
         }
         message.channel.send(
