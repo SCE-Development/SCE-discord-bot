@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const { isOfficer } = require('../../util/Permission');
 const Command = require('../Command');
+const { ThreadMutation } = require('../../APIFunctions/thread');
 
 module.exports = new Command({
   name: 'threadmanager',
@@ -22,26 +23,45 @@ module.exports = new Command({
       case 'create': {
         // Create a thread
         const topic = args.slice(1).join(' ');
-        // todo implement mutation
-        const response = { data: { threadID: 1000 } };
-        const threadEmbed = new Discord.RichEmbed()
-          .setTitle('Created new thread')
-          .setDescription(
-            'Use `|thread id|` to view the full thread or\
-          `|thread id| <message>` to add to the thread'
-          )
-          .addField('id', response.data.threadID);
-        // check if there's a topic
+        // todo generate threadID
+        const threadID = 1000;
+        const thread = {
+          threadID: threadID,
+          creatorID: message.member.id,
+          guildID: message.guild.id,
+          messageID: message.id,
+        };
+        const createThread = async () =>
+          await ThreadMutation.threadCreate(thread);
+
         if (topic.length > 0) {
-          threadEmbed.addField('topic', topic);
+          thread.topic = topic;
         }
-        message.channel.send(threadEmbed);
+
+        createThread().then((thread) => {
+          if (thread === null) {
+            // Error
+            message.channel.send('Oops! Could not create thread ' + topic);
+            return;
+          }
+          message.channel.send(
+            new Discord.RichEmbed()
+              .setTitle('New Thread')
+              .setDescription(
+                'Use `|thread id|` to view the full thread or\
+                `|thread id| <message>` to add to the thread'
+              )
+              .addField('ID', threadID)
+              .addField('Topic', topic)
+          );
+        });
         break;
       }
       case 'remove':
       case 'rm': {
-        // check if a thread id was supplied
+        // Remove a thread
         if (args.length < 2) {
+          // Help
           message.channel.send(
             new Discord.RichEmbed()
               .setColor('#ccffff')
@@ -51,8 +71,10 @@ module.exports = new Command({
           );
           return;
         }
+
         const id = args.slice(1).join('').replace(/\s+/, '');
         if (!/^\d{1,18}/.test(id)) {
+          // Invalid id
           message.channel.send(
             'Could not remove thread ' +
               id +
@@ -60,15 +82,18 @@ module.exports = new Command({
           );
           return;
         }
-        // todo implment mutation
-        const response = { error: true };
-        if (response.error) {
-          message.channel.send(
-            'Error removing thread ' + id + '. Perhaps there is a typo?'
-          );
-        } else {
+
+        const removeThread = async () =>
+          await ThreadMutation.threadDelete({ threadID: id });
+
+        removeThread().then((thread) => {
+          if (thread === null) {
+            // Error
+            message.channel.send('Oops! Could not remove thread ' + id);
+            return;
+          }
           message.channel.send('Removed thread ' + id);
-        }
+        });
         break;
       }
 

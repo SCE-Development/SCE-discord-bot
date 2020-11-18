@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const Command = require('../Command');
+const { ThreadQuery, ThreadMutation } = require('../../APIFunctions/thread');
 
 module.exports = new Command({
   name: 'thread',
@@ -10,38 +11,19 @@ module.exports = new Command({
   params: 'none (view threads), <topic> (start new thread)',
   example: 's!thread <topic (optional)>',
   execute: (message, args) => {
-    message.content = args.join(' ').trim();
+    const param = args.join(' ').trim();
 
-    if (message.content.length === 0) {
-      // show all active threads
+    if (param.length === 0) {
+      // Show all active threads
       const CURRENT_DATE = new Date();
       const MS_PER_DAY = 1000 * 60 * 60 * 24;
       const checkIfActive = (message) =>
         (CURRENT_DATE - message.createdAt) / MS_PER_DAY < 7;
       const requestMessage = (id) =>
         message.channel.fetchMessage(id).then((response) => response);
-      // todo implement query
-      const response = {
-        responseData: [
-          {
-            threadID: 1000,
-            topic: 'Long Message',
-            threadMessages: [{ messageID: '778111828462796810' }],
-          },
-          {
-            threadID: 1001,
-            topic: null,
-            threadMessages: [{ messageID: '778127742109483008' }],
-          },
-          {
-            threadID: 1002,
-            topic: 'Old Message',
-            threadMessages: [{ messageID: '770856956449652776' }],
-          },
-        ],
-      };
 
-      const makeEmbed = async () => {
+      const getActiveThreads = async () => {
+        const threads = await ThreadQuery.threadMany({});
         const embed = new Discord.RichEmbed()
           .setTitle('Active Threads')
           .setDescription(
@@ -49,14 +31,14 @@ module.exports = new Command({
             `|thread id| <message>` to add to the thread'
           );
 
-        for (let i = 0; i < response.responseData.length; i++) {
-          const thread = response.responseData[i];
+        for (let i = 0; i < threads.responseData.length; i++) {
+          const thread = threads.responseData[i];
 
           let lastMessage = await requestMessage(
             thread.threadMessages[thread.threadMessages.length - 1].messageID
           );
 
-          // do not display messages older than a week old
+          // Do not display messages older than a week old
           if (!checkIfActive(lastMessage)) {
             break;
           }
@@ -67,7 +49,7 @@ module.exports = new Command({
             ', ' +
             lastMessage.content
           ).substring(0, 150);
-          // add the thread and display the last message
+          // Add the thread and display the last message
           if (thread.topic) {
             embed.addField(
               thread.topic + ' (id: ' + thread.threadID + ')',
@@ -81,20 +63,37 @@ module.exports = new Command({
         return embed;
       };
 
-      makeEmbed().then((embed) => message.channel.send(embed));
+      getActiveThreads().then((embed) => message.channel.send(embed));
     } else {
-      // start new thread
-      // todo implement query
-      const response = { data: { threadID: 1000 } };
-      const threadEmbed = new Discord.RichEmbed()
-        .setTitle('New Thread')
-        .setDescription(
-          'Use `|thread id|` to view the full thread or\
-          `|thread id| <message>` to add to the thread'
-        )
-        .addField('ID', response.data.threadID)
-        .addField('Topic', message.content);
-      message.channel.send(threadEmbed);
+      // Start new thread
+      // todo generate threadID
+      const threadID = 1000;
+      const createThread = async () =>
+        await ThreadMutation.threadCreate({
+          threadID: threadID,
+          creatorID: message.member.id,
+          guildID: message.guild.id,
+          topic: param,
+          messageID: message.id,
+        });
+
+      createThread().then((thread) => {
+        if (thread === null) {
+          // error
+          message.channel.send('Oops! Could not create thread.');
+          return;
+        }
+        message.channel.send(
+          new Discord.RichEmbed()
+            .setTitle('New Thread')
+            .setDescription(
+              'Use `|thread id|` to view the full thread or\
+              `|thread id| <message>` to add to the thread'
+            )
+            .addField('ID', threadID)
+            .addField('Topic', param)
+        );
+      });
     }
   },
 });
