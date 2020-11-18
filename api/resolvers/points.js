@@ -3,24 +3,27 @@ const {
 } = require('../models/points');
 
 const PointQuery = {
-  pointById: PointTC.mongooseResolvers.findById(),
-  pointByIds: PointTC.mongooseResolvers.findByIds(),
   pointOne: PointTC.mongooseResolvers.findOne(),
   pointMany: PointTC.mongooseResolvers.findMany(),
   pointCount: PointTC.mongooseResolvers.count(),
   pointConnection: PointTC.mongooseResolvers.connection(),
-  pointPagination: PointTC.mongooseResolvers.pagination(),
+  pointPagination: PointTC.mongooseResolvers.pagination(), // does this...
+  // allow to check points with Discord react/page feature like clihelp?
 };
 
+// define these I think
 const PointMutation = {
-  pointCreateOne: PointTC.mongooseResolvers.createOne(),
-  pointCreateMany: PointTC.mongooseResolvers.createMany(),
-  pointUpdateById: PointTC.mongooseResolvers.updateById(),
-  pointUpdateOne: PointTC.mongooseResolvers.updateOne(),
-  pointUpdateMany: PointTC.mongooseResolvers.updateMany(),
-  pointRemoveById: PointTC.mongooseResolvers.removeById(),
-  pointRemoveOne: PointTC.mongooseResolvers.removeOne(),
-  pointRemoveMany: PointTC.mongooseResolvers.removeMany(),
+  pointUpdateOne: {
+    type: PointTC,
+    // what triggers this goes here. so a message?
+    args: {}
+  },
+  // resets the point of week/month/year to 0
+  pointReset: {
+    type: PointTC,
+    // what triggers this goes here. so a message?
+    args: {}
+  }
 };
 
 module.exports = { PointQuery, PointMutation };
