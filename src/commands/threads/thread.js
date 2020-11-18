@@ -20,9 +20,9 @@ module.exports = new Command({
     if (param === 'active' || param === 'all') {
       // Show threads
       const getThreads = async () => {
+        const response = await THREAD_QUERY();
         const getAll = param === 'all';
         const currentDate = new Date();
-        const response = await THREAD_QUERY();
         const embed = new Discord.RichEmbed().setDescription(
           'Use `|thread id|` to view the full thread or\
             `|thread id| <message>` to add to the thread'
@@ -76,36 +76,92 @@ module.exports = new Command({
 
       getThreads()
         .then((embed) => message.channel.send(embed))
-        .catch(() => message.channel.send('Oops! Could not query threads.'));
+        .catch(() =>
+          message.channel
+            .send('Oops! Could not query threads')
+            .then((msg) => msg.delete(10000))
+        );
     } else if (param.length > 0) {
       // Start new thread
-      // todo generate threadID
-      const threadID = '1';
+      // Confirm action
+      const confirmAction = async () => {
+        const confirmMessage = await message.channel.send(
+          new Discord.RichEmbed()
+            .setTitle('Start new thread?')
+            .addField('Topic', param)
+        );
+        confirmMessage.react('👍').then(() => confirmMessage.react('👎'));
 
-      const createThread = async () =>
-        await CREATE_THREAD({
-          threadID: threadID,
-          creatorID: message.member.id,
-          guildID: message.guild.id,
-          topic: param,
-          messageID: message.id,
-        });
-
-      createThread().then((response) => {
-        if (response.error) {
-          message.channel.send('Oops! Could not create thread ' + param);
-        } else {
-          message.channel.send(
-            new Discord.RichEmbed()
-              .setTitle('New Thread')
-              .setDescription(
-                'Use `|thread id|` to view the full thread or\
-                `|thread id| <message>` to add to the thread'
-              )
-              .addField('ID', response.responseData.id)
-              .addField('Topic', response.responseData.topic)
+        const filter = (reaction, user) => {
+          return (
+            ['👍', '👎'].includes(reaction.emoji.name) &&
+            user.id === message.author.id
           );
+        };
+
+        let confirmed = false;
+        await confirmMessage
+          .awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] })
+          .then((collected) => {
+            const reaction = collected.first();
+            confirmMessage.delete();
+            if (reaction.emoji.name === '👍') {
+              confirmed = true;
+            } else {
+              message.channel
+                .send('New thread canceled')
+                .then((msg) => msg.delete(10000));
+            }
+          })
+          .catch(() => {
+            confirmMessage.delete();
+            message.channel
+              .send('New thread canceled')
+              .then((msg) => msg.delete(10000));
+          });
+
+        return confirmed;
+      };
+      // Create thread
+      confirmAction().then((confirmed) => {
+        if (!confirmed) {
+          message.delete();
+          return;
         }
+        // todo generate threadID
+        const threadID = '1';
+
+        const createThread = async () =>
+          await CREATE_THREAD({
+            threadID: threadID,
+            creatorID: message.member.id,
+            guildID: message.guild.id,
+            topic: param,
+            messageID: message.id,
+          });
+
+        createThread().then((response) => {
+          if (response.error) {
+            // Error
+            message.delete();
+            message.channel
+              .send('Oops! Could not create thread ' + param)
+              .then((msg) => {
+                msg.delete(20000);
+              });
+          } else {
+            message.channel.send(
+              new Discord.RichEmbed()
+                .setTitle('New Thread')
+                .setDescription(
+                  'Use `|thread id|` to view the full thread or\
+                `|thread id| <message>` to add to the thread'
+                )
+                .addField('ID', response.responseData.threadID)
+                .addField('Topic', response.responseData.topic)
+            );
+          }
+        });
       });
     } else {
       // Help
@@ -113,8 +169,10 @@ module.exports = new Command({
         new Discord.RichEmbed()
           .setColor('#ccffff')
           .setTitle('Thread')
-          .setDescription('View or start threads\nUse `|thread id|` to view\
-          the full thread or `|thread id| <message>` to add to the thread')
+          .setDescription(
+            'View or start threads\nUse `|thread id|` to view\
+          the full thread or `|thread id| <message>` to add to the thread'
+          )
           .addField('s!thread all', 'View all threads')
           .addField('s!thread active', 'View active threads')
           .addField('s!thread <topic>', 'Start a new thread')
