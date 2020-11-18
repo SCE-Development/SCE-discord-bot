@@ -41,7 +41,7 @@ const ThreadMutation = {
       });
       if (!thread) throw new UserInputError('Thread update returned null');
       return thread;
-    }
+    },
   },
   threadCreate: {
     type: ThreadTC,
@@ -53,13 +53,7 @@ const ThreadMutation = {
       messageID: 'String!',
     },
     resolve: async (source, args) => {
-      const {
-        threadID,
-        creatorID,
-        guildID,
-        topic,
-        messageID,
-      } = args;
+      const { threadID, creatorID, guildID, topic, messageID } = args;
       const message = await ThreadMessage.create({
         messageID
       }).catch(() => {
@@ -85,8 +79,27 @@ const ThreadMutation = {
       });
       if (!thread) throw new UserInputError('Thread creation returned null');
       return thread;
-    }
-  }
+    },
+  },
+  threadDelete: {
+    args: { threadID: 'String!' },
+    type: ThreadTC,
+    resolve: async (source, args) => {
+      const { threadID } = args;
+      const thread = await Thread.findOne({ threadID: threadID });
+      console.log(thread);
+      // error
+      if (!thread) return null;
+      // delete all threadMessages
+      const threadMessages = thread.threadMessages;
+      for (let i = 0; i < threadMessages.length; i++) {
+        const id = threadMessages[i];
+        await ThreadMessage.deleteOne({ _id: id });
+      }
+      console.log('done');
+      await Thread.deleteOne({ threadID: threadID });
+    },
+  },
 };
 
 module.exports = { ThreadQuery, ThreadMutation };
