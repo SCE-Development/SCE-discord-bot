@@ -11,14 +11,15 @@ module.exports = new Command({
   aliases: [],
   permissions: 'general',
   params:
-    '`active` (view active threads), `all` (view all threads),\
-  `<topic>` (start new thread)',
+    '`active` (view active), `all` (view all),\
+  `<topic>` (start thread), `none` (start thread without topic)',
   example: 's!thread <param (optional)>',
   execute: (message, args) => {
     const param = args.join(' ').trim();
 
     if (param === 'active' || param === 'all') {
       // Show threads
+      message.delete();
       const getThreads = async () => {
         const response = await THREAD_QUERY();
         const getAll = param === 'all';
@@ -54,13 +55,13 @@ module.exports = new Command({
             lastMessage.content
           ).substring(0, 150);
           // Add the thread and display the last message
-          if (thread.topic) {
+          if (thread.topic === 'undefined') {
+            embed.addField(' (id: ' + thread.threadID + ')', blurb);
+          } else {
             embed.addField(
               thread.topic + ' (id: ' + thread.threadID + ')',
               blurb
             );
-          } else {
-            embed.addField(' (id: ' + thread.threadID + ')', blurb);
           }
         }
         if (getAll) {
@@ -90,7 +91,10 @@ module.exports = new Command({
             .setTitle('Start new thread?')
             .addField('Topic', param)
         );
-        confirmMessage.react('👍').then(() => confirmMessage.react('👎'));
+        confirmMessage
+          .react('👍')
+          .then(() => confirmMessage.react('👎'))
+          .catch(() => null /* User reacts before bot (message is deleted) */);
 
         const filter = (reaction, user) => {
           return (
@@ -131,14 +135,17 @@ module.exports = new Command({
         // todo generate threadID
         const threadID = '1';
 
-        const createThread = async () =>
-          await CREATE_THREAD({
-            threadID: threadID,
-            creatorID: message.member.id,
-            guildID: message.guild.id,
-            topic: param,
-            messageID: message.id,
-          });
+        const mutation = {
+          threadID: threadID,
+          creatorID: message.member.id,
+          guildID: message.guild.id,
+          messageID: message.id,
+        };
+        if (param !== 'none') {
+          mutation.topic = param;
+        }
+
+        const createThread = async () => await CREATE_THREAD(mutation);
 
         createThread().then((response) => {
           if (response.error) {
@@ -150,6 +157,9 @@ module.exports = new Command({
                 msg.delete(20000);
               });
           } else {
+            if (response.responseData.topic === 'undefined') {
+              response.responseData.topic = 'none';
+            }
             message.channel.send(
               new Discord.RichEmbed()
                 .setTitle('New Thread')
@@ -165,6 +175,7 @@ module.exports = new Command({
       });
     } else {
       // Help
+      message.delete();
       message.channel.send(
         new Discord.RichEmbed()
           .setColor('#ccffff')
@@ -175,7 +186,8 @@ module.exports = new Command({
           )
           .addField('s!thread all', 'View all threads')
           .addField('s!thread active', 'View active threads')
-          .addField('s!thread <topic>', 'Start a new thread')
+          .addField('s!thread <topic>', 'Start a new thread with a topic')
+          .addField('s!thread none', 'Start a new thread without a topic')
       );
     }
   },

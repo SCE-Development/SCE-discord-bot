@@ -27,7 +27,10 @@ module.exports = new Command({
         confirmEmbed.setTitle('Remove thread?').addField('ID', param);
       }
       const confirmMessage = await message.channel.send(confirmEmbed);
-      confirmMessage.react('👍').then(() => confirmMessage.react('👎'));
+      confirmMessage
+        .react('👍')
+        .then(() => confirmMessage.react('👎'))
+        .catch(() => null /* User reacts before bot (message is deleted) */);
 
       const filter = (reaction, user) => {
         return (
@@ -76,14 +79,17 @@ module.exports = new Command({
           // todo generate threadID
           const threadID = '2';
 
-          const createThread = async () =>
-            await CREATE_THREAD({
-              threadID: threadID,
-              creatorID: message.member.id,
-              guildID: message.guild.id,
-              topic: topic,
-              messageID: message.id,
-            });
+          const mutation = {
+            threadID: threadID,
+            creatorID: message.member.id,
+            guildID: message.guild.id,
+            messageID: message.id,
+          };
+          if (topic !== 'none') {
+            mutation.topic = topic;
+          }
+
+          const createThread = async () => await CREATE_THREAD(mutation);
 
           createThread().then((response) => {
             if (response.error) {
@@ -154,8 +160,18 @@ module.exports = new Command({
                 .send('Oops! Could not remove thread ' + id)
                 .then((msg) => msg.delete(10000));
             } else {
+              const removalMessage =
+                response.responseData.topic === 'undefined'
+                  ? 'Removed thread (id: ' +
+                    response.responseData.threadID +
+                    ')'
+                  : 'Removed thread ' +
+                    response.responseData.topic +
+                    ' (id: ' +
+                    response.responseData.threadID +
+                    ')';
               message.channel
-                .send('Removed thread ' + id)
+                .send(removalMessage)
                 .then((msg) => msg.delete(10000));
             }
           });
@@ -165,6 +181,7 @@ module.exports = new Command({
 
       default: {
         // Help
+        message.delete();
         message.channel.send(
           new Discord.RichEmbed()
             .setColor('#ccffff')
