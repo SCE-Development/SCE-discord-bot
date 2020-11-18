@@ -7,28 +7,29 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
 module.exports = new Command({
   name: 'thread',
   description: 'View active threads or start a new one',
-  category: 'custom threads',
+  category: 'threads',
   aliases: [],
   permissions: 'general',
-  params: 'none (view threads), <topic> (start new thread)',
-  example: 's!thread <topic (optional)>',
+  params:
+    '`active` (view active threads), `all` (view all threads),\
+  `<topic>` (start new thread)',
+  example: 's!thread <param (optional)>',
   execute: (message, args) => {
     const param = args.join(' ').trim();
 
-    if (param.length === 0) {
-      // Show all active threads
-      const getActiveThreads = async () => {
+    if (param === 'active' || param === 'all') {
+      // Show threads
+      const getThreads = async () => {
+        const getAll = param === 'all';
         const currentDate = new Date();
         const response = await THREAD_QUERY();
-        const embed = new Discord.RichEmbed()
-          .setTitle('Active Threads')
-          .setDescription(
-            'Use `|thread id|` to view the full thread or\
+        const embed = new Discord.RichEmbed().setDescription(
+          'Use `|thread id|` to view the full thread or\
             `|thread id| <message>` to add to the thread'
-          );
+        );
 
-        const checkIfActive = (message) =>
-          (currentDate - message.createdAt) / MS_PER_DAY < 7;
+        const checkIfInclude = (message) =>
+          getAll || (currentDate - message.createdAt) / MS_PER_DAY < 7;
         const requestMessage = (id) =>
           message.channel
             .fetchMessage(id)
@@ -42,7 +43,7 @@ module.exports = new Command({
           );
           // Catch messages from other channels and
           // do not display messages older than a week old
-          if (lastMessage === null || !checkIfActive(lastMessage)) {
+          if (lastMessage === null || !checkIfInclude(lastMessage)) {
             continue;
           }
           const blurb = (
@@ -62,16 +63,21 @@ module.exports = new Command({
             embed.addField(' (id: ' + thread.threadID + ')', blurb);
           }
         }
+        if (getAll) {
+          embed.setTitle('All Threads');
+        } else {
+          embed.setTitle('Active Threads');
+        }
         if (embed.fields.length === 0) {
-          embed.setFooter('No active threads in this channel.');
+          embed.setFooter('No threads found in this channel.');
         }
         return embed;
       };
 
-      getActiveThreads()
+      getThreads()
         .then((embed) => message.channel.send(embed))
         .catch(() => message.channel.send('Oops! Could not query threads.'));
-    } else {
+    } else if (param.length > 0) {
       // Start new thread
       // todo generate threadID
       const threadID = '1';
@@ -101,6 +107,18 @@ module.exports = new Command({
           );
         }
       });
+    } else {
+      // Help
+      message.channel.send(
+        new Discord.RichEmbed()
+          .setColor('#ccffff')
+          .setTitle('Thread')
+          .setDescription('View or start threads\nUse `|thread id|` to view\
+          the full thread or `|thread id| <message>` to add to the thread')
+          .addField('s!thread all', 'View all threads')
+          .addField('s!thread active', 'View active threads')
+          .addField('s!thread <topic>', 'Start a new thread')
+      );
     }
   },
 });

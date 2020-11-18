@@ -6,11 +6,11 @@ const { CREATE_THREAD, DELETE_THREAD } = require('../../APIFunctions/thread');
 module.exports = new Command({
   name: 'threadmanager',
   description: 'Create and remove threads.',
-  category: 'custom threads',
+  category: 'threads',
   aliases: ['tm'],
   permissions: 'admin',
   params: '`create`, `remove`',
-  example: 's!tm <command> <param>',
+  example: 's!tm <param> <option>',
   execute: (message, args) => {
     // Check for author permissions
     if (!isOfficer(message.member)) {
@@ -99,7 +99,7 @@ module.exports = new Command({
           new Discord.RichEmbed()
             .setColor('#ccffff')
             .setTitle('Thread Manager')
-            .setDescription('Unrecognized command, try using:')
+            .setDescription('Unrecognized paramter, try using:')
             .addField(
               's!tm create <topic>',
               'Creates a new thread - <topic> (optional)'
