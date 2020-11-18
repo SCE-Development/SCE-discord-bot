@@ -2,6 +2,8 @@ const Discord = require('discord.js');
 const Command = require('../Command');
 const { THREAD_QUERY, CREATE_THREAD } = require('../../APIFunctions/thread');
 
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
 module.exports = new Command({
   name: 'thread',
   description: 'View active threads or start a new one',
@@ -15,14 +17,8 @@ module.exports = new Command({
 
     if (param.length === 0) {
       // Show all active threads
-      const CURRENT_DATE = new Date();
-      const MS_PER_DAY = 1000 * 60 * 60 * 24;
-      const checkIfActive = (message) =>
-        (CURRENT_DATE - message.createdAt) / MS_PER_DAY < 7;
-      const requestMessage = (id) =>
-        message.channel.fetchMessage(id).then((response) => response);
-
       const getActiveThreads = async () => {
+        const currentDate = new Date();
         const response = await THREAD_QUERY();
         const embed = new Discord.RichEmbed()
           .setTitle('Active Threads')
@@ -31,22 +27,29 @@ module.exports = new Command({
             `|thread id| <message>` to add to the thread'
           );
 
+        const checkIfActive = (message) =>
+          (currentDate - message.createdAt) / MS_PER_DAY < 7;
+        const requestMessage = (id) =>
+          message.channel
+            .fetchMessage(id)
+            .then((response) => response)
+            .catch(() => null);
+
         for (let i = 0; i < response.responseData.length; i++) {
           const thread = response.responseData[i];
-
           let lastMessage = await requestMessage(
             thread.threadMessages[thread.threadMessages.length - 1].messageID
           );
-
-          // Do not display messages older than a week old
-          if (!checkIfActive(lastMessage)) {
-            break;
+          // Catch messages from other channels and
+          // do not display messages older than a week old
+          if (lastMessage === null || !checkIfActive(lastMessage)) {
+            continue;
           }
           const blurb = (
             lastMessage.member.displayName +
             ' on ' +
             lastMessage.createdAt.toLocaleDateString() +
-            ', ' +
+            '\n' +
             lastMessage.content
           ).substring(0, 150);
           // Add the thread and display the last message
@@ -59,11 +62,9 @@ module.exports = new Command({
             embed.addField(' (id: ' + thread.threadID + ')', blurb);
           }
         }
-
         if (embed.fields.length === 0) {
           embed.setFooter('No active threads in this channel.');
         }
-
         return embed;
       };
 
@@ -74,6 +75,7 @@ module.exports = new Command({
       // Start new thread
       // todo generate threadID
       const threadID = '1';
+
       const createThread = async () =>
         await CREATE_THREAD({
           threadID: threadID,

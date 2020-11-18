@@ -12,9 +12,8 @@ module.exports = new Command({
   params: '`create`, `remove`',
   example: 's!tm <command> <param>',
   execute: (message, args) => {
-    const author = message.member;
     // Check for author permissions
-    if (!isOfficer(author)) {
+    if (!isOfficer(message.member)) {
       message.channel.send('You do not have sufficient permissions!');
       return;
     }
@@ -25,6 +24,7 @@ module.exports = new Command({
         const topic = args.slice(1).join(' ');
         // todo generate threadID
         const threadID = '2';
+
         const createThread = async () =>
           await CREATE_THREAD({
             threadID: threadID,
@@ -69,6 +69,7 @@ module.exports = new Command({
         }
 
         const id = args.slice(1).join('').replace(/\s+/, '');
+
         if (!/^\d{1,18}/.test(id)) {
           // Invalid id
           message.channel.send(
