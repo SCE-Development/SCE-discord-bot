@@ -36,29 +36,28 @@ module.exports = new Command({
         );
       };
 
-      let confirmed = false;
       const cancelMessage = create
         ? 'New thread canceled'
         : 'Remove thread canceled';
-      await confirmMessage
+      return await confirmMessage
         .awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] })
         .then((collected) => {
           const reaction = collected.first();
           confirmMessage.delete();
           if (reaction.emoji.name === '👍') {
-            confirmed = true;
+            return true;
           } else {
             message.channel
               .send(cancelMessage)
               .then((msg) => msg.delete(10000));
+            return false;
           }
         })
         .catch(() => {
           confirmMessage.delete();
           message.channel.send(cancelMessage).then((msg) => msg.delete(10000));
+          return false;
         });
-
-      return confirmed;
     };
 
     switch (args[0]) {
