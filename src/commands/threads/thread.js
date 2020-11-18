@@ -24,10 +24,6 @@ module.exports = new Command({
 
       const getActiveThreads = async () => {
         const response = await THREAD_QUERY();
-        if (response.error === true) {
-          // Error
-          return null;
-        }
         const embed = new Discord.RichEmbed()
           .setTitle('Active Threads')
           .setDescription(
@@ -67,17 +63,13 @@ module.exports = new Command({
         return embed;
       };
 
-      getActiveThreads().then((embed) => {
-        if (embed === null) {
-          message.channel.send('This channel has no threads');
-        } else {
-          message.channel.send(embed);
-        }
-      });
+      getActiveThreads()
+        .then((embed) => message.channel.send(embed))
+        .catch(() => message.channel.send('This channel has no threads'));
     } else {
       // Start new thread
       // todo generate threadID
-      const threadID = '1009';
+      const threadID = '1';
       const createThread = async () =>
         await CREATE_THREAD({
           threadID: threadID,
@@ -88,21 +80,20 @@ module.exports = new Command({
         });
 
       createThread().then((response) => {
-        if (response.error === true) {
-          // error
+        if (response.error) {
           message.channel.send('Oops! Could not create thread ' + param);
-          return;
+        } else {
+          message.channel.send(
+            new Discord.RichEmbed()
+              .setTitle('New Thread')
+              .setDescription(
+                'Use `|thread id|` to view the full thread or\
+                `|thread id| <message>` to add to the thread'
+              )
+              .addField('ID', response.responseData.id)
+              .addField('Topic', response.responseData.topic)
+          );
         }
-        message.channel.send(
-          new Discord.RichEmbed()
-            .setTitle('New Thread')
-            .setDescription(
-              'Use `|thread id|` to view the full thread or\
-              `|thread id| <message>` to add to the thread'
-            )
-            .addField('ID', threadID)
-            .addField('Topic', param)
-        );
       });
     }
   },

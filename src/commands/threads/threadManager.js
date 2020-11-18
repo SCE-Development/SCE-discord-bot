@@ -24,7 +24,7 @@ module.exports = new Command({
         // Create a thread
         const topic = args.slice(1).join(' ');
         // todo generate threadID
-        const threadID = '2002';
+        const threadID = '2';
         const createThread = async () =>
           await CREATE_THREAD({
             threadID: threadID,
@@ -35,7 +35,7 @@ module.exports = new Command({
           });
 
         createThread().then((response) => {
-          if (response.error === true) {
+          if (response.error) {
             // Error
             message.channel.send('Oops! Could not create thread ' + topic);
             return;
