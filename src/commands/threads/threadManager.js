@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const { isOfficer } = require('../../util/Permission');
 const Command = require('../Command');
-const { CREATE_THREAD } = require('../../APIFunctions/thread');
+const { CREATE_THREAD, DELETE_THREAD } = require('../../APIFunctions/thread');
 
 module.exports = new Command({
   name: 'threadmanager',
@@ -79,17 +79,16 @@ module.exports = new Command({
           return;
         }
 
-        // const removeThread = async () =>
-        //   await DELETE_THREAD({ threadID: id });
+        const removeThread = async () => await DELETE_THREAD({ threadID: id });
 
-        // removeThread().then((response) => {
-        //   if (response.error === true) {
-        //     // Error
-        //     message.channel.send('Oops! Could not remove thread ' + id);
-        //   } else {
-        //     message.channel.send('Removed thread ' + id);
-        //   }
-        // });
+        removeThread().then((response) => {
+          if (response.error) {
+            // Error
+            message.channel.send('Oops! Could not remove thread ' + id);
+          } else {
+            message.channel.send('Removed thread ' + id);
+          }
+        });
         break;
       }
 

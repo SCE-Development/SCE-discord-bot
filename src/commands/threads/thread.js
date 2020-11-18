@@ -60,12 +60,16 @@ module.exports = new Command({
           }
         }
 
+        if (embed.fields.length === 0) {
+          embed.setFooter('No active threads in this channel.');
+        }
+
         return embed;
       };
 
       getActiveThreads()
         .then((embed) => message.channel.send(embed))
-        .catch(() => message.channel.send('This channel has no threads'));
+        .catch(() => message.channel.send('Oops! Could not query threads.'));
     } else {
       // Start new thread
       // todo generate threadID
