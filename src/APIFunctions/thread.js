@@ -1,25 +1,26 @@
 const { request, gql } = require('graphql-request');
-const { url } = require('../../config.json');
+const { DISCORD_API_URL } = require('../../config.json');
 const { ApiResponse } = require('./ApiResponses');
 
 const THREAD_QUERY = async () => {
-  const query = gql`
+  const threadQuery = gql`
   {
     threadMany {
       threadID
       creatorID
       guildID
       topic
-      messages {
+      threadMessages {
         messageID
       }
     }
   }
   `;
+
   let response = new ApiResponse();
-  await request(`${url}/graphql`, query)
+  await request(`${DISCORD_API_URL}/graphql`, threadQuery)
     .then((data) => {
-      response.responseData = data;
+      response.responseData = data.threadMany;
       response.error = false;
     })
     .catch(() => {
@@ -59,12 +60,12 @@ const CREATE_THREAD = async (data) => {
   }
   `;
 
-  await request(`${url}/graphql`, makeThreadMessage)
+  await request(`${DISCORD_API_URL}/graphql`, makeThreadMessage)
     .then((data) => {
-      response.data = data;
+      response.responseData = data.threadCreate;
     })
     .catch(() => {
-      response.data = {};
+      response.responseData = {};
       response.error = true;
     });
   return response;
@@ -95,12 +96,12 @@ const ADD_THREADMESSAGE = async (data) => {
   }
   `;
 
-  await request(`${url}/graphql`, makeThreadMessage)
+  await request(`${DISCORD_API_URL}/graphql`, makeThreadMessage)
     .then((data) => {
-      response.data = data;
+      response.responseData = data.threadAddMessage;
     })
     .catch(() => {
-      response.data = {};
+      response.responseData = {};
       response.error = true;
     });
   return response;

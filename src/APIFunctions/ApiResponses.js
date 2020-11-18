@@ -6,10 +6,13 @@
  * from the API call (e.g. object array or error data)
  * @member {string|null} token - An authentication token
  */
-export class ApiResponse {
+class ApiResponse {
   constructor(error = false, responseData = null) {
     this.error = error;
     this.responseData = responseData;
   }
 }
 
+module.exports = {
+  ApiResponse
+};
