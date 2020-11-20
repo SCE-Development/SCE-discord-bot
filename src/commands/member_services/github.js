@@ -16,7 +16,7 @@ module.exports = new Command({
   example: 's!git',
   permissions: 'general',
   category: 'github',
-  disabled: true,
+  disabled: false,
   execute: (message, args) => {
     const messageGenerator = new GithubMessageGenerator();
 

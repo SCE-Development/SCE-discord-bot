@@ -31,7 +31,7 @@ module.exports = new Command({
     if (!args.length) {
       const helpEmbed = new Discord.RichEmbed()
         .setColor('#ccffff')
-        .setTitle('All commands');
+        .setAuthor('All commands', message.author.avatarURL);
       for (let i = 0; i < categories.length; i++) {
         if (categories[i]) {
           dict[categories[i]] = [];
