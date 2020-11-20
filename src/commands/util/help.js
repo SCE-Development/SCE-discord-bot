@@ -77,32 +77,29 @@ module.exports = new Command({
       Object.entries(commandInfo).forEach(([field, info]) => {
         if (field == 'executeCommand' || !info || info.length == 0) return;
         let infoText = info;
+        
         if (field == 'name') {
           helpEmbed.setTitle(capitalize(infoText));
           return;
-        }
-
-        if (field == 'aliases') {
+        } else if (field == 'aliases') {
           infoText = info.join(', ');
           noAlias = false;
-        }
-        if (field != 'name' && field != 'aliases' && field != 'example') {
+        } else if (field != 'name' && field != 'aliases' && field != 'example') {
           infoText = capitalize(infoText);
         }
 
         if (field == 'description') {
           helpEmbed.addField(capitalize(field), infoText, false);
           return;
-        }
-
-        if (field == 'example') {
+        } else if (field == 'example') {
+          if (!noAlias) helpEmbed.addField('\u200b', '\u200b', true);
           helpEmbed.addField(capitalize(field), "`" + infoText + "`", true);
           return;
-        }
-
-        if (field == 'permissions') {
+        } else if (field == 'permissions' && noAlias) {
           helpEmbed.addField('\u200b', '\u200b', true);
-          if (noAlias) helpEmbed.addField('\u200b', '\u200b', true);
+          helpEmbed.addField('\u200b', '\u200b', true);
+        } else if (field == 'category') {
+          helpEmbed.addField('\u200b', '\u200b', true);
         }
 
         helpEmbed.addField(capitalize(field), infoText, true);
