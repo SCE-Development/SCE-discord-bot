@@ -79,7 +79,8 @@ module.exports = new Command({
         let infoText = info;
         
         if (field == 'name') {
-          helpEmbed.setTitle(capitalize(infoText));
+          helpEmbed.setAuthor(capitalize(infoText), message.author.avatarURL);
+          console.log(message.author.avatarURL);
           return;
         } else if (field == 'aliases') {
           infoText = info.join(', ');
