@@ -80,7 +80,6 @@ module.exports = new Command({
         
         if (field == 'name') {
           helpEmbed.setAuthor(capitalize(infoText), message.author.avatarURL);
-          console.log(message.author.avatarURL);
           return;
         } else if (field == 'aliases') {
           infoText = info.join(', ');
