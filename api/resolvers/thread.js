@@ -1,8 +1,5 @@
-const { UserInputError } = require('apollo-server');
-const {
-  ThreadTC,
-  Thread,
-} = require('../models/thread');
+const { SystemError, UserInputError } = require('apollo-server');
+const { ThreadTC, Thread } = require('../models/thread');
 const { ThreadMessage } = require('../models/threadMessage');
 
 const ThreadQuery = {
@@ -21,7 +18,7 @@ const ThreadMutation = {
     args: { threadID: 'String!', messageID: 'String!' },
     resolve: async (source, args) => {
       const message = await ThreadMessage.create({
-        messageID: args.messageID
+        messageID: args.messageID,
       }).catch(() => {
         throw new UserInputError('ThreadMessage failed to create');
       });
@@ -33,7 +30,7 @@ const ThreadMutation = {
         { $addToSet: { threadMessages: message } },
         {
           new: true,
-          useFindAndModify: false
+          useFindAndModify: false,
         }
       ).catch(async () => {
         await ThreadMessage.deleteOne({ _id: message._id });
@@ -41,7 +38,7 @@ const ThreadMutation = {
       });
       if (!thread) throw new UserInputError('Thread update returned null');
       return thread;
-    }
+    },
   },
   threadCreate: {
     type: ThreadTC,
@@ -53,15 +50,9 @@ const ThreadMutation = {
       messageID: 'String!',
     },
     resolve: async (source, args) => {
-      const {
-        threadID,
-        creatorID,
-        guildID,
-        topic,
-        messageID,
-      } = args;
+      const { threadID, creatorID, guildID, topic, messageID } = args;
       const message = await ThreadMessage.create({
-        messageID
+        messageID,
       }).catch(() => {
         throw new UserInputError('ThreadMessage failed to create');
       });
@@ -73,7 +64,7 @@ const ThreadMutation = {
         creatorID,
         guildID,
         topic,
-        threadMessages: [message]
+        threadMessages: [message],
       }).catch(async () => {
         await ThreadMessage.deleteOne({ _id: message._id });
         throw new UserInputError('Thread failed to create');
@@ -81,12 +72,38 @@ const ThreadMutation = {
       const thread = await Thread.findOne({
         threadID,
         creatorID,
-        guildID
+        guildID,
       });
       if (!thread) throw new UserInputError('Thread creation returned null');
       return thread;
-    }
-  }
+    },
+  },
+  threadDelete: {
+    args: { threadID: 'String!' },
+    type: ThreadTC,
+    resolve: async (source, args) => {
+      const { threadID } = args;
+      const thread = await Thread.findOne({ threadID: threadID }).catch(() => {
+        throw new UserInputError('Could not find Thread');
+      });
+      // Error
+      if (!thread) throw new UserInputError('Could not find Thread');
+      // Delete all ThreadMessages
+      await ThreadMessage.deleteMany({
+        _id: { $in: thread.threadMessages },
+      }).catch(() => {
+        throw new SystemError(
+          'Failed to delete all ThreadMessages. Thread not deleted.'
+        );
+      });
+      // Delete Thread
+      await Thread.deleteOne({ _id: thread._id }).catch(() => {
+        throw new SystemError('Failed to delete Thread');
+      });
+
+      return thread;
+    },
+  },
 };
 
 module.exports = { ThreadQuery, ThreadMutation };

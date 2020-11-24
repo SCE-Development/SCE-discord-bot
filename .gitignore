@@ -12,3 +12,4 @@ jerry-discord-gen.pem
 # other
 .DS_Store
 .history/
+.prettierrc.js

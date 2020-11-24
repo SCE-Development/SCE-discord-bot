@@ -4,17 +4,17 @@ const { ApiResponse } = require('./ApiResponses');
 
 const THREAD_QUERY = async () => {
   const threadQuery = gql`
-  {
-    threadMany {
-      threadID
-      creatorID
-      guildID
-      topic
-      threadMessages {
-        messageID
+    {
+      threadMany {
+        threadID
+        creatorID
+        guildID
+        topic
+        threadMessages {
+          messageID
+        }
       }
     }
-  }
   `;
 
   let response = new ApiResponse();
@@ -30,13 +30,7 @@ const THREAD_QUERY = async () => {
 };
 
 const CREATE_THREAD = async (data) => {
-  const {
-    threadID,
-    creatorID,
-    guildID,
-    topic,
-    messageID
-  } = data;
+  const { threadID, creatorID, guildID, topic, messageID } = data;
   let response = new ApiResponse();
 
   // Create the thread message
@@ -72,10 +66,7 @@ const CREATE_THREAD = async (data) => {
 };
 
 const ADD_THREADMESSAGE = async (data) => {
-  const {
-    threadID,
-    messageID
-  } = data;
+  const { threadID, messageID } = data;
   let response = new ApiResponse();
 
   // Create the thread message
@@ -107,8 +98,41 @@ const ADD_THREADMESSAGE = async (data) => {
   return response;
 };
 
+const DELETE_THREAD = async (data) => {
+  const { threadID } = data;
+  let response = new ApiResponse();
+
+  // Delete the thread
+  const deleteThread = gql`
+  mutation {
+    threadDelete(
+      threadID:"${threadID}",
+    ) {
+      threadID
+      creatorID
+      guildID
+      topic
+      threadMessages {
+        messageID
+      }
+    }
+  }
+  `;
+
+  await request(`${DISCORD_API_URL}/graphql`, deleteThread)
+    .then((data) => {
+      response.responseData = data.threadDelete;
+    })
+    .catch(() => {
+      response.responseData = {};
+      response.error = true;
+    });
+  return response;
+};
+
 module.exports = {
   THREAD_QUERY,
   CREATE_THREAD,
   ADD_THREADMESSAGE,
+  DELETE_THREAD,
 };
