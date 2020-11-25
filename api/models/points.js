@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { composeMongoose } = require('graphql-compose-mongoose');
 
-
+// min = 0 only
 const PointSchema = mongoose.Schema(
   {
     username: {
