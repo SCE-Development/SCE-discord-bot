@@ -49,7 +49,18 @@ module.exports = new Command({
 
       Object.entries(dict).forEach(([category, commands]) => {
         let commandString = commands.join(', ');
-        let categoryString = capitalize(category);
+        let categoryString = '';
+
+        if (category == 'Server management') categoryString += ':scales: ';
+        else if (category == 'mod') categoryString += ':crown: ';
+        else if (category == 'github') categoryString += ':computer: ';
+        else if (category == 'member services') {
+          categoryString += ':badminton: ';
+        }
+        else if (category == 'custom threads') categoryString += ':thread: ';
+        else if (category == 'information') categoryString += ':pushpin: ';
+
+        categoryString += capitalize(category);
         helpEmbed.addField(categoryString, commandString);
       });
       message.channel.send(helpEmbed);
@@ -84,7 +95,8 @@ module.exports = new Command({
         } else if (field == 'aliases') {
           infoText = info.join(', ');
           noAlias = false;
-        } else if (field != 'name' && field != 'aliases' && field != 'example') {
+        }
+        if (field != 'name' && field != 'aliases' && field != 'example') {
           infoText = capitalize(infoText);
         }
 
@@ -93,7 +105,7 @@ module.exports = new Command({
           return;
         } else if (field == 'example') {
           if (!noAlias) helpEmbed.addField('\u200b', '\u200b', true);
-          helpEmbed.addField(capitalize(field), "`" + infoText + "`", true);
+          helpEmbed.addField(capitalize(field), '`' + infoText + '`', true);
           return;
         } else if (field == 'permissions' && noAlias) {
           helpEmbed.addField('\u200b', '\u200b', true);
