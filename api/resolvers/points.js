@@ -15,30 +15,73 @@ const PointMutation = {
     type: PointTC,
     args: { userID: 'String!', points: 'Int' },
     resolve: async (source, args) => {
+      let p = Math.floor(Math.random() * (50 - 25) + 25);
       const points = await Point.findOneAndUpdate(
         // check if user has points. if not, add them.
         { userID: args.userID },
         {
           $inc: {
-            totalPoints: 1,
-            weekPoints: 1,
-            monthPoints: 1,
-            yearPoints: 1
+            totalPoints: p,
+            weekPoints: p,
+            monthPoints: p,
+            yearPoints: p
           }
         },
         { new: true, useFindAndModify: false, upsert: true },
-
       );
-      console.log(points);
       return points;
     }
   },
   // for when a user leaves the server
   pointRemoveOne: PointTC.mongooseResolvers.removeOne(),
   // resets the point of week/month/year to 0
-  pointReset: {
+  weekPointReset: {
     type: PointTC,
-    args: {}
+    args: { userID: 'String!', points: 'Int' },
+    resolve: async (source, args) => {
+      const resetted = await Point.findOneAndUpdate(
+        { userID: args.userID },
+        {
+          $set: {
+            weekPoints: 0
+          }
+        },
+        { new: true, useFindAndModify: false },
+      );
+      return resetted;
+    }
+  },
+  monthPointReset: {
+    type: PointTC,
+    args: { userID: 'String!', points: 'Int' },
+    resolve: async (source, args) => {
+      const resetted = await Point.findOneAndUpdate(
+        { userID: args.userID },
+        {
+          $set: {
+            monthPoints: 0
+          }
+        },
+        { new: true, useFindAndModify: false },
+      );
+      return resetted;
+    }
+  },
+  yearPointReset: {
+    type: PointTC,
+    args: { userID: 'String!', points: 'Int' },
+    resolve: async (source, args) => {
+      const resetted = await Point.findOneAndUpdate(
+        { userID: args.userID },
+        {
+          $set: {
+            yearPoints: 0
+          }
+        },
+        { new: true, useFindAndModify: false },
+      );
+      return resetted;
+    }
   }
 };
 

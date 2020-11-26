@@ -2,11 +2,10 @@ const { request, gql } = require('graphql-request');
 const { url } = require('../../config.json');
 const { ApiResponse } = require('./ApiResponses');
 
-const POINTS_QUERY_ONE = async () => {
+const POINTS_QUERY_ONE = async (message) => {
   const query = gql`
-  {
-    pointOne {
-      username
+  query ($userID: String!) {
+    pointOne (filter: {userID: $userID}){
       userID
       totalPoints
       weekPoints
@@ -17,10 +16,12 @@ const POINTS_QUERY_ONE = async () => {
   }
   `;
   let response = new ApiResponse();
-  await request(`${url}/graphql`, query)
+  const author = message.member;
+  await request(`${url}/graphql`, query, {'userID': message.author.id})
     .then((data) => {
       response.responseData = data;
       response.error = false;
+      console.log(data);
     })
     .catch(() => {
       response.error = true;
@@ -54,30 +55,27 @@ const POINTS_QUERY_MULTIPLE = async () => {
   return response;
 };
 
-const ADD_POINTS = async (data) => {
-  const {
-    username,
-    userID,
-    totalPoints,
-    weekPoints,
-    monthPoints,
-    yearPoints,
-    lastTalked
-  } = data;
-  let response = new ApiResponse();
-
-  // Increment the points
-  const incrementPoints = gql`
-  mutation {
-    totalPoints
-    weekPoints
-    monthPoints
-    yearPoints
+const ADD_POINTS = async (message) => {
+  const author = message.member;
+  const mutation = gql`
+  {
+    mutation {
+      pointUpdateOne (userID: message.author.id) {
+        userID
+        totalPoints
+        weekPoints
+        monthPoints
+        yearPoints
+        lastTalked
+      }
+    }
   }
   `
-  await request(`${url}/graphql`, incrementPoints)
+  let response = new ApiResponse();
+  await request(`${url}/graphql`, mutation, {'userID': message.author.id})
     .then((data) => {
       response.data = data;
+      console.log(data);
     })
     .catch(() => {
       response.data = {};
