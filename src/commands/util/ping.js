@@ -5,10 +5,11 @@ const clockEmoji = '🕑';
 
 module.exports = new Command({
   name: 'ping',
-  description: 'check if the bot is up',
-  category: 'information',
+  description: 'Check if the bot is up',
   aliases: [],
+  example: 's!ping',
   permissions: 'general',
+  category: 'information',
   // eslint-disable-next-line
   execute: async (message, args) => {
     const pingResponse = await message.channel.send(

@@ -3,11 +3,11 @@ const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
   name: 'deletestudychannel',
-  description: 'delete an existing study channel (text)',
-  category: 'mod',
+  description: 'Delete an existing study channel',
   aliases: ['dsc'],
+  example: 's!dsc <channelname>',
   permissions: 'admin',
-  example: 's!dsc CMPE126',
+  category: 'mod',
   execute: async (message, args) => {
     const author = message.member;
     const { channels, roles } = message.guild;

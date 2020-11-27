@@ -4,10 +4,10 @@ const Command = require('../Command');
 module.exports = new Command({
   name: 'liststudychannels',
   description: 'List all available study channels',
-  category: 'member services',
   aliases: ['lsc'],
-  permissions: 'member',
   example: 's!lsc',
+  permissions: 'member',
+  category: 'member services',
   // eslint-disable-next-line
   execute: async (message, args) => {
     const { channels } = message.guild;

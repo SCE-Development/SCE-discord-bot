@@ -3,10 +3,11 @@ const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
   name: 'warn',
-  description: 'Warn someone.',
-  category: 'Server management',
-  aliases: [],
+  description: 'Warn someone',
+  aliases: [],  
+  example: 's!warn @user <message>',
   permissions: 'admin',
+  category: 'Server management',
   execute: (message, args) => {
     if (args.join(' ') == '') {
       message.channel.send('You need to mention a user to warn!');

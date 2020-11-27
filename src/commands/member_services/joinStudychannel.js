@@ -3,10 +3,10 @@ const Command = require('../Command');
 module.exports = new Command({
   name: 'joinstudychannel',
   description: 'Join or leave a study channel',
-  category: 'member services',
   aliases: ['jsc'],
+  example: 's!jsc <channelname>',
   permissions: 'member',
-  example: 's!jsc CMPE126',
+  category: 'member services',
   execute: async (message, args) => {
     const author = message.member;
     const { roles } = message.guild;

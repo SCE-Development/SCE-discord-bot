@@ -5,10 +5,10 @@ const Command = require('../Command');
 module.exports = new Command({
   name: 'help',
   description: 'List commands and info about commands',
-  params: '`s!help [commandName]`',
-  category: 'information',
   aliases: ['commands'],
+  example: 's!help [commandName]',
   permissions: 'general',
+  category: 'information',
   execute: (message, args) => {
 
     const author = message.member;
@@ -31,7 +31,8 @@ module.exports = new Command({
     if (!args.length) {
       const helpEmbed = new Discord.RichEmbed()
         .setColor('#ccffff')
-        .setTitle('All commands');
+        .setAuthor('All commands',
+          'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1');
       for (let i = 0; i < categories.length; i++) {
         if (categories[i]) {
           dict[categories[i]] = [];
@@ -49,7 +50,18 @@ module.exports = new Command({
 
       Object.entries(dict).forEach(([category, commands]) => {
         let commandString = commands.join(', ');
-        let categoryString = capitalize(category);
+        let categoryString = '';
+
+        if (category == 'Server management') categoryString += ':scales: ';
+        else if (category == 'mod') categoryString += ':crown: ';
+        else if (category == 'github') categoryString += ':computer: ';
+        else if (category == 'member services') {
+          categoryString += ':badminton: ';
+        }
+        else if (category == 'custom threads') categoryString += ':thread: ';
+        else if (category == 'information') categoryString += ':pushpin: ';
+
+        categoryString += capitalize(category);
         helpEmbed.addField(categoryString, commandString);
       });
       message.channel.send(helpEmbed);
@@ -71,17 +83,40 @@ module.exports = new Command({
       }
 
       const helpEmbed = new Discord.RichEmbed()
-        .setColor('#ccffff')
-        .setTitle(capitalize(command));
-      
+        .setColor('#ccffff');
+      let noAlias = true;
+
       Object.entries(commandInfo).forEach(([field, info]) => {
         if (field == 'executeCommand' || !info || info.length == 0) return;
         let infoText = info;
-        if (field == 'aliases') infoText = info.join(', ');
+        
+        if (field == 'name') {
+          helpEmbed.setAuthor(capitalize(infoText), 
+            'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1');
+          return;
+        } else if (field == 'aliases') {
+          infoText = info.join(', ');
+          noAlias = false;
+        }
         if (field != 'name' && field != 'aliases' && field != 'example') {
           infoText = capitalize(infoText);
         }
-        helpEmbed.addField(capitalize(field), infoText);
+
+        if (field == 'description') {
+          helpEmbed.addField(capitalize(field), infoText, false);
+          return;
+        } else if (field == 'example') {
+          if (!noAlias) helpEmbed.addField('\u200b', '\u200b', true);
+          helpEmbed.addField(capitalize(field), '`' + infoText + '`', true);
+          return;
+        } else if (field == 'permissions' && noAlias) {
+          helpEmbed.addField('\u200b', '\u200b', true);
+          helpEmbed.addField('\u200b', '\u200b', true);
+        } else if (field == 'category') {
+          helpEmbed.addField('\u200b', '\u200b', true);
+        }
+
+        helpEmbed.addField(capitalize(field), infoText, true);
       });
       message.channel.send(helpEmbed);
     }

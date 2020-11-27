@@ -12,10 +12,11 @@ module.exports = new Command({
   name: 'github',
   description: 'Displays following information from SCE github repos:\
   Contributor leaderboard, Pull requests, merged commits',
-  category: 'github',
   aliases: ['git'],
+  example: 's!git',
   permissions: 'general',
-
+  category: 'github',
+  disabled: false,
   execute: (message, args) => {
     const messageGenerator = new GithubMessageGenerator();
 
@@ -33,9 +34,14 @@ module.exports = new Command({
       case 'leaderboard':
         messageGenerator.generateLeaderboardMessage(args[1])
           .then(leaderboardMessage => {
+            const leaderboardEmbed = new Discord.RichEmbed()
+              .setColor('#ccffff');
             leaderboardMessage.forEach(embed => {
-              message.channel.send(embed);
+              let name = embed.author.name;
+              let commits = embed.description;
+              leaderboardEmbed.addField(name, commits);
             });
+            message.channel.send(leaderboardEmbed);
           })
           .catch(_ => {
             message.channel.send(_);

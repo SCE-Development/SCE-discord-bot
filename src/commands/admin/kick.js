@@ -4,9 +4,10 @@ const { isOfficer } = require('../../util/Permission');
 module.exports = new Command({
   name: 'kick',
   description: 'Kick someone',
-  category: 'Server management',
   aliases: ['boot'],
+  example: 's!kick @user <message>',
   permissions: 'admin',
+  category: 'Server management',
   execute: (message, args) => {
     if (args.join(' ') == '') {
       message.channel.send('You need to give a user to kick');

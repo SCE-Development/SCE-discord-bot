@@ -18,6 +18,7 @@
     "graphql-compose": "^7.21.5",
     "graphql-compose-mongoose": "^9.0.0",
     "graphql-request": "^3.3.0",
+    "lint": "^0.7.0",
     "mongoose": "^5.10.7",
     "node-fetch": "^2.6.1",
     "nodemon": "^2.0.4",
