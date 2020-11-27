@@ -35,7 +35,7 @@ module.exports = new Command({
         messageGenerator.generateLeaderboardMessage(args[1])
           .then(leaderboardMessage => {
             const leaderboardEmbed = new Discord.RichEmbed()
-            .setColor('#ccffff');
+              .setColor('#ccffff');
             leaderboardMessage.forEach(embed => {
               let name = embed.author.name;
               let commits = embed.description;

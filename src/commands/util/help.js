@@ -31,7 +31,8 @@ module.exports = new Command({
     if (!args.length) {
       const helpEmbed = new Discord.RichEmbed()
         .setColor('#ccffff')
-        .setAuthor('All commands', 'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1');
+        .setAuthor('All commands',
+          'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1');
       for (let i = 0; i < categories.length; i++) {
         if (categories[i]) {
           dict[categories[i]] = [];
@@ -90,7 +91,8 @@ module.exports = new Command({
         let infoText = info;
         
         if (field == 'name') {
-          helpEmbed.setAuthor(capitalize(infoText), 'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1');
+          helpEmbed.setAuthor(capitalize(infoText), 
+            'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1');
           return;
         } else if (field == 'aliases') {
           infoText = info.join(', ');
