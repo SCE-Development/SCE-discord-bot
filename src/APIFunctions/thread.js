@@ -119,9 +119,34 @@ const DELETE_THREAD = async (data) => {
   }
   `;
 
+  
   await request(`${DISCORD_API_URL}/graphql`, deleteThread)
     .then((data) => {
       response.responseData = data.threadDelete;
+    })
+    .catch(() => {
+      response.responseData = {};
+      response.error = true;
+    });
+  return response;
+};
+
+const FIND_THREAD = async (data) => {
+  const { threadID } = data;
+  let response = new ApiResponse();
+
+  // Create the thread message
+  const threadQuery = gql`
+  query {
+    threadOne(filter: { threadID: "${threadID}" }) {
+      threadID
+    }
+  }
+  `;
+
+  await request(`${DISCORD_API_URL}/graphql`, threadQuery)
+    .then((data) => {
+      response.responseData = data.threadOne;
     })
     .catch(() => {
       response.responseData = {};
@@ -135,4 +160,5 @@ module.exports = {
   CREATE_THREAD,
   ADD_THREADMESSAGE,
   DELETE_THREAD,
+  FIND_THREAD,
 };
