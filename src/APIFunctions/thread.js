@@ -137,16 +137,20 @@ const FIND_THREAD = async (data) => {
 
   // Create the thread message
   const threadQuery = gql`
-  query {
-    threadOne(filter: { threadID: "${threadID}" }) {
+  query{
+    threadMany(filter: {
+    _operators: {threadID: {regex: "^${threadID}" }}
+    })
+    {
       threadID
+      topic
     }
   }
   `;
-
+  
   await request(`${DISCORD_API_URL}/graphql`, threadQuery)
     .then((data) => {
-      response.responseData = data.threadOne;
+      response.responseData = data.threadMany;
     })
     .catch(() => {
       response.responseData = {};
