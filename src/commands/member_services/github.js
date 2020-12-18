@@ -24,7 +24,36 @@ module.exports = new Command({
       case 'pr':
         messageGenerator.generatePullRequestMessage(args[1])
           .then(prMessage => {
-            message.channel.send(prMessage);
+            //let pageIndex = 0;
+
+            //console.log(prMessage[0]);
+              /*.then(async sentEmbed => {
+              await sentEmbed.react('⬅️');
+              await sentEmbed.react('➡️');
+    
+              const filter = (reaction, user) => {
+                return ['⬅️', '➡️'].includes(reaction.emoji.name) 
+                  && user.id === message.author.id;
+              };
+              // Listens to reactions for 1 minute
+              const collector =
+                sentEmbed.createReactionCollector(filter, { time: 60000 });
+              collector.on('collect', reaction => {
+                reaction.remove(reaction.users.last().id);
+                switch(reaction.emoji.name) {
+                  case '⬅️':
+                    if (pageIndex === 0) return;
+                    pageIndex--;
+                    break;
+                  case '➡️':
+                    if (pageIndex === 2) {
+                      pageIndex = 0;
+                    } else {
+                      pageIndex++;
+                    }
+                }
+              });
+            });*/
           })
           .catch(_ => {
             message.channel.send(_);
