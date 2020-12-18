@@ -27,58 +27,11 @@ class GithubMessageGenerator {
     return new Promise((resolve, reject) => {
       this.fetcher.fetchPullRequests(repo)
         .then(pullRequests => {
-          /*
-          const embeds = [];
-          let pageIndex = 0;
-          var i = 0;
-
-          do {
-            const prEmbed = new Discord.RichEmbed()
-              .setColor('28C7E6')
-              .setThumbnail('https://github.githubassets.com' +
-              '/images/modules/logos_page/Octocat.png')
-              .setTitle(`Pull Requests - ${repo}`)
-              .setURL(`https://github.com/SCE-Development/${repo}/pulls`)
-              .setDescription('Active pull requests in this repository');
-            
-              for (i = 10 * pageIndex; i < i + 10; i++) {
-              prEmbed.addField(pullRequests[i]);
-            }
-
-            pageIndex++;
-            embeds.push(prEmbed);
-          } while (i + 10 < pullRequests.length)
-
-          const prEmbed = new Discord.RichEmbed()
-            .setColor('28C7E6')
-            .setThumbnail('https://github.githubassets.com' +
-            '/images/modules/logos_page/Octocat.png')
-            .setTitle(`Pull Requests - ${repo}`)
-            .setURL(`https://github.com/SCE-Development/${repo}/pulls`)
-            .setDescription('Active pull requests in this repository');
-
-          for (i = 10 * pageIndex; i < pullRequests.length; i++) {
-            prEmbed.addField(pullRequests[i]);
-          }
-
-          embeds.push(prEmbed);
-          */
-          /*  
-          this.defaultEmbed.title = `Pull Requests - ${repo}`;
-          this.defaultEmbed.url =
-            `https://github.com/SCE-Development/${repo}/pulls`;
-          this.defaultEmbed.description =
-            'Active pull requests in this repository';
-          this.defaultEmbed.fields = pullRequests;
-          */
           let value = [];
-          console.log(pullRequests[0]);
-          pullRequests.forEach(({pr}, index) => {
+          pullRequests.forEach((pr, index) => {
             if (index % 10 == 0) value.push([pr]);
             else value[Math.floor(index/10)].push(pr);
-            console.log(pr);
           });
-          console.log(value);
           resolve(value);
         })
         .catch(_ => {
