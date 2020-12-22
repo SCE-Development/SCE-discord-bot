@@ -13,7 +13,6 @@ const THREAD_QUERY = async () => {
         threadMessages {
           messageID
         }
-<<<<<<< HEAD
       }
     }
   `;
@@ -43,8 +42,6 @@ const THREAD_ID_QUERY = async (threadID) => {
         threadMessages {
           messageID
         }
-=======
->>>>>>> cb04f3f44b0c7c1211ca1d9d7ec048415f908b68
       }
     }
   `;
@@ -130,12 +127,7 @@ const ADD_THREADMESSAGE = async (data) => {
   return response;
 };
 
-<<<<<<< HEAD
 const DELETE_THREAD = async (threadID) => {
-=======
-const DELETE_THREAD = async (data) => {
-  const { threadID } = data;
->>>>>>> cb04f3f44b0c7c1211ca1d9d7ec048415f908b68
   let response = new ApiResponse();
 
   // Delete the thread
