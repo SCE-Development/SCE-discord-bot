@@ -53,21 +53,19 @@ module.exports = new Command({
         : 'Remove thread canceled';
       return await confirmMessage
         .awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] })
-        .then((collected) => {
+        .then(collected => {
           const reaction = collected.first();
           confirmMessage.delete();
           if (reaction.emoji.name === '👍') {
             return true;
           } else {
-            message.channel
-              .send(cancelMessage)
-              .then((msg) => msg.delete(10000));
+            message.channel.send(cancelMessage).then(msg => msg.delete(10000));
             return false;
           }
         })
         .catch(() => {
           confirmMessage.delete();
-          message.channel.send(cancelMessage).then((msg) => msg.delete(10000));
+          message.channel.send(cancelMessage).then(msg => msg.delete(10000));
           return false;
         });
     };
@@ -105,7 +103,7 @@ module.exports = new Command({
           message.delete();
           message.channel
             .send(`Oops! Could not create thread ${topic}`)
-            .then((msg) => {
+            .then(msg => {
               msg.delete(20000);
             });
           return;
@@ -139,7 +137,10 @@ module.exports = new Command({
           );
           return;
         }
-        let threadID = args.slice(1).join('').replace(/\s+/, '');
+        let threadID = args
+          .slice(1)
+          .join('')
+          .replace(/\s+/, '');
         if (!/^\d{1,18}/.test(threadID)) {
           // Invalid id
           message.channel
@@ -147,7 +148,7 @@ module.exports = new Command({
               `Could not remove thread ${threadID}.
               ID should be a number up to 18 digits.`
             )
-            .then((msg) => msg.delete(10000));
+            .then(msg => msg.delete(10000));
           return;
         }
 
@@ -157,14 +158,14 @@ module.exports = new Command({
           // Error
           message.channel
             .send(`Oops! Could not remove thread with id ${threadID}.`)
-            .then((msg) => msg.delete(10000));
+            .then(msg => msg.delete(10000));
           return;
         }
         if (query.responseData.length != 1) {
           // Too many threads
           message.channel
             .send(`Oops! Multiple threads matched id ${threadID}.`)
-            .then((msg) => msg.delete(10000));
+            .then(msg => msg.delete(10000));
           return;
         }
         threadID = query.responseData[0].threadID;
@@ -182,7 +183,7 @@ module.exports = new Command({
           // Error
           message.channel
             .send(`Oops! Could not remove thread with id ${threadID}.`)
-            .then((msg) => msg.delete(10000));
+            .then(msg => msg.delete(10000));
           return;
         }
         const removalMessage =
