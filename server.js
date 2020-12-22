@@ -9,12 +9,14 @@ const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 const { schema } = require('./api/resolvers/index.js');
 const bodyParser = require('body-parser');
+const { NewMemberAddHandler } = require('./src/handlers/NewMemberAddHandler');
 const port = 5000;
 
 const startBot = async () => {
   const client = new Discord.Client();
   const messageHandler = new MessageHandler(prefix);
   const vcChangeHandler = new VoiceChannelChangeHandler();
+  const newMemberHandler = new NewMemberAddHandler();
   client.once('ready', () => {
     messageHandler.initialize();
     client.user.setActivity('Managing the SCE');
@@ -27,6 +29,10 @@ const startBot = async () => {
 
   client.on('voiceStateUpdate', (oldMember, newMember) => {
     vcChangeHandler.handleChangeMemberInVoiceChannel(oldMember, newMember);
+  });
+
+  client.on('guildMemberAdd', (newMember) => {
+    newMemberHandler.handleNewMember(newMember);
   });
 
   client.login(API_TOKEN);

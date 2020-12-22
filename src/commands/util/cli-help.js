@@ -40,9 +40,10 @@ function getCommandList(commandType) {
 module.exports = new Command({
   name: 'clihelp',
   description: 'List CLI commands and info about CLI commands',
-  category: 'information',
   aliases: ['cli-commands'],
+  example: 's!clihelp',
   permissions: 'general',
+  category: 'information',
   execute: (message, args) => {
     if (!args.length) {
       const generalCliHelpEmbed = {

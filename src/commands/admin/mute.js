@@ -4,9 +4,10 @@ const { isOfficer } = require('../../util/Permission');
 module.exports = new Command({
   name: 'mute',
   description: 'Mute someone, or unmutes if the person is muted.',
-  category: 'Server management',
   aliases: [],
+  example: 's!mute @user <message>',
   permissions: 'admin',
+  category: 'Server management',
   execute: async (message, args) => {
     const author = message.member;
     // Check if author can mute

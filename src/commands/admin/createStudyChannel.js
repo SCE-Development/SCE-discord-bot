@@ -3,11 +3,11 @@ const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
   name: 'createstudychannel',
-  description: 'create new study channel (text)',
-  category: 'mod',
-  aliases: ['csc'],
+  description: 'Create a new study channel',
+  aliases: ['csc'],  
+  example: 's!csc <channelname> [-f | --force]',
   permissions: 'admin',
-  example: 's!csc CMPE126',
+  category: 'mod',
   execute: async (message, args) => {
     const author = message.member;
     const { channels, roles } = message.guild;

@@ -3,10 +3,10 @@ const Command = require('../Command');
 module.exports = new Command({
   name: 'setvoicetopic',
   description: 'Rename Voice Channel, but can be only done 2 per 10 min',
-  category: 'member services',
   aliases: ['svt'],
-  permissions: 'member',
   example: 's!setvoicetopic',
+  permissions: 'member',
+  category: 'member services',
   execute: async (message, args) => {
     // Check if a user gave topic for args
     if (!args.length) {

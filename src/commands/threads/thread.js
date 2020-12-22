@@ -9,13 +9,13 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
 module.exports = new Command({
   name: 'thread',
   description: 'View active threads or start a new one',
-  category: 'custom threads',
   aliases: [],
+  example: 's!thread <param (optional)>',
   permissions: 'general',
+  category: 'custom threads',
   params:
     '`active` (view active), `all` (view all),\
   `<topic>` (start thread), `none` (start thread without topic)',
-  example: 's!thread <param (optional)>',
   execute: async (message, args) => {
     const param = args.join(' ').trim();
 

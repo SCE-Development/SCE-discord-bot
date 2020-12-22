@@ -9,12 +9,12 @@ const {
 
 module.exports = new Command({
   name: 'threadmanager',
-  description: 'Create and remove threads.',
-  category: 'custom threads',
+  description: 'Thread Manager. Used for managing custom threads.',
   aliases: ['tm'],
+  example: 's!tm',
   permissions: 'admin',
+  category: 'custom threads',
   params: '`create`, `remove`',
-  example: 's!tm <param> <option>',
   execute: async (message, args) => {
     // Check for author permissions
     if (!isOfficer(message.member)) {
