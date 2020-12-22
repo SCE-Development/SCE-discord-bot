@@ -79,7 +79,7 @@ module.exports = new Command({
           .catch(_ => {
             message.channel.send(_);
           });
-          break;
+        break;
 
       case 'leaderboard':
         messageGenerator.generateLeaderboardMessage(args[1])
