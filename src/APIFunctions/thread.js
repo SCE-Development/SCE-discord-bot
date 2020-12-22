@@ -29,6 +29,35 @@ const THREAD_QUERY = async () => {
   return response;
 };
 
+const THREAD_ID_QUERY = async (threadID) => {
+  const threadQuery = gql`
+    {
+      threadMany(filter: {
+        _operators: {threadID: {regex: "^${threadID}" } }
+      }) {
+        threadID
+        creatorID
+        guildID
+        topic
+        threadMessages {
+          messageID
+        }
+      }
+    }
+  `;
+
+  let response = new ApiResponse();
+  await request(`${DISCORD_API_URL}/graphql`, threadQuery)
+    .then((data) => {
+      response.responseData = data.threadMany;
+      response.error = false;
+    })
+    .catch(() => {
+      response.error = true;
+    });
+  return response;
+};
+
 const CREATE_THREAD = async (data) => {
   const { threadID, creatorID, guildID, topic, messageID } = data;
   let response = new ApiResponse();
@@ -98,8 +127,7 @@ const ADD_THREADMESSAGE = async (data) => {
   return response;
 };
 
-const DELETE_THREAD = async (data) => {
-  const { threadID } = data;
+const DELETE_THREAD = async (threadID) => {
   let response = new ApiResponse();
 
   // Delete the thread
@@ -132,6 +160,7 @@ const DELETE_THREAD = async (data) => {
 
 module.exports = {
   THREAD_QUERY,
+  THREAD_ID_QUERY,
   CREATE_THREAD,
   ADD_THREADMESSAGE,
   DELETE_THREAD,

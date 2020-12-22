@@ -1,30 +1,39 @@
 const Discord = require('discord.js');
 const { isOfficer } = require('../../util/Permission');
 const Command = require('../Command');
-const { CREATE_THREAD, DELETE_THREAD } = require('../../APIFunctions/thread');
+const {
+  CREATE_THREAD,
+  DELETE_THREAD,
+  THREAD_ID_QUERY,
+} = require('../../APIFunctions/thread');
 
 module.exports = new Command({
   name: 'threadmanager',
   description: 'Create and remove threads.',
-  category: 'threads',
+  category: 'custom threads',
   aliases: ['tm'],
   permissions: 'admin',
   params: '`create`, `remove`',
   example: 's!tm <param> <option>',
-  execute: (message, args) => {
+  execute: async (message, args) => {
     // Check for author permissions
     if (!isOfficer(message.member)) {
-      message.channel.send('You do not have sufficient permissions!');
+      message.channel.send(
+        `${message.member}, you do not have sufficient permissions!`
+      );
       return;
     }
 
     // Confirm action
-    const confirmAction = async (create, param) => {
+    const confirmAction = async (create, info) => {
       const confirmEmbed = new Discord.RichEmbed();
       if (create) {
-        confirmEmbed.setTitle('Start new thread?').addField('Topic', param);
+        confirmEmbed.setTitle('Start new thread?').addField('Topic', info[0]);
       } else {
-        confirmEmbed.setTitle('Remove thread?').addField('ID', param);
+        confirmEmbed.setTitle('Remove thread?').addField('ID', info[0]);
+        if (info.length == 2) {
+          confirmEmbed.addField('Topic', info[2]);
+        }
       }
       const confirmMessage = await message.channel.send(confirmEmbed);
       confirmMessage
@@ -70,50 +79,48 @@ module.exports = new Command({
         if (topic.length === 0) {
           topic = 'none';
         }
+        const confirmed = await confirmAction(true, [topic]);
+        if (!confirmed) {
+          return;
+        }
+        const threadID = message.createdTimestamp
+          .toString()
+          .split('')
+          .reverse()
+          .join('');
 
-        confirmAction(true, topic).then((confirmed) => {
-          if (!confirmed) {
-            message.delete();
-            return;
-          }
-          // todo generate threadID
-          const threadID = '2';
+        const mutation = {
+          threadID: threadID,
+          creatorID: message.member.id,
+          guildID: message.guild.id,
+          messageID: message.id,
+        };
+        if (topic !== 'none') {
+          mutation.topic = topic;
+        }
 
-          const mutation = {
-            threadID: threadID,
-            creatorID: message.member.id,
-            guildID: message.guild.id,
-            messageID: message.id,
-          };
-          if (topic !== 'none') {
-            mutation.topic = topic;
-          }
-
-          const createThread = async () => await CREATE_THREAD(mutation);
-
-          createThread().then((response) => {
-            if (response.error) {
-              // Error
-              message.delete();
-              message.channel
-                .send('Oops! Could not create thread ' + topic)
-                .then((msg) => {
-                  msg.delete(20000);
-                });
-            } else {
-              message.channel.send(
-                new Discord.RichEmbed()
-                  .setTitle('New Thread')
-                  .setDescription(
-                    'Use `|thread id|` to view the full thread or\
-                  `|thread id| <message>` to add to the thread'
-                  )
-                  .addField('ID', threadID)
-                  .addField('Topic', topic)
-              );
-            }
-          });
-        });
+        const response = await CREATE_THREAD(mutation);
+        if (response.error) {
+          // Error
+          message.delete();
+          message.channel
+            .send(`Oops! Could not create thread ${topic}`)
+            .then((msg) => {
+              msg.delete(20000);
+            });
+          return;
+        }
+        message.channel.send(
+          new Discord.RichEmbed()
+            .setTitle('New Thread')
+            .setDescription(
+              'Use `|thread id|` to view the full thread or\
+            `|thread id| <message>` to add to the thread.\n\
+            Type at least 4 digits of the thread id.'
+            )
+            .addField('ID', threadID)
+            .addField('Topic', topic)
+        );
         break;
       }
       case 'remove':
@@ -132,50 +139,61 @@ module.exports = new Command({
           );
           return;
         }
-        const id = args.slice(1).join('').replace(/\s+/, '');
-        if (!/^\d{1,18}/.test(id)) {
+        let threadID = args.slice(1).join('').replace(/\s+/, '');
+        if (!/^\d{1,18}/.test(threadID)) {
           // Invalid id
           message.channel
             .send(
-              'Could not remove thread ' +
-                id +
-                '. ID should be a number up to 18 digits.'
+              `Could not remove thread ${threadID}.
+              ID should be a number up to 18 digits.`
             )
             .then((msg) => msg.delete(10000));
           return;
         }
 
-        confirmAction(false, id).then((confirmed) => {
-          if (!confirmed) {
-            return;
-          }
+        const query = await THREAD_ID_QUERY(threadID);
 
-          const removeThread = async () =>
-            await DELETE_THREAD({ threadID: id });
+        if (query.error || query.responseData.length == 0) {
+          // Error
+          message.channel
+            .send(`Oops! Could not remove thread with id ${threadID}.`)
+            .then((msg) => msg.delete(10000));
+          return;
+        }
+        if (query.responseData.length != 1) {
+          // Too many threads
+          message.channel
+            .send(`Oops! Multiple threads matched id ${threadID}.`)
+            .then((msg) => msg.delete(10000));
+          return;
+        }
+        threadID = query.responseData[0].threadID;
+        const info =
+          query.responseData[0].topic === 'undefined'
+            ? [threadID]
+            : [threadID, query.responseData[0].topic];
+        const confirmed = await confirmAction(false, info);
+        if (!confirmed) {
+          return;
+        }
 
-          removeThread().then((response) => {
-            if (response.error) {
-              // Error
-              message.channel
-                .send('Oops! Could not remove thread ' + id)
-                .then((msg) => msg.delete(10000));
-            } else {
-              const removalMessage =
-                response.responseData.topic === 'undefined'
-                  ? 'Removed thread (id: ' +
-                    response.responseData.threadID +
-                    ')'
-                  : 'Removed thread ' +
-                    response.responseData.topic +
-                    ' (id: ' +
-                    response.responseData.threadID +
-                    ')';
-              message.channel
-                .send(removalMessage)
-                .then((msg) => msg.delete(10000));
-            }
-          });
-        });
+        const response = await DELETE_THREAD(threadID);
+        if (response.error) {
+          // Error
+          message.channel
+            .send(`Oops! Could not remove thread with id ${threadID}.`)
+            .then((msg) => msg.delete(10000));
+          return;
+        }
+        const removalMessage =
+          response.responseData.topic === 'undefined'
+            ? `Removed thread (id: ${response.responseData.threadID})`
+            : `Removed thread ${
+              response.responseData.topic
+            } (id: ${
+              response.responseData.threadID
+            })`;
+        message.channel.send(removalMessage);
         break;
       }
 
