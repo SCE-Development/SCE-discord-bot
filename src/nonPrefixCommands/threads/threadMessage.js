@@ -121,7 +121,6 @@ async function createNewThread(data, message){
  * IMPORTANT: HAS TO BE THE RESPONSE FROM FIND_THREAD
  **/
 async function addMessageToThread(data, message, queryThread){
-  console.log(`Added message to ${data.threadID}`);
   //  We're adding in a message to the ID that was searched
   data.threadID = queryThread.responseData[0].threadID;
   const addMsg = await ADD_THREADMESSAGE(data);
@@ -197,9 +196,7 @@ async function multipleThreadResults(data, message, queryThread){
   };
   const emojiCollector = currentMsg.createReactionCollector(filter);
   const checkEmoji = async reaction => {
-    let change = true;
-    console.log(reaction.emoji.name);
-      
+    let change = true;      
     /**
      *  Handles what the current page is and 
      *  what the range of threads we want is
@@ -231,7 +228,6 @@ async function multipleThreadResults(data, message, queryThread){
     //  making the new page if the page hasnt been already made
     if(threadListEmbed[page.currentPage] === undefined)
     {
-      console.log('Created new ThreadListEmbed');
       threadListEmbed.push(new Discord.RichEmbed()
         .setColor('#301934')
         .setTitle(`All threads that start with ID: ${data.threadID}`));
@@ -247,7 +243,7 @@ async function multipleThreadResults(data, message, queryThread){
     if(change)
       currentMsg
         .edit(threadListEmbed[page.currentPage])
-        .catch(() => console.log('ERROR MOVING'));
+        .catch();
     await reaction.remove(reaction.users.last().id);
   };
     // turn on the collector
@@ -274,7 +270,6 @@ async function multipleThreadResults(data, message, queryThread){
   const collectMessage = async (messageIn) =>
   {
     messageIn.delete();
-    console.log(`Got new message ${messageIn.content}`);
     //  turn off all collectors
     emojiCollector.stop(['The user has chosen a new threadID']);
     messageCollector.stop(['User chose an acceptable threadID']); 
