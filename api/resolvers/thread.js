@@ -40,17 +40,53 @@ const ThreadMutation = {
       return thread;
     },
   },
+  threadMessageDelete: {
+    type: ThreadTC,
+    args: { threadID: 'String!', messageID: 'String!' },
+    resolve: async (source, args) => {
+      let message = await ThreadMessage.findOne({
+        messageID: args.messageID,
+      });
+      if (!message) throw new UserInputError('Failed to find ThreadMessage');
+      // I can't get Thread.findOneAndUpdate() to pull null elements
+      const thread = await Thread.findOneAndUpdate(
+        { threadID: args.threadID },
+        {
+          $pull: { threadMessages: message._id },
+        },
+        {
+          new: true,
+          useFindAndModify: false,
+        }
+      );
+      if (!thread) throw new UserInputError('Thread update returned null');
+      message = await ThreadMessage.deleteOne({
+        messageID: args.messageID,
+      });
+      if (!message)
+        throw new UserInputError('ThreadMessage remove returned null');
+      return thread;
+    },
+  },
   threadCreate: {
     type: ThreadTC,
     args: {
       threadID: 'String!',
       creatorID: 'String!',
       guildID: 'String!',
+      channelID: 'String!',
       topic: 'String',
       messageID: 'String!',
     },
     resolve: async (source, args) => {
-      const { threadID, creatorID, guildID, topic, messageID } = args;
+      const {
+        threadID,
+        creatorID,
+        guildID,
+        channelID,
+        topic,
+        messageID,
+      } = args;
       const message = await ThreadMessage.create({
         messageID,
       }).catch(() => {
@@ -63,6 +99,7 @@ const ThreadMutation = {
         threadID,
         creatorID,
         guildID,
+        channelID,
         topic,
         threadMessages: [message],
       }).catch(async () => {
@@ -73,6 +110,7 @@ const ThreadMutation = {
         threadID,
         creatorID,
         guildID,
+        channelID,
       });
       if (!thread) throw new UserInputError('Thread creation returned null');
       return thread;

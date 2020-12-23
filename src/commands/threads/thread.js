@@ -1,21 +1,25 @@
 const Discord = require('discord.js');
 const Command = require('../Command');
-const { THREAD_QUERY, CREATE_THREAD } = require('../../APIFunctions/thread');
+const {
+  THREAD_QUERY,
+  CREATE_THREAD,
+  DELETE_THREAD,
+  DELETE_THREADMESSAGE,
+} = require('../../APIFunctions/thread');
 
 const THREADS_PER_PAGE = 6;
 const KEEP_ALIVE = 300000; // 5 minutes
+const ACTIVE_DAYS = 7;
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 module.exports = new Command({
   name: 'thread',
   description: 'View active threads or start a new one',
   aliases: [],
-  example: 's!thread <param (optional)>',
+  example: 's!thread <[all | active | none] | topic>',
   permissions: 'general',
   category: 'custom threads',
-  params:
-    '`active` (view active), `all` (view all),\
-  `<topic>` (start thread), `none` (start thread without topic)',
+  disabled: false,
   execute: async (message, args) => {
     const param = args.join(' ').trim();
 
@@ -26,27 +30,44 @@ module.exports = new Command({
       if (response.error) {
         message.channel
           .send('Oops! Could not query threads')
-          .then((msg) => msg.delete(10000));
+          .then(msg => msg.delete(10000));
         return;
       }
 
       const getAll = param === 'all';
       const currentDate = new Date();
 
-      const checkIfInclude = (message) =>
-        getAll || (currentDate - message.createdAt) / MS_PER_DAY < 7;
+      const checkIfInclude = message =>
+        getAll || (currentDate - message.createdAt) / MS_PER_DAY < ACTIVE_DAYS;
 
       const fields = [];
       for (let i = 0; i < response.responseData.length; i++) {
         const thread = response.responseData[i];
-        let lastMessage = await message.channel
-          .fetchMessage(
-            thread.threadMessages[thread.threadMessages.length - 1].messageID
-          )
-          .catch(() => null);
-        // Catch messages from other channels and
-        // do not display messages older than a week old
-        if (lastMessage === null || !checkIfInclude(lastMessage)) {
+        if (
+          thread.guildID !== message.guild.id ||
+          thread.channelID !== message.channel.id
+        ) {
+          continue;
+        }
+        let j = thread.threadMessages.length;
+        let lastMessage = null;
+        while (lastMessage === null && j-- >= 0) {
+          const threadMessage = thread.threadMessages[j];
+          lastMessage = await message.channel
+            .fetchMessage(threadMessage.messageID)
+            .catch(() => {
+              DELETE_THREADMESSAGE({
+                threadID: thread.threadID,
+                messageID: threadMessage.messageID,
+              }).catch(() => null);
+              return null;
+            });
+        }
+        if (lastMessage === null) {
+          DELETE_THREAD(thread.threadID);
+          continue;
+        }
+        if (!checkIfInclude(lastMessage)) {
           continue;
         }
         const blurb = `${
@@ -55,7 +76,7 @@ module.exports = new Command({
           lastMessage.content
         }`.substring(0, 150);
         // Add the thread and display the last message
-        if (thread.topic === 'undefined') {
+        if (thread.topic === null) {
           fields.push([`(id: ${thread.threadID})`, blurb]);
         } else {
           fields.push([`${thread.topic} (id: ${thread.threadID})`, blurb]);
@@ -90,7 +111,7 @@ module.exports = new Command({
         for (let i = 0; i < THREADS_PER_PAGE; i++) {
           embed.addField(fields[i][0], fields[i][1]);
         }
-        message.channel.send(embed).then(async (sentEmbed) => {
+        message.channel.send(embed).then(async sentEmbed => {
           await sentEmbed.react('⬅️');
           await sentEmbed.react('➡️');
 
@@ -103,7 +124,7 @@ module.exports = new Command({
           const collector = sentEmbed.createReactionCollector(filter, {
             time: KEEP_ALIVE,
           });
-          collector.on('collect', (reaction) => {
+          collector.on('collect', reaction => {
             reaction.remove(reaction.users.last().id);
             switch (reaction.emoji.name) {
               case '⬅️':
@@ -135,10 +156,10 @@ module.exports = new Command({
       } else {
         // no pagination
         const embed = makeEmbed(0, 0);
-        fields.forEach((field) => {
+        fields.forEach(field => {
           embed.addField(field[0], field[1]);
         });
-        message.channel.send(embed).then((msg) => msg.delete(KEEP_ALIVE));
+        message.channel.send(embed).then(msg => msg.delete(KEEP_ALIVE));
       }
     } else if (param.length > 0) {
       // Start new thread
@@ -147,7 +168,7 @@ module.exports = new Command({
         const confirmMessage = await message.channel.send(
           new Discord.RichEmbed()
             .setTitle('Start new thread?')
-            .addField('Topic', param)
+            .addField('Topic', param, true)
         );
         confirmMessage
           .react('👍')
@@ -164,7 +185,7 @@ module.exports = new Command({
         let confirmed = false;
         await confirmMessage
           .awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] })
-          .then((collected) => {
+          .then(collected => {
             const reaction = collected.first();
             confirmMessage.delete();
             if (reaction.emoji.name === '👍') {
@@ -172,14 +193,14 @@ module.exports = new Command({
             } else {
               message.channel
                 .send('New thread canceled')
-                .then((msg) => msg.delete(10000));
+                .then(msg => msg.delete(10000));
             }
           })
           .catch(() => {
             confirmMessage.delete();
             message.channel
               .send('New thread canceled')
-              .then((msg) => msg.delete(10000));
+              .then(msg => msg.delete(10000));
           });
 
         return confirmed;
@@ -199,6 +220,7 @@ module.exports = new Command({
         threadID: threadID,
         creatorID: message.member.id,
         guildID: message.guild.id,
+        channelID: message.channel.id,
         messageID: message.id,
       };
       if (param !== 'none') {
@@ -211,12 +233,12 @@ module.exports = new Command({
         message.delete();
         message.channel
           .send('Oops! Could not create thread ' + param)
-          .then((msg) => {
+          .then(msg => {
             msg.delete(20000);
           });
         return;
       }
-      if (response.responseData.topic === 'undefined') {
+      if (response.responseData.topic === null) {
         response.responseData.topic = 'none';
       }
       message.channel.send(
@@ -227,8 +249,8 @@ module.exports = new Command({
                 `|thread id| <message>` to add to the thread.\n\
                 Type at least 4 digits of the thread id.'
           )
-          .addField('ID', response.responseData.threadID)
-          .addField('Topic', response.responseData.topic)
+          .addField('ID', response.responseData.threadID, true)
+          .addField('Topic', response.responseData.topic, true)
       );
     } else {
       // Help
@@ -242,10 +264,13 @@ module.exports = new Command({
           the full thread or `|thread id| <message>` to add to the thread.\n\
           Type at least 4 digits of the thread id.'
           )
-          .addField('s!thread all', 'View all threads')
-          .addField('s!thread active', 'View active threads')
-          .addField('s!thread <topic>', 'Start a new thread with a topic')
-          .addField('s!thread none', 'Start a new thread without a topic')
+          .addField('`s!thread all`', 'View all threads')
+          .addField(
+            '`s!thread active`',
+            `View threads with activity in the last ${ACTIVE_DAYS} days`
+          )
+          .addField('`s!thread <topic>`', 'Start a new thread with a topic')
+          .addField('`s!thread none`', 'Start a new thread without a topic')
       );
     }
   },
