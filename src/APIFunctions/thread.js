@@ -227,8 +227,13 @@ const DELETE_THREAD = async threadID => {
     }
   `;
 
+<<<<<<< HEAD
   await request(`${DISCORD_API_URL}/graphql`, deleteThread, { threadID })
     .then(data => {
+=======
+  await request(`${DISCORD_API_URL}/graphql`, deleteThread)
+    .then((data) => {
+>>>>>>> 4cbef8d... Fix formatting
       response.responseData = data.threadDelete;
     })
     .catch(() => {
