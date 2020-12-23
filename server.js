@@ -13,6 +13,7 @@ const { NewMemberAddHandler } = require('./src/handlers/NewMemberAddHandler');
 const port = 5000;
 
 const startBot = async () => {
+  const client = new Discord.Client();
   const messageHandler = new MessageHandler(prefix);
   const vcChangeHandler = new VoiceChannelChangeHandler();
   const newMemberHandler = new NewMemberAddHandler();
@@ -70,6 +71,7 @@ const startServer = async () => {
   app.listen(port, () => console.log(`Server running at port ${port}`));
 
 };
+
 
 startBot();
 startDatabase();
