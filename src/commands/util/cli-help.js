@@ -85,7 +85,20 @@ module.exports = new Command({
           // Listens to reactions for 1 minute
           const collector =
             sentEmbed.createReactionCollector(filter, { time: 60000 });
-
+          collector.on('collect', reaction => {
+            reaction.remove(reaction.users.last().id);
+            switch(reaction.emoji.name) {
+              case '⬅️':
+                if (pageIndex === 0) return;
+                pageIndex--;
+                break;
+              case '➡️':
+                if (pageIndex === npmCommands.length - 1) {
+                  pageIndex = 0;
+                } else {
+                  pageIndex++;
+                }
+            }
             const newEmbed = new Discord.RichEmbed()
               .setColor(getEmbedColor(commandType))
               .setAuthor(getTitleName(commandType), getImageUrl(commandType))
@@ -97,6 +110,7 @@ module.exports = new Command({
 
             sentEmbed.edit(newEmbed);
           });
+        });
       }
       // Does not need pagination
       else {
