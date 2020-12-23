@@ -6,12 +6,13 @@ module.exports = new Command({
   category: 'Member services',
   aliases: [],
   permissions: 'member',
-  execute: (message, args) => {
+  execute: (message) => {
     // Use a switch-case Regex argument in this way:
     // If typing <w | week>, display top10 in the week
     // <m | month>, top10 in the month
     // <y | year>, top10 in the year
     // Otherwise, top10 of all time
     // At the bottom, display user's rank
+    message.channel.send('Top');
   }
 });

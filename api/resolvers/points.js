@@ -1,5 +1,7 @@
+// const { ApolloError } = require('apollo-server');
+// const { Aggregate } = require('mongoose');
 const {
-  PointSchema, PointTC, Point
+  PointTC, Point
 } = require('../models/points');
 
 const PointQuery = {
@@ -9,38 +11,47 @@ const PointQuery = {
   pointPagination: PointTC.mongooseResolvers.pagination()
 };
 
-// define these I think
 const PointMutation = {
   pointUpdateOne: {
     type: PointTC,
-    args: { userID: 'String!', points: 'Int' },
+    args: { guildID: 'String!', userID: 'String!', points: 'Int' },
     resolve: async (source, args) => {
       let p = Math.floor(Math.random() * (50 - 25) + 25);
       const points = await Point.findOneAndUpdate(
-        // check if user has points. if not, add them.
-        { userID: args.userID },
+        // If time between messages > 3min, increment
+        { guildID: args.guildID, userID: args.userID,
+          lastTalked: {$lt: new Date(Date.now() - 1000)} },
         {
           $inc: {
             totalPoints: p,
             weekPoints: p,
             monthPoints: p,
             yearPoints: p
+          },
+          $set: {
+            lastTalked: Date.now()
           }
         },
         { new: true, useFindAndModify: false, upsert: true },
-      );
+      ).catch((error) => {
+        // This error will trigger if time between messages < 3min
+        if (error.codeName == 'DuplicateKey') {
+          return null;
+          // throw new ApolloError('User talked too recently');
+        }
+      });
       return points;
     }
   },
   // for when a user leaves the server
   pointRemoveOne: PointTC.mongooseResolvers.removeOne(),
-  // resets the point of week/month/year to 0
+  // Resets the points of week/month/year to 0
   weekPointReset: {
     type: PointTC,
-    args: { userID: 'String!', points: 'Int' },
+    args: { guildID: 'String!', userID: 'String!', points: 'Int' },
     resolve: async (source, args) => {
       const resetted = await Point.findOneAndUpdate(
-        { userID: args.userID },
+        { guildID: args.guildID, userID: args.userID },
         {
           $set: {
             weekPoints: 0
@@ -53,10 +64,10 @@ const PointMutation = {
   },
   monthPointReset: {
     type: PointTC,
-    args: { userID: 'String!', points: 'Int' },
+    args: { guildID: 'String!', userID: 'String!', points: 'Int' },
     resolve: async (source, args) => {
       const resetted = await Point.findOneAndUpdate(
-        { userID: args.userID },
+        { guildID: args.guildID, userID: args.userID },
         {
           $set: {
             monthPoints: 0
@@ -69,10 +80,10 @@ const PointMutation = {
   },
   yearPointReset: {
     type: PointTC,
-    args: { userID: 'String!', points: 'Int' },
+    args: { guildID: 'String!', userID: 'String!', points: 'Int' },
     resolve: async (source, args) => {
       const resetted = await Point.findOneAndUpdate(
-        { userID: args.userID },
+        { guildID: args.guildID, userID: args.userID },
         {
           $set: {
             yearPoints: 0
