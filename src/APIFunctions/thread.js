@@ -119,7 +119,6 @@ const DELETE_THREAD = async (data) => {
   }
   `;
 
-  
   await request(`${DISCORD_API_URL}/graphql`, deleteThread)
     .then((data) => {
       response.responseData = data.threadDelete;
