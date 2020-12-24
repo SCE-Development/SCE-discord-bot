@@ -14,7 +14,7 @@ module.exports = new Command({
   example: 's!tm <create | remove> <[topic] | id>',
   permissions: 'admin',
   category: 'custom threads',
-  disabled: false,
+  disabled: true,
   execute: async (message, args) => {
     // Check for author permissions
     if (!isOfficer(message.member)) {

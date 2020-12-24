@@ -19,7 +19,7 @@ module.exports = new Command({
   example: 's!thread <[all | active | none] | topic>',
   permissions: 'general',
   category: 'custom threads',
-  disabled: false,
+  disabled: true,
   execute: async (message, args) => {
     const param = args.join(' ').trim();
 
