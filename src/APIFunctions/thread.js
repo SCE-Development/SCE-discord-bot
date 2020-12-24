@@ -10,9 +10,19 @@ const { ApiResponse } = require('./ApiResponses');
  * @property  {String}    guildID         The ID of the guild.
  * @property  {String}    channelID       The ID of the channel.
  * @property  {String}    [topic]         The topic of the thread.
+ * @property  {String[]}  threadMessages  The IDs of messages in the thread.
+ */
+
+/**
+ * @typedef   {Object} NewThread
+ *
+ * @property  {String}    threadID        The ID of the thread.
+ * @property  {String}    creatorID       The user ID of the creator.
+ * @property  {String}    guildID         The ID of the guild.
+ * @property  {String}    channelID       The ID of the channel.
+ * @property  {String}    [topic]         The topic of the thread.
  * @property  {String}    messageID       The ID of the message creating the
  *                                        thread.
- * @property  {String[]}  threadMessages  The IDs of messages in the thread.
  */
 
 /**
@@ -103,7 +113,7 @@ const THREAD_ID_QUERY = async threadID => {
 /**
  * Creates a new thread in the database..
  *
- * @param {Thread} thread The thread to create.
+ * @param {NewThread} thread The thread to create.
  *
  * @returns {ThreadOnePayload} The created thread.
  */
