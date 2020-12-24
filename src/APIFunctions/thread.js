@@ -2,6 +2,38 @@ const { request, gql } = require('graphql-request');
 const { DISCORD_API_URL } = require('../../config.json');
 const { ApiResponse } = require('./ApiResponses');
 
+/**
+ * @typedef   {Object} Thread
+ *
+ * @property  {String}    threadID        The ID of the thread.
+ * @property  {String}    creatorID       The user ID of the creator.
+ * @property  {String}    guildID         The ID of the guild.
+ * @property  {String}    channelID       The ID of the channel.
+ * @property  {String}    [topic]         The topic of the thread.
+ * @property  {String}    messageID       The ID of the message creating the
+ *                                        thread.
+ * @property  {String[]}  threadMessages  The IDs of messages in the thread.
+ */
+
+/**
+ * @typedef   {Object} ThreadManyPayload
+ *
+ * @property  {Thread[]}  responseData  The threads that matched the query.
+ * @property  {boolean}   error         If the query had an error.
+ */
+
+/**
+ * @typedef   {Object} ThreadOnePayload
+ *
+ * @property  {Thread}  responseData  The thread that matched the query.
+ * @property  {boolean} error         If the query had an error.
+ */
+
+/**
+ * Queries all threads from the database.
+ *
+ * @returns {ThreadManyPayload} All threads.
+ */
 const THREAD_QUERY = async () => {
   const threadQuery = gql`
     {
@@ -30,6 +62,15 @@ const THREAD_QUERY = async () => {
   return response;
 };
 
+/**
+ * Queries all threads that start with an ID from the database.
+ *
+ * @param {String} threadID The thread ID to search for, matching from the
+ * start.
+ *
+ * @returns {ThreadManyPayload} All threads with an ID that start with
+ * threadID.
+ */
 const THREAD_ID_QUERY = async threadID => {
   const threadQuery = gql`
     query($threadID: RegExpAsString!) {
@@ -59,7 +100,14 @@ const THREAD_ID_QUERY = async threadID => {
   return response;
 };
 
-const CREATE_THREAD = async data => {
+/**
+ * Creates a new thread in the database..
+ *
+ * @param {Thread} thread The thread to create.
+ *
+ * @returns {ThreadOnePayload} The created thread.
+ */
+const CREATE_THREAD = async thread => {
   let response = new ApiResponse();
 
   // Create the thread message
@@ -91,7 +139,7 @@ const CREATE_THREAD = async data => {
       }
     }
   `;
-  await request(`${DISCORD_API_URL}/graphql`, makeThreadMessage, data)
+  await request(`${DISCORD_API_URL}/graphql`, makeThreadMessage, thread)
     .then(data => {
       response.responseData = data.threadCreate;
     })
@@ -102,7 +150,15 @@ const CREATE_THREAD = async data => {
   return response;
 };
 
-const ADD_THREADMESSAGE = async data => {
+/**
+ * Add a message to a thread in the database.
+ *
+ * @param {String} threadID   The ID of the thread to add the message to.
+ * @param {String} messageID  The ID of the message to add.
+ *
+ * @returns {Thread} The thread that the message was added to.
+ */
+const ADD_THREADMESSAGE = async (threadID, messageID) => {
   let response = new ApiResponse();
 
   // Create the thread message
@@ -121,7 +177,10 @@ const ADD_THREADMESSAGE = async data => {
     }
   `;
 
-  await request(`${DISCORD_API_URL}/graphql`, makeThreadMessage, data)
+  await request(`${DISCORD_API_URL}/graphql`, makeThreadMessage, {
+    threadID,
+    messageID,
+  })
     .then(data => {
       response.responseData = data.threadAddMessage;
     })
@@ -132,6 +191,13 @@ const ADD_THREADMESSAGE = async data => {
   return response;
 };
 
+/**
+ * Delete a thread and all its messages from the database.
+ *
+ * @param {String} threadID The ID of the thread to delete.
+ *
+ * @returns {Thread} The deleted thread.
+ */
 const DELETE_THREAD = async threadID => {
   let response = new ApiResponse();
 
@@ -162,7 +228,15 @@ const DELETE_THREAD = async threadID => {
   return response;
 };
 
-const DELETE_THREADMESSAGE = async data => {
+/**
+ * Delete a thread message from the database.
+ *
+ * @param {String} threadID The ID of the thread containing the message.
+ * @param {String} messageID The ID of the message to delete.
+ *
+ * @returns {Thread} The thread where the message was deleted.
+ */
+const DELETE_THREADMESSAGE = async (threadID, messageID) => {
   let response = new ApiResponse();
 
   // Delete the thread message and remove it from the thread
@@ -181,7 +255,10 @@ const DELETE_THREADMESSAGE = async data => {
     }
   `;
 
-  await request(`${DISCORD_API_URL}/graphql`, deleteThreadMessage, data)
+  await request(`${DISCORD_API_URL}/graphql`, deleteThreadMessage, {
+    threadID,
+    messageID,
+  })
     .then(data => {
       response.responseData = data.threadRemoveMessage;
     })

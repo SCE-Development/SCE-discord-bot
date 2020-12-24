@@ -14,7 +14,7 @@ module.exports = new Command({
   example: 's!tm <create | remove> <[topic] | id>',
   permissions: 'admin',
   category: 'custom threads',
-  disabled: true,
+  disabled: false,
   execute: async (message, args) => {
     // Check for author permissions
     if (!isOfficer(message.member)) {
@@ -41,7 +41,7 @@ module.exports = new Command({
       confirmMessage
         .react('👍')
         .then(() => confirmMessage.react('👎'))
-        .catch(() => null /* User reacts before bot (message is deleted) */);
+        .catch(() => null);
 
       const filter = (reaction, user) => {
         return (
@@ -57,17 +57,21 @@ module.exports = new Command({
         .awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] })
         .then(collected => {
           const reaction = collected.first();
-          confirmMessage.delete();
+          confirmMessage.delete().catch(() => null);
           if (reaction.emoji.name === '👍') {
             return true;
           } else {
-            message.channel.send(cancelMessage).then(msg => msg.delete(10000));
+            message.channel
+              .send(cancelMessage)
+              .then(msg => msg.delete(10000).catch(() => null));
             return false;
           }
         })
         .catch(() => {
-          confirmMessage.delete();
-          message.channel.send(cancelMessage).then(msg => msg.delete(10000));
+          confirmMessage.delete().catch(() => null);
+          message.channel
+            .send(cancelMessage)
+            .then(msg => msg.delete(10000).catch(() => null));
           return false;
         });
     };
@@ -103,11 +107,10 @@ module.exports = new Command({
         const response = await CREATE_THREAD(mutation);
         if (response.error) {
           // Error
-          message.delete();
           message.channel
             .send(`Oops! Could not create thread ${topic}`)
             .then(msg => {
-              msg.delete(20000);
+              msg.delete(20000).catch(() => null);
             });
           return;
         }
@@ -149,7 +152,7 @@ module.exports = new Command({
               `Could not remove thread ${threadID}.
               ID should be a number up to 18 digits.`
             )
-            .then(msg => msg.delete(10000));
+            .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
 
@@ -158,7 +161,7 @@ module.exports = new Command({
           // Error
           message.channel
             .send(`Oops! Could not remove thread with id ${threadID}.`)
-            .then(msg => msg.delete(10000));
+            .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
         const threads = query.responseData.filter(
@@ -168,14 +171,14 @@ module.exports = new Command({
           // No threads
           message.channel
             .send(`Oops! Found no threads with id ${threadID}.`)
-            .then(msg => msg.delete(10000));
+            .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
         if (threads.length !== 1) {
           // Too many threads
           message.channel
             .send(`Oops! Multiple threads matched id ${threadID}.`)
-            .then(msg => msg.delete(10000));
+            .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
         threadID = threads[0].threadID;
@@ -191,7 +194,7 @@ module.exports = new Command({
           // Error
           message.channel
             .send(`Oops! Could not remove thread with id ${threadID}.`)
-            .then(msg => msg.delete(10000));
+            .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
         const removalMessage =
@@ -200,13 +203,12 @@ module.exports = new Command({
             : `Removed thread ${response.responseData.topic} \
 (id: ${response.responseData.threadID})`;
         message.channel.send(removalMessage);
-        message.delete();
+        message.delete().catch(() => null);
         break;
       }
 
       default: {
         // Help
-        message.delete();
         message.channel.send(
           new Discord.RichEmbed()
             .setColor('#ccffff')

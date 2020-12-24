@@ -19,18 +19,18 @@ module.exports = new Command({
   example: 's!thread <[all | active | none] | topic>',
   permissions: 'general',
   category: 'custom threads',
-  disabled: true,
+  disabled: false,
   execute: async (message, args) => {
     const param = args.join(' ').trim();
 
     if (param === 'active' || param === 'all') {
       // Show threads
-      message.delete(5000);
+      message.delete(5000).catch(() => null);
       const response = await THREAD_QUERY();
       if (response.error) {
         message.channel
           .send('Oops! Could not query threads')
-          .then(msg => msg.delete(10000));
+          .then(msg => msg.delete(10000).catch(() => null));
         return;
       }
 
@@ -151,7 +151,7 @@ module.exports = new Command({
             }
             sentEmbed.edit(newEmbed);
           });
-          sentEmbed.delete(KEEP_ALIVE);
+          sentEmbed.delete(KEEP_ALIVE).catch(() => null);
         });
       } else {
         // no pagination
@@ -159,7 +159,9 @@ module.exports = new Command({
         fields.forEach(field => {
           embed.addField(field[0], field[1]);
         });
-        message.channel.send(embed).then(msg => msg.delete(KEEP_ALIVE));
+        message.channel
+          .send(embed)
+          .then(msg => msg.delete(KEEP_ALIVE).catch(() => null));
       }
     } else if (param.length > 0) {
       // Start new thread
@@ -173,7 +175,7 @@ module.exports = new Command({
         confirmMessage
           .react('👍')
           .then(() => confirmMessage.react('👎'))
-          .catch(() => null /* User reacts before bot (message is deleted) */);
+          .catch(() => null);
 
         const filter = (reaction, user) => {
           return (
@@ -187,20 +189,20 @@ module.exports = new Command({
           .awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] })
           .then(collected => {
             const reaction = collected.first();
-            confirmMessage.delete();
+            confirmMessage.delete().catch(() => null);
             if (reaction.emoji.name === '👍') {
               confirmed = true;
             } else {
               message.channel
                 .send('New thread canceled')
-                .then(msg => msg.delete(10000));
+                .then(msg => msg.delete(10000).catch(() => null));
             }
           })
           .catch(() => {
-            confirmMessage.delete();
+            confirmMessage.delete().catch(() => null);
             message.channel
               .send('New thread canceled')
-              .then(msg => msg.delete(10000));
+              .then(msg => msg.delete(10000).catch(() => null));
           });
 
         return confirmed;
@@ -230,11 +232,10 @@ module.exports = new Command({
       const response = await CREATE_THREAD(mutation);
       if (response.error) {
         // Error
-        message.delete();
         message.channel
           .send('Oops! Could not create thread ' + param)
           .then(msg => {
-            msg.delete(20000);
+            msg.delete(20000).catch(() => null);
           });
         return;
       }
@@ -254,7 +255,7 @@ module.exports = new Command({
       );
     } else {
       // Help
-      message.delete();
+      message.delete().catch(() => null);
       message.channel.send(
         new Discord.RichEmbed()
           .setColor('#ccffff')
