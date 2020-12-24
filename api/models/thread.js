@@ -19,6 +19,10 @@ const ThreadSchema = mongoose.Schema(
       type: String,
       required: true
     },
+    channelID: {
+      type: String,
+      required: true
+    },
     topic: {
       type: String,
     },
