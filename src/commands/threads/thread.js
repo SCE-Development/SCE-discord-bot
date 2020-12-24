@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7b90b8d... Rebased and fixed user choice bug.
 const Discord = require('discord.js');
 const Command = require('../Command');
 const {

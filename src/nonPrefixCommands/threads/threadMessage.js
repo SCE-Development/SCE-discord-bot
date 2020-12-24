@@ -1,7 +1,7 @@
 
 const Discord  = require('discord.js');
 const Command = require('../Command');
-const { FIND_THREAD, ADD_THREADMESSAGE, CREATE_THREAD } 
+const { THREAD_ID_QUERY, ADD_THREADMESSAGE, CREATE_THREAD } 
   = require('../../APIFunctions/thread');
 
 const ITEM_PER_PAGE = 5;
@@ -10,13 +10,12 @@ module.exports = new Command({
   name: 'no-prefix threadmessage',
   regex: new RegExp(/^\|\s*(\d{4,13})\s*\|/),
   description: 'Create or add to a thread with an ID',
-  example: '|<thread ID>| [message](Optional)',
+  example: '|<thread ID>| [message]',
   category: 'custom threads',
   permissions: 'general',
   execute: async (message) => {
-    await message.delete();
     /**
-     * @param {Bool} messageMode 
+     * @var {Boolean} messageMode 
      * True = User is creating thread or adding message to thread
      * False = User looking at threads with starting ID
      */
@@ -28,12 +27,13 @@ module.exports = new Command({
       topic: messageMode ? 
         /^\|\s*(\d{4,13})\s*\|\s*(.{0,10})/.exec(message)[2] : '',
       creatorID: message.author.id,
+      channelID: message.channel.id,
       guildID : message.guild.id,
       threadMsg : messageMode ? 
         /^\|\s*(\d{4,13})\s*\|\s*(.+)/.exec(message)[2] : '',
     };
     //  MESSAGE HANDLING
-    let queryThread = await FIND_THREAD(data);
+    let queryThread = await THREAD_ID_QUERY(data.threadID);
     if(queryThread.error)
     {
       message.channel
@@ -55,11 +55,13 @@ module.exports = new Command({
       }
     }
     else
-      Pagination(data, message, queryThread, false);
+    {
+      await message.delete();
+      pagination(data, message, queryThread, false);
+    }
   }
 });
 /** 
- * Below is all the supporting functions
  * @param {Object} data an enumeration containing all 
  * necessary data to do APIfunction calls, and make embeds
  * @param {Discord.Message} message the original message 
@@ -133,13 +135,13 @@ async function createNewThread(data, message){
  * necessary data to do APIfunction calls, and make embeds
  * @param {Discord.Message} message the original message 
  * that started this command
- * @param {araay} queryThread the response from FIND_THREAD(data). 
+ * @param {Object} queryThread the response from FIND_THREAD(data). 
  * IMPORTANT: HAS TO BE THE RESPONSE FROM FIND_THREAD
  **/
 async function addMessageToThread(data, message, queryThread){
   //  We're adding in a message to the ID that was searched
   data.threadID = queryThread.responseData[0].threadID;
-  const addMsg = await ADD_THREADMESSAGE(data);
+  const addMsg = await ADD_THREADMESSAGE(data.threadID, data.messageID);
   if(addMsg.error)
   {
     message.channel
@@ -161,21 +163,22 @@ async function addMessageToThread(data, message, queryThread){
  * all necessary data to do APIfunction calls, and make embeds
  * @param {Discord.Message} message the original message 
  * that started this command
- * @param {araay} queryThread the response from FIND_THREAD(data). 
+ * @param {Object} queryThread the response from FIND_THREAD(data). 
  * IMPORTANT: HAS TO BE RESPONSE FROM FIND_THREAD
  **/
 async function multipleThreadResults(data, message, queryThread){
   let emojiCollector 
-   = await Pagination(data, message, queryThread, true);
+   = await pagination(data, message, queryThread, true);
   /** 
    * Create Message collector
    * @param {Discord.Message} m is message collected by discord
    * new filter for message collector 
    **/ 
   let filter = (m) => {
-    let goodChoice = /[0-9]/.test(m.content);
+    let goodChoice = /^(\d+)\s*$/.exec(m.content);
     if(goodChoice)
-      goodChoice =  Number(m.content) - 1 < queryThread.responseData.length;
+      goodChoice = parseInt(goodChoice[0]) - 1 
+        < queryThread.responseData.length;
     return (
       /** 
        * if message is a number
@@ -193,7 +196,7 @@ async function multipleThreadResults(data, message, queryThread){
     let index = Number(messageIn.content) - 1;
     data.threadID = queryThread
       .responseData[index].threadID;
-    let queryThread2 = await FIND_THREAD(data); 
+    let queryThread2 = await THREAD_ID_QUERY(data.threadID); 
     emojiCollector.stop(['The user has chosen a new threadID']);
     await addMessageToThread(data, message, queryThread2);
   };
@@ -204,11 +207,12 @@ async function multipleThreadResults(data, message, queryThread){
   });
 }
 
-async function Pagination(data, message, queryThread, messageMode){
+async function pagination(data, message, queryThread, messageMode){
   /**
    * @var {Object} page This var contains all necessary 
    * data to create a "book" of data
-   * @var {array} threadListEmbed this array holds each page.
+   * 
+   * @var {Object} threadListEmbed this array holds each page.
    * Each page is a RichEmbed
    **/
   let page = {
@@ -223,8 +227,7 @@ async function Pagination(data, message, queryThread, messageMode){
     .setTitle(`All threads that start with ID: ${data.threadID}`);
   if(messageMode)
   {
-    threadListEmbed[0].addField('Choose one!', 'Example: "1"');
-    threadListEmbed[0].addBlankField();
+    threadListEmbed[0].setDescription('Choose one! Example: type "1"');
   }
   queryThread.responseData
     .slice(page.lowerBound, page.upperBound).forEach((thread, index) => {
@@ -286,9 +289,7 @@ async function Pagination(data, message, queryThread, messageMode){
       if(messageMode)
       {
         threadListEmbed[page.currentPage]
-          .addField('Choose one!', 'Example: "1"');
-        threadListEmbed[page.currentPage]
-          .addBlankField();
+          .setDescription('Choose one! Example: type "1"');
       }
       queryThread.responseData
         .slice(page.lowerBound, page.upperBound).forEach((thread, index)  => {
