@@ -10,6 +10,7 @@ module.exports = new Command({
   name: 'no-prefix threadmessage',
   regex: new RegExp(/^\|\s*(\d{4,13})\s*\|/),
   description: 'Create or add to a thread with an ID',
+  example: '|<thread ID>| [message](Optional)',
   category: 'custom threads',
   permissions: 'general',
   execute: async (message) => {
@@ -172,14 +173,15 @@ async function multipleThreadResults(data, message, queryThread){
    * new filter for message collector 
    **/ 
   let filter = (m) => {
-    let regex = new RegExp('^'+data.threadID+'\\d+'); 
-    let newID = m.content.match(regex);
+    let goodChoice = /[0-9]/.test(m.content);
+    if(goodChoice)
+      goodChoice =  Number(m.content) - 1 < queryThread.responseData.length;
     return (
       /** 
-       * if regex matches (new id starts with old id) and 
-       * authors are same then message is collected
+       * if message is a number
+       * and is less than array length
        **/ 
-      newID != null &&    
+      goodChoice &&    
       m.author.id === message.author.id
     );
   };
@@ -188,29 +190,12 @@ async function multipleThreadResults(data, message, queryThread){
   const collectMessage = async (messageIn) =>
   {
     messageIn.delete();
-    let temp = data.threadID;
-    data.threadID =  messageIn.content;
-    //  choice depends on how many threads are returned
-    let queryThread = await FIND_THREAD(data);
-    switch (queryThread.responseData.length) {
-      case 0:  
-        data.threadID = temp; 
-        message.channel
-          .send(
-            new Discord.RichEmbed()
-              .setColor('#301934')
-              .setTitle('No results, try another ID.')
-          )
-          .then((msg) => msg.delete(10000));
-        break;
-      case 1:   
-        emojiCollector.stop(['The user has chosen a new threadID']);
-        await addMessageToThread(data, message, queryThread);
-        break;
-      default:  
-        emojiCollector.stop(['The user has chosen a new threadID']);
-        await multipleThreadResults(data, message, queryThread);
-    }
+    let index = Number(messageIn.content) - 1;
+    data.threadID = queryThread
+      .responseData[index].threadID;
+    let queryThread2 = await FIND_THREAD(data); 
+    emojiCollector.stop(['The user has chosen a new threadID']);
+    await addMessageToThread(data, message, queryThread2);
   };
   messageCollector.on('collect', collectMessage);
   //  when collector is turned off, previous messages
@@ -238,14 +223,15 @@ async function Pagination(data, message, queryThread, messageMode){
     .setTitle(`All threads that start with ID: ${data.threadID}`);
   if(messageMode)
   {
-    threadListEmbed[0].addField('Add more digits to ID', `${data.threadID}`);
+    threadListEmbed[0].addField('Choose one!', 'Example: "1"');
     threadListEmbed[0].addBlankField();
   }
   queryThread.responseData
     .slice(page.lowerBound, page.upperBound).forEach((thread, index) => {
       let currentIndex = page.currentPage * ITEM_PER_PAGE + index + 1;
       threadListEmbed[page.currentPage]
-        .addField(`${currentIndex}. Thread ID: ${thread.threadID}`, `topic: ${thread.topic}`);
+        .addField(`${currentIndex}. Thread ID: ${thread.threadID}`, 
+          `topic: ${thread.topic}`);
     });
   if(page.maxPage)  
     threadListEmbed[page.currentPage]
@@ -300,7 +286,7 @@ async function Pagination(data, message, queryThread, messageMode){
       if(messageMode)
       {
         threadListEmbed[page.currentPage]
-          .addField('Add more digits to ID', `${data.threadID}`);
+          .addField('Choose one!', 'Example: "1"');
         threadListEmbed[page.currentPage]
           .addBlankField();
       }
@@ -308,7 +294,8 @@ async function Pagination(data, message, queryThread, messageMode){
         .slice(page.lowerBound, page.upperBound).forEach((thread, index)  => {
           let currentIndex = page.currentPage * ITEM_PER_PAGE + index + 1;
           threadListEmbed[page.currentPage]
-            .addField(`${currentIndex}. Thread ID: ${thread.threadID}`, `topic: ${thread.topic}`);
+            .addField(`${currentIndex}. Thread ID: ${thread.threadID}`,
+              `topic: ${thread.topic}`);
         });
       threadListEmbed[page.currentPage]
         .setFooter(`Page: ${page.currentPage+1}/${page.maxPage+1}`);
