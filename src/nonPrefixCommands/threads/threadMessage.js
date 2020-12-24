@@ -4,22 +4,32 @@ const Command = require('../Command');
 const { FIND_THREAD, ADD_THREADMESSAGE, CREATE_THREAD } 
   = require('../../APIFunctions/thread');
 
+const ITEM_PER_PAGE = 5;
+  
 module.exports = new Command({
   name: 'no-prefix threadmessage',
-  regex: new RegExp(/^\|\s*(\d{4,13})\s*\|\s+/),
+  regex: new RegExp(/^\|\s*(\d{4,13})\s*\|/),
   description: 'Create or add to a thread with an ID',
   category: 'custom threads',
   permissions: 'general',
   execute: async (message) => {
     await message.delete();
+    /**
+     * @param {Bool} messageMode 
+     * True = User is creating thread or adding message to thread
+     * False = User looking at threads with starting ID
+     */
+    let messageMode = /^\|\s*(\d{4,13})\s*\|\s*(.+)/.test(message);
     const data = 
     {
-      threadID : /^\|\s*(\d{4,13})\s*\|\s+(.+)/.exec(message)[1],
+      threadID : /^\|\s*(\d{4,13})\s*\|/.exec(message)[1],
       messageID : message.id, 
-      topic: /^\|\s*(\d{4,13})\s*\|\s+(.{0,10})/.exec(message)[2],
+      topic: messageMode ? 
+        /^\|\s*(\d{4,13})\s*\|\s*(.{0,10})/.exec(message)[2] : '',
       creatorID: message.author.id,
       guildID : message.guild.id,
-      threadMsg : /^\|\s*(\d{4,13})\s*\|\s+(.+)/.exec(message)[2],
+      threadMsg : messageMode ? 
+        /^\|\s*(\d{4,13})\s*\|\s*(.+)/.exec(message)[2] : '',
     };
     //  MESSAGE HANDLING
     let queryThread = await FIND_THREAD(data);
@@ -30,21 +40,26 @@ module.exports = new Command({
         .then((msg) => msg.delete(10000));
       return;
     }
-    switch (queryThread.responseData.length) {
-      case 0:   
-        await createNewThread(data, message); 
-        break;
-      case 1:   
-        await addMessageToThread(data, message, queryThread);
-        break;
-      default:  
-        await multipleThreadResults(data, message, queryThread);
+    if(messageMode)
+    {
+      switch (queryThread.responseData.length) {
+        case 0:   
+          await createNewThread(data, message); 
+          break;
+        case 1:   
+          await addMessageToThread(data, message, queryThread);
+          break;
+        default:  
+          await multipleThreadResults(data, message, queryThread);
+      }
     }
+    else
+      Pagination(data, message, queryThread, false);
   }
 });
 /** 
  * Below is all the supporting functions
- * @param {enumeration} data an enumeration containing all 
+ * @param {Object} data an enumeration containing all 
  * necessary data to do APIfunction calls, and make embeds
  * @param {Discord.Message} message the original message 
  * that started this command
@@ -113,7 +128,7 @@ async function createNewThread(data, message){
   }
 }
 /**
- * @param {Enumeration} data an enumeration containing all 
+ * @param {Object} data an enumeration containing all 
  * necessary data to do APIfunction calls, and make embeds
  * @param {Discord.Message} message the original message 
  * that started this command
@@ -135,14 +150,13 @@ async function addMessageToThread(data, message, queryThread){
     .setColor('#301934')
     .setTitle(`Added message to Thread ${data.threadID}`)
     .addField('Message', `${data.threadMsg}`);
-  return await
-  message.channel
+  await message.channel
     .send(addedEmbed)
     .then((msg) => msg.delete(10000));
 }
 
 /**
- * @param {Enumeration} data an enumeration containing 
+ * @param {Object} data an enumeration containing 
  * all necessary data to do APIfunction calls, and make embeds
  * @param {Discord.Message} message the original message 
  * that started this command
@@ -150,111 +164,14 @@ async function addMessageToThread(data, message, queryThread){
  * IMPORTANT: HAS TO BE RESPONSE FROM FIND_THREAD
  **/
 async function multipleThreadResults(data, message, queryThread){
-  /**
-     * @var {Enumeration} page This var contains all necessary 
-     * data to create a "book" of data
-     * @var {array} threadListEmbed this array holds each page.
-     * Each page is a RichEmbed
-     **/
-  let page = {
-    upperBound: 9,
-    lowerBound: 0,
-    currentPage: 0,
-    maxPage: Math.floor(queryThread.responseData.length / 10)
-  };
-  let threadListEmbed = [];
-  threadListEmbed.push(new Discord.RichEmbed()
-    .setColor('#301934')
-    .setTitle(`All threads that start with ID: ${data.threadID}`));
-  queryThread.responseData
-    .slice(page.lowerBound, page.upperBound).forEach(thread => 
-      threadListEmbed[page.currentPage]
-        .addField(`Thread ID: ${thread.threadID}`, `topic: ${thread.topic}`)
-    );
-  threadListEmbed[page.currentPage]
-    .setFooter(`Page: ${page.currentPage+1}/${page.maxPage+1}`);
-    
-  // Tell user what they need to do 
-  const addMoreDigitsEmbed = new Discord.RichEmbed()
-    .setColor('#301934')
-    .setTitle(`Add more digits to ID ${data.threadID}`);
-  let currentMsg = await message.channel
-    .send(threadListEmbed[page.currentPage]);
-  let InstructionMsg = await message.channel
-    .send(addMoreDigitsEmbed);
-  
-  await currentMsg.react('⬅️');
-  await currentMsg.react('⏹️');
-  await currentMsg.react('➡️');
-    
-  //  Initialize Reaction Collector
-  let filter = (reaction, user) => {
-    return (
-      ['⬅️', '⏹️', '➡️'].includes(reaction.emoji.name) &&
-        user.id === message.author.id
-    );
-  };
-  const emojiCollector = currentMsg.createReactionCollector(filter);
-  const checkEmoji = async reaction => {
-    let change = true;      
-    /**
-     *  Handles what the current page is and 
-     *  what the range of threads we want is
-     **/  
-    switch (reaction.emoji.name) {
-      case '➡️':   
-        if(page.currentPage < page.maxPage)
-        {
-          page.currentPage++;
-          page.lowerBound = page.lowerBound + 10;
-          page.upperBound = page.upperBound + 10;
-        }
-        else change = false; 
-        break;
-      case '⬅️':   
-        if(page.currentPage > 0)
-        {
-          page.currentPage--;
-          page.lowerBound = page.lowerBound - 10;
-          page.upperBound = page.upperBound - 10;
-        }
-        else change = false; 
-        break;
-      case '⏹️':  
-        emojiCollector.stop(['The user has chosen a new threadID']);
-        messageCollector.stop(['User chose an acceptable threadID']); 
-        return;
-    }
-    //  making the new page if the page hasnt been already made
-    if(threadListEmbed[page.currentPage] === undefined)
-    {
-      threadListEmbed.push(new Discord.RichEmbed()
-        .setColor('#301934')
-        .setTitle(`All threads that start with ID: ${data.threadID}`));
-      queryThread.responseData
-        .slice(page.lowerBound, page.upperBound).forEach(thread => 
-          threadListEmbed[page.currentPage]
-            .addField(`Thread ID: ${thread.threadID}`, `topic: ${thread.topic}`)
-        );
-      threadListEmbed[page.currentPage]
-        .setFooter(`Page: ${page.currentPage+1}/${page.maxPage+1}`);
-    }
-    //  edits in the new page if a the Emoji choice will not give an error
-    if(change)
-      currentMsg
-        .edit(threadListEmbed[page.currentPage])
-        .catch();
-    await reaction.remove(reaction.users.last().id);
-  };
-    // turn on the collector
-  emojiCollector.on('collect', checkEmoji);
-
+  let emojiCollector 
+   = await Pagination(data, message, queryThread, true);
   /** 
-     * Create Message collector
-     * @param {Discord.Message} m is message collected by discord
-     * new filter for message collector 
-     **/ 
-  filter = (m) => {
+   * Create Message collector
+   * @param {Discord.Message} m is message collected by discord
+   * new filter for message collector 
+   **/ 
+  let filter = (m) => {
     let regex = new RegExp('^'+data.threadID+'\\d+'); 
     let newID = m.content.match(regex);
     return (
@@ -266,33 +183,145 @@ async function multipleThreadResults(data, message, queryThread){
       m.author.id === message.author.id
     );
   };
-  const messageCollector = message.channel.createMessageCollector(filter);
+  const messageCollector = message.channel
+    .createMessageCollector(filter, { time: 300000 });
   const collectMessage = async (messageIn) =>
   {
     messageIn.delete();
-    //  turn off all collectors
-    emojiCollector.stop(['The user has chosen a new threadID']);
-    messageCollector.stop(['User chose an acceptable threadID']); 
-      
+    let temp = data.threadID;
     data.threadID =  messageIn.content;
     //  choice depends on how many threads are returned
     let queryThread = await FIND_THREAD(data);
     switch (queryThread.responseData.length) {
-      case 0:   
-        await createNewThread(data, message); 
+      case 0:  
+        data.threadID = temp; 
+        message.channel
+          .send(
+            new Discord.RichEmbed()
+              .setColor('#301934')
+              .setTitle('No results, try another ID.')
+          )
+          .then((msg) => msg.delete(10000));
         break;
       case 1:   
+        emojiCollector.stop(['The user has chosen a new threadID']);
         await addMessageToThread(data, message, queryThread);
         break;
       default:  
+        emojiCollector.stop(['The user has chosen a new threadID']);
         await multipleThreadResults(data, message, queryThread);
     }
   };
   messageCollector.on('collect', collectMessage);
   //  when collector is turned off, previous messages
-  messageCollector.on('end', async () => { 
-    await currentMsg.delete();
-    await InstructionMsg.delete();
+  emojiCollector.on('end', async () => { 
+    messageCollector.stop();
   });
-  return true;
+}
+
+async function Pagination(data, message, queryThread, messageMode){
+  /**
+   * @var {Object} page This var contains all necessary 
+   * data to create a "book" of data
+   * @var {array} threadListEmbed this array holds each page.
+   * Each page is a RichEmbed
+   **/
+  let page = {
+    upperBound: ITEM_PER_PAGE,
+    lowerBound: 0,
+    currentPage: 0,
+    maxPage: Math.ceil(queryThread.responseData.length / ITEM_PER_PAGE) - 1
+  };
+  let threadListEmbed = new Array(page.maxPage);
+  threadListEmbed[0] = new Discord.RichEmbed()
+    .setColor('#301934')
+    .setTitle(`All threads that start with ID: ${data.threadID}`);
+  if(messageMode)
+  {
+    threadListEmbed[0].addField('Add more digits to ID', `${data.threadID}`);
+    threadListEmbed[0].addBlankField();
+  }
+  queryThread.responseData
+    .slice(page.lowerBound, page.upperBound).forEach((thread, index) => {
+      let currentIndex = page.currentPage * ITEM_PER_PAGE + index + 1;
+      threadListEmbed[page.currentPage]
+        .addField(`${currentIndex}. Thread ID: ${thread.threadID}`, `topic: ${thread.topic}`);
+    });
+  if(page.maxPage)  
+    threadListEmbed[page.currentPage]
+      .setFooter(`Page: ${page.currentPage+1}/${page.maxPage+1}`);
+  let currentMsg = await message.channel
+    .send(threadListEmbed[page.currentPage]);
+  // if more than 1 maxPage then allow mult page
+  if(page.maxPage)
+    await currentMsg.react('⬅️');
+  await currentMsg.react('⏹️');
+  if(page.maxPage)
+    await currentMsg.react('➡️'); 
+  //  Initialize Reaction Collector
+  let filter = (reaction, user) => {
+    return (
+      ['⬅️', '⏹️', '➡️'].includes(reaction.emoji.name) &&
+        user.id === message.author.id
+    );
+  };
+  const emojiCollector = currentMsg
+    .createReactionCollector(filter, { time: 300000 });
+  const checkEmoji = async reaction => {      
+    /**
+     *  Handles what the current page is and 
+     *  what the range of threads we want is
+     **/  
+    switch (reaction.emoji.name) {
+      case '➡️':   
+        if(page.currentPage < page.maxPage)
+          page.currentPage++;
+        else 
+          page.currentPage = 0;
+        break;
+      case '⬅️':   
+        if(page.currentPage > 0)
+          page.currentPage--;
+        else
+          page.currentPage = page.maxPage;
+        break;
+      case '⏹️':  
+        emojiCollector.stop(['The user has chosen a new threadID']);
+        return;
+    }
+    page.lowerBound = page.currentPage * ITEM_PER_PAGE;
+    page.upperBound = ITEM_PER_PAGE + (page.currentPage * ITEM_PER_PAGE);
+    //  making the new page if the page hasnt been already made
+    if(threadListEmbed[page.currentPage] === undefined)
+    {
+      threadListEmbed[page.currentPage] = new Discord.RichEmbed()
+        .setColor('#301934')
+        .setTitle(`All threads that start with ID: ${data.threadID}`);
+      if(messageMode)
+      {
+        threadListEmbed[page.currentPage]
+          .addField('Add more digits to ID', `${data.threadID}`);
+        threadListEmbed[page.currentPage]
+          .addBlankField();
+      }
+      queryThread.responseData
+        .slice(page.lowerBound, page.upperBound).forEach((thread, index)  => {
+          let currentIndex = page.currentPage * ITEM_PER_PAGE + index + 1;
+          threadListEmbed[page.currentPage]
+            .addField(`${currentIndex}. Thread ID: ${thread.threadID}`, `topic: ${thread.topic}`);
+        });
+      threadListEmbed[page.currentPage]
+        .setFooter(`Page: ${page.currentPage+1}/${page.maxPage+1}`);
+    }
+    currentMsg
+      .edit(threadListEmbed[page.currentPage])
+      .catch();
+    await reaction.remove(reaction.users.last().id);
+  };
+    // turn on the collector
+  emojiCollector.on('collect', checkEmoji);
+  emojiCollector.on('end', async () => { 
+    currentMsg.delete();
+  });
+  return emojiCollector;
 }
