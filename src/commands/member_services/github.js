@@ -24,7 +24,57 @@ module.exports = new Command({
       case 'pr':
         messageGenerator.generatePullRequestMessage(args[1])
           .then(prMessage => {
-            message.channel.send(prMessage);
+            let pageIndex = 0;
+
+            const prEmbed = new Discord.RichEmbed()
+              .setColor('28C7E6')
+              .setThumbnail('https://github.githubassets.com' +
+              '/images/modules/logos_page/Octocat.png')
+              .setFooter(`Page ${pageIndex + 1} of ${prMessage.length}`);
+
+            prMessage[pageIndex].forEach((pr) => {
+              prEmbed.addField(pr.name, pr.value);
+            });
+
+            message.channel.send(prEmbed).then(async sentEmbed => {
+              await sentEmbed.react('⬅️');
+              await sentEmbed.react('➡️');
+            
+              const filter = (reaction, user) => {
+                return ['⬅️', '➡️'].includes(reaction.emoji.name) 
+                  && user.id === message.author.id;
+              };
+
+              // Listens to reactions for 1 minute
+              const collector =
+                sentEmbed.createReactionCollector(filter, { time: 60000 });
+              collector.on('collect', reaction => {
+                reaction.remove(reaction.users.last().id);
+                switch(reaction.emoji.name) {
+                  case '⬅️':
+                    if (pageIndex === 0) return;
+                    pageIndex--;
+                    break;
+                  case '➡️':
+                    if (pageIndex === prMessage.length - 1) {
+                      pageIndex = 0;
+                    } else {
+                      pageIndex++;
+                    }
+                }
+                const newPrEmbed = new Discord.RichEmbed()
+                  .setColor('28C7E6')
+                  .setThumbnail('https://github.githubassets.com' +
+                  '/images/modules/logos_page/Octocat.png')
+                  .setFooter(`Page ${pageIndex + 1} of ${prMessage.length}`);
+
+                prMessage[pageIndex].forEach((pr) => {
+                  newPrEmbed.addField(pr.name, pr.value);
+                });
+                
+                sentEmbed.edit(newPrEmbed);
+              });
+            });
           })
           .catch(_ => {
             message.channel.send(_);

@@ -27,13 +27,12 @@ class GithubMessageGenerator {
     return new Promise((resolve, reject) => {
       this.fetcher.fetchPullRequests(repo)
         .then(pullRequests => {
-          this.defaultEmbed.title = `Pull Requests - ${repo}`;
-          this.defaultEmbed.url =
-            `https://github.com/SCE-Development/${repo}/pulls`;
-          this.defaultEmbed.description =
-            'Active pull requests in this repository';
-          this.defaultEmbed.fields = pullRequests;
-          resolve({embed: this.defaultEmbed});
+          let value = [];
+          pullRequests.forEach((pr, index) => {
+            if (index % 10 == 0) value.push([pr]);
+            else value[Math.floor(index/10)].push(pr);
+          });
+          resolve(value);
         })
         .catch(_ => {
           if(_)
