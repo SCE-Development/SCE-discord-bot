@@ -1,7 +1,10 @@
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
 >>>>>>> 7b90b8d... Rebased and fixed user choice bug.
+=======
+>>>>>>> 7b90b8dbc397ee60e46d54dbca524afc1b3281c5
 const Discord = require('discord.js');
 const Command = require('../Command');
 const {
