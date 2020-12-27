@@ -227,23 +227,8 @@ const DELETE_THREAD = async threadID => {
     }
   `;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   await request(`${DISCORD_API_URL}/graphql`, deleteThread, { threadID })
     .then(data => {
-=======
-  await request(`${DISCORD_API_URL}/graphql`, deleteThread)
-    .then((data) => {
->>>>>>> 4cbef8d... Fix formatting
-=======
-  await request(`${DISCORD_API_URL}/graphql`, deleteThread, { threadID })
-    .then(data => {
->>>>>>> 7b90b8d... Rebased and fixed user choice bug.
-=======
-  await request(`${DISCORD_API_URL}/graphql`, deleteThread, { threadID })
-    .then(data => {
->>>>>>> 7b90b8dbc397ee60e46d54dbca524afc1b3281c5
       response.responseData = data.threadDelete;
     })
     .catch(() => {
