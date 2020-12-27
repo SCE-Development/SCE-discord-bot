@@ -81,24 +81,31 @@ const THREAD_QUERY = async () => {
  * @returns {ThreadManyPayload} All threads with an ID that start with
  * threadID.
  */
-const THREAD_ID_QUERY = async threadID => {
+const THREAD_ID_QUERY = async (thread) => {
   const threadQuery = gql`
-    query($threadID: RegExpAsString!) {
-      threadMany(filter: { _operators: { threadID: { regex: $threadID } } }) {
-        threadID
-        creatorID
-        guildID
-        channelID
-        topic
-        threadMessages {
-          messageID
-        }
+  query($threadID: RegExpAsString!, $channelID: String!, $guildID: String!) {
+    threadMany(
+      filter: { 
+      _operators: { threadID: { regex: $threadID } } 
+      channelID: $channelID
+      guildID: $guildID
+    }) {
+      threadID
+      creatorID
+      guildID
+      channelID
+      topic
+      threadMessages {
+        messageID
       }
     }
+  }
   `;
   let response = new ApiResponse();
   await request(`${DISCORD_API_URL}/graphql`, threadQuery, {
-    threadID: '^' + threadID,
+    threadID : '^' + thread.threadID,
+    channelID : thread.channelID,
+    guildID : thread.guildID
   })
     .then(data => {
       response.responseData = data.threadMany;
@@ -168,7 +175,7 @@ const CREATE_THREAD = async thread => {
  *
  * @returns {Thread} The thread that the message was added to.
  */
-const ADD_THREADMESSAGE = async (threadID, messageID) => {
+const ADD_THREADMESSAGE = async thread => {
   let response = new ApiResponse();
 
   // Create the thread message
@@ -187,10 +194,7 @@ const ADD_THREADMESSAGE = async (threadID, messageID) => {
     }
   `;
 
-  await request(`${DISCORD_API_URL}/graphql`, makeThreadMessage, {
-    threadID,
-    messageID,
-  })
+  await request(`${DISCORD_API_URL}/graphql`, makeThreadMessage, thread)
     .then(data => {
       response.responseData = data.threadAddMessage;
     })

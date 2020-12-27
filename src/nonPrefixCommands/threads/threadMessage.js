@@ -4,7 +4,6 @@ const Command = require('../Command');
 const { THREAD_ID_QUERY, ADD_THREADMESSAGE, CREATE_THREAD } 
   = require('../../APIFunctions/thread');
 
-const ITEM_PER_PAGE = 5;
   
 module.exports = new Command({
   name: 'no-prefix threadmessage',
@@ -33,7 +32,7 @@ module.exports = new Command({
         /^\|\s*(\d{4,13})\s*\|\s*(.+)/.exec(message)[2] : '',
     };
     //  MESSAGE HANDLING
-    let queryThread = await THREAD_ID_QUERY(data.threadID);
+    let queryThread = await THREAD_ID_QUERY(data);
     if(queryThread.error)
     {
       message.channel
@@ -57,7 +56,41 @@ module.exports = new Command({
     else
     {
       await message.delete();
-      pagination(data, message, queryThread, false);
+      let templateEmbed = new Discord.RichEmbed()
+        .setColor('#301934')
+        .setTitle(`All threads that start with ID: ${data.threadID}`)
+        .setDescription('Choose one! Example: type "1"');
+      await pagination(templateEmbed, message, queryThread.responseData, true);
+      let filter = (m) => {
+        let goodChoice = /^(\d+)\s*$/.exec(m.content);
+        if(goodChoice)
+          goodChoice = parseInt(goodChoice[0]) - 1 
+            < queryThread.responseData.length;
+        return (
+          /** 
+           * if message is a number
+           * and is less than array length
+           **/ 
+          goodChoice &&    
+          m.author.id === message.author.id
+        );
+      };
+      const messageCollector = message.channel
+        .createMessageCollector(filter, { time: 300000 });
+      const collectMessage = async (messageIn) =>
+      {
+        messageIn.delete();
+        let index = Number(messageIn.content) - 1;
+        data.threadID = queryThread
+          .responseData[index].threadID;
+        let queryThread2 = await THREAD_ID_QUERY(data); 
+        templateEmbed       
+          .setTitle(`All messages from thread: ${data.threadID}`)
+          .setDescription('Choose one! Example: type "1"');
+        await pagination(templateEmbed, message, 
+          queryThread2.responseData, true);
+      };
+      messageCollector.once('collect', collectMessage);
     }
   }
 });
@@ -141,7 +174,7 @@ async function createNewThread(data, message){
 async function addMessageToThread(data, message, queryThread){
   //  We're adding in a message to the ID that was searched
   data.threadID = queryThread.responseData[0].threadID;
-  const addMsg = await ADD_THREADMESSAGE(data.threadID, data.messageID);
+  const addMsg = await ADD_THREADMESSAGE(data);
   if(addMsg.error)
   {
     message.channel
@@ -167,8 +200,12 @@ async function addMessageToThread(data, message, queryThread){
  * IMPORTANT: HAS TO BE RESPONSE FROM FIND_THREAD
  **/
 async function multipleThreadResults(data, message, queryThread){
+  let templateEmbed = new Discord.RichEmbed()
+    .setColor('#301934')
+    .setTitle(`All threads that start with ID: ${data.threadID}`)
+    .setDescription('Choose one! Example: type "1"');
   let emojiCollector 
-   = await pagination(data, message, queryThread, true);
+   = await pagination(templateEmbed, message, queryThread.responseData, true);
   /** 
    * Create Message collector
    * @param {Discord.Message} m is message collected by discord
@@ -196,7 +233,7 @@ async function multipleThreadResults(data, message, queryThread){
     let index = Number(messageIn.content) - 1;
     data.threadID = queryThread
       .responseData[index].threadID;
-    let queryThread2 = await THREAD_ID_QUERY(data.threadID); 
+    let queryThread2 = await THREAD_ID_QUERY(data); 
     emojiCollector.stop(['The user has chosen a new threadID']);
     await addMessageToThread(data, message, queryThread2);
   };
@@ -207,50 +244,49 @@ async function multipleThreadResults(data, message, queryThread){
   });
 }
 
-async function pagination(data, message, queryThread, messageMode){
+async function pagination(templateEmbed, message, 
+  items, messageMode, ITEM_PER_PAGE = 5){
   /**
    * @var {Object} page This var contains all necessary 
    * data to create a "book" of data
    * 
-   * @var {Object} threadListEmbed this array holds each page.
+   * @var {Object[]} threadListEmbed this array holds each page.
    * Each page is a RichEmbed
    **/
   let page = {
     upperBound: ITEM_PER_PAGE,
     lowerBound: 0,
     currentPage: 0,
-    maxPage: Math.ceil(queryThread.responseData.length / ITEM_PER_PAGE) - 1
+    maxPage: Math.ceil(items.length / ITEM_PER_PAGE) - 1,
+    ITEM_PER_PAGE: ITEM_PER_PAGE
   };
   let threadListEmbed = new Array(page.maxPage);
-  threadListEmbed[0] = new Discord.RichEmbed()
-    .setColor('#301934')
-    .setTitle(`All threads that start with ID: ${data.threadID}`);
-  if(messageMode)
+  if(items.length === 1)
   {
-    threadListEmbed[0].setDescription('Choose one! Example: type "1"');
+    page.maxPage = Math.ceil(
+      items[0].threadMessages.length / ITEM_PER_PAGE) - 1;
+    threadListEmbed = new Array(page.maxPage);
+    threadListEmbed = await createMessageEmbed(templateEmbed, 
+      items[0].threadMessages, threadListEmbed, page, message);
   }
-  queryThread.responseData
-    .slice(page.lowerBound, page.upperBound).forEach((thread, index) => {
-      let currentIndex = page.currentPage * ITEM_PER_PAGE + index + 1;
-      threadListEmbed[page.currentPage]
-        .addField(`${currentIndex}. Thread ID: ${thread.threadID}`, 
-          `topic: ${thread.topic}`);
-    });
-  if(page.maxPage)  
-    threadListEmbed[page.currentPage]
-      .setFooter(`Page: ${page.currentPage+1}/${page.maxPage+1}`);
+  else
+  {
+    threadListEmbed = await createThreadEmbed(templateEmbed, items, 
+      threadListEmbed, page, messageMode);
+  }
+
   let currentMsg = await message.channel
     .send(threadListEmbed[page.currentPage]);
   // if more than 1 maxPage then allow mult page
   if(page.maxPage)
+  {
     await currentMsg.react('⬅️');
-  await currentMsg.react('⏹️');
-  if(page.maxPage)
     await currentMsg.react('➡️'); 
+  }
   //  Initialize Reaction Collector
   let filter = (reaction, user) => {
     return (
-      ['⬅️', '⏹️', '➡️'].includes(reaction.emoji.name) &&
+      ['⬅️', '➡️'].includes(reaction.emoji.name) &&
         user.id === message.author.id
     );
   };
@@ -274,32 +310,19 @@ async function pagination(data, message, queryThread, messageMode){
         else
           page.currentPage = page.maxPage;
         break;
-      case '⏹️':  
-        emojiCollector.stop(['The user has chosen a new threadID']);
-        return;
     }
     page.lowerBound = page.currentPage * ITEM_PER_PAGE;
     page.upperBound = ITEM_PER_PAGE + (page.currentPage * ITEM_PER_PAGE);
     //  making the new page if the page hasnt been already made
-    if(threadListEmbed[page.currentPage] === undefined)
+    if(items.length === 1)
     {
-      threadListEmbed[page.currentPage] = new Discord.RichEmbed()
-        .setColor('#301934')
-        .setTitle(`All threads that start with ID: ${data.threadID}`);
-      if(messageMode)
-      {
-        threadListEmbed[page.currentPage]
-          .setDescription('Choose one! Example: type "1"');
-      }
-      queryThread.responseData
-        .slice(page.lowerBound, page.upperBound).forEach((thread, index)  => {
-          let currentIndex = page.currentPage * ITEM_PER_PAGE + index + 1;
-          threadListEmbed[page.currentPage]
-            .addField(`${currentIndex}. Thread ID: ${thread.threadID}`,
-              `topic: ${thread.topic}`);
-        });
-      threadListEmbed[page.currentPage]
-        .setFooter(`Page: ${page.currentPage+1}/${page.maxPage+1}`);
+      threadListEmbed = await createMessageEmbed(templateEmbed, 
+        items[0].threadMessages, threadListEmbed, page, message);
+    }
+    else
+    {
+      threadListEmbed = await createThreadEmbed(templateEmbed, items,
+        threadListEmbed, page, messageMode);      
     }
     currentMsg
       .edit(threadListEmbed[page.currentPage])
@@ -312,4 +335,55 @@ async function pagination(data, message, queryThread, messageMode){
     currentMsg.delete();
   });
   return emojiCollector;
+}
+
+async function createThreadEmbed(templateEmbed, items,
+  threadListEmbed, page, messageMode){
+  if(threadListEmbed[page.currentPage] === undefined)
+  {
+    threadListEmbed[page.currentPage] = new Discord.RichEmbed()
+      .setColor(templateEmbed.color)
+      .setTitle(templateEmbed.title);
+    if(messageMode)
+    {
+      threadListEmbed[page.currentPage]
+        .setDescription(templateEmbed.description);
+    }
+    items.slice(page.lowerBound, page.upperBound)
+      .forEach((thread, index) => {
+        let currentIndex = page.currentPage * page.ITEM_PER_PAGE + index + 1;
+        threadListEmbed[page.currentPage]
+          .addField(`${currentIndex}. Thread ID: ${thread.threadID}`,
+            `topic: ${thread.topic}`);
+      });
+    if(page.maxPage)
+      threadListEmbed[page.currentPage]
+        .setFooter(`Page: ${page.currentPage+1}/${page.maxPage+1}`);
+  }
+  return threadListEmbed;
+}
+
+async function createMessageEmbed(templateEmbed, items,
+  threadListEmbed, page, message){
+  if(threadListEmbed[page.currentPage] === undefined)
+  {
+    threadListEmbed[page.currentPage] = new Discord.RichEmbed()
+      .setColor(templateEmbed.color)
+      .setTitle(templateEmbed.title);
+    let messageManager = message.channel;
+    for (const [index, message] of items
+      .slice(page.lowerBound, page.upperBound).entries()) {
+      let currentIndex = page.currentPage * page.ITEM_PER_PAGE + index + 1;
+      let content = await messageManager.fetchMessage(message.messageID);
+      let trimmedMessage = /^\|\s*(\d{4,13})\s*\|\s*(.+)/
+        .exec(content.content)[2];
+      threadListEmbed[page.currentPage]
+        .addField(`Message ${currentIndex}:`,
+          trimmedMessage);
+    }
+    if(page.maxPage)
+      threadListEmbed[page.currentPage]
+        .setFooter(`Page: ${page.currentPage+1}/${page.maxPage+1}`);
+  }
+  return threadListEmbed;
 }
