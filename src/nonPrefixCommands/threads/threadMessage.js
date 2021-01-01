@@ -1,6 +1,7 @@
 
 const Discord = require('discord.js');
 const Command = require('../Command');
+const { prefix } = require('../../../config.json');
 const { THREAD_ID_QUERY } 
   = require('../../APIFunctions/thread');
 const { createNewThread, addMessageToThread, multipleThreadResults } 
@@ -45,7 +46,7 @@ module.exports = new Command({
       threadID : /^\|\s*(\d{4,13})\s*\|/.exec(message)[1],
       messageID : message.id, 
       topic: createMode ? 
-        /^\|\s*(\d{4,13})\s*\|\s*(.{0,10})/.exec(message)[2] : '',
+        /^\|\s*(\d{4,13})\s*\|\s*(.{0,100})/.exec(message)[2] : '',
       creatorID: message.author.id,
       channelID: message.channel.id,
       guildID : message.guild.id,
@@ -57,9 +58,13 @@ module.exports = new Command({
     let threadQuery = await THREAD_ID_QUERY(data);
     if(threadQuery.error)
     {
+      let errorEmbed = Discord.RichEmbed()
+        .setTitle('Error!')
+        .setDescription(`This ID, \`${data.threadID},is an invalid ID to search.
+          Please report this bug to an officer.`);
       message.channel
-        .send('Error')
-        .then((msg) => msg.delete(10000));
+        .send(errorEmbed)
+        .then((msg) => msg.delete(100000));
       return;
     }
     
@@ -74,14 +79,28 @@ module.exports = new Command({
           await createNewThread(data, message); 
         else
         {
-          console.log('no threads');
+          let noResultEmbed = new Discord.RichEmbed()
+            .setTitle('No results')
+            .setDescription(
+              `There may have been a typo, you can use \`${prefix}thread all\`\
+            to check if a thread starts with \`${data.threadID}\` manually`);
+          message.channel
+            .send(noResultEmbed)
+            .then((msg) => msg.delete(120000));
         }
         break;
       case 1:   
         if(createMode)
           await addMessageToThread(data, message, threadQuery);
         else
-          await pagination(templateEmbed, message, threadQuery.responseData, true, 10);
+        {
+          templateEmbed.setTitle('Thread')
+            .setDescription('')
+            .addField('ID', threadQuery.responseData[0].threadID, true)
+            .addField('Topic', threadQuery.responseData[0].topic, true);
+          await pagination(templateEmbed, message, 
+            threadQuery.responseData, true);
+        }
         break;
       default:  
         await multipleThreadResults(data, message, threadQuery, createMode);

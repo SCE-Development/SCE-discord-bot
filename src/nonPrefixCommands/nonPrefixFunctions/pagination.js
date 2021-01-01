@@ -1,4 +1,5 @@
 const Discord  = require('discord.js');
+const { prefix } = require('../../../config.json');
 
 /**
  * @typedef   {Object}    Page
@@ -10,7 +11,7 @@ const Discord  = require('discord.js');
  * @property  {Number}    ITEM_PER_PAGE   Number of items per page
  */
 
- /**
+/**
   * @param {Discord.RichEmbed} templateEmbed 
   * template containing Title, Description, and color that
   * the pages will follow
@@ -44,8 +45,7 @@ async function pagination(templateEmbed, message,
    * This variable is a collection of pages - a book.
    * @type {Discord.RichEmbed[]}
    */
-  let threadListEmbed = new Array(page.maxPage);
-  
+  let threadListEmbed = new Array(page.maxPage + 1);
   /**
    * if the given array is length one, grab the messages 
    * from the thread instead
@@ -54,22 +54,24 @@ async function pagination(templateEmbed, message,
   {
     // new maxpage is made from the amount of threadMessages
     page.maxPage = Math.ceil(
-      threads[0].threadMessages.length / ITEM_PER_PAGE) - 1;
-    threadListEmbed = new Array(page.maxPage);
-    threadListEmbed = await createMessageEmbed(templateEmbed, 
-      threads[0].threadMessages, threadListEmbed, page, message);
+      (threads[0].threadMessages.length-1) / ITEM_PER_PAGE) - 1;
+    if(page.maxPage === -1)
+    {
+      templateEmbed.setDescription('This thread has no messages');
+    }
+    threadListEmbed= new Array(page.maxPage + 1);
+    threadListEmbed[0] = await createMessageEmbed(
+      threads[0].threadMessages, templateEmbed, page, message);
   }
   else
   {
-    threadListEmbed = await createThreadEmbed(templateEmbed, threads, 
-      threadListEmbed, page, messageMode);
+    threadListEmbed[0] = await createThreadEmbed(threads, 
+      templateEmbed, page, messageMode, message);
   }
-  console.log("HERE");
   let currentMsg = await message.channel
     .send(threadListEmbed[page.currentPage]);
-  console.log("DONE");
     // if more than 1 maxPage (not 0) then add transition emojis
-  if(page.maxPage)
+  if(page.maxPage !== -1)
   {
     await currentMsg.react('⬅️');
     await currentMsg.react('➡️'); 
@@ -123,16 +125,18 @@ async function pagination(templateEmbed, message,
     }
     // Some math to identify lower and upper bound
     page.lowerBound = page.currentPage * ITEM_PER_PAGE;
-    page.upperBound = ITEM_PER_PAGE + (page.currentPage * ITEM_PER_PAGE);
-    if(threads.length === 1)
-    {
-      threadListEmbed = await createMessageEmbed(templateEmbed, 
-        threads[0].threadMessages, threadListEmbed, page, message);
-    }
-    else
-    {
-      threadListEmbed = await createThreadEmbed(templateEmbed, threads,
-        threadListEmbed, page, messageMode);      
+    page.upperBound = (page.currentPage + 1) * ITEM_PER_PAGE - 1;
+    if(threadListEmbed[page.currentPage] === undefined){
+      if(threads.length === 1)
+      {
+        threadListEmbed[page.currentPage] = await createMessageEmbed(
+          threads[0].threadMessages, templateEmbed, page, message);
+      }
+      else
+      {
+        threadListEmbed[page.currentPage] = await createThreadEmbed(threads,
+          templateEmbed, page, messageMode, message);      
+      }
     }
     currentMsg
       .edit(threadListEmbed[page.currentPage])
@@ -142,89 +146,95 @@ async function pagination(templateEmbed, message,
   // turn on the collector
   emojiCollector.on('collect', checkEmoji);
   emojiCollector.on('end', () => { 
-    currentMsg.delete();
+    currentMsg.delete(120000);
   });
   return emojiCollector;
 }
   
- /**
+/**
   * Creates a page that lists out threads.
   * @param {Discord.RichEmbed} templateEmbed 
   * template containing Title, Description, and color that
   * the pages will follow
   * @param {import('../../APIFunctions/thread').Thread} threads 
   * An array containing ALL items that will be displayed in the "book"
-  * @param {Discord.RichEmbed[]} threadListEmbed 
-  * The "book" of data, each array index holds one page.
-  * This variable is a collection of pages - a book.
   * @param {Page} page
   * @param {Boolean} messageMode
-  * @return {Discord.RichEmbed[]}
+  * @return {Discord.RichEmbed}
   */
-async function createThreadEmbed(templateEmbed, threads,
-  threadListEmbed, page, messageMode){
-  if(threadListEmbed[page.currentPage] === undefined)
+async function createThreadEmbed(threads,
+  templateEmbed, page, messageMode, message){
+  let outputEmbed = new Discord.RichEmbed()
+    .setTitle(templateEmbed.title)
+    .setColor(templateEmbed.color);
+  if(messageMode)
+    outputEmbed.setDescription(templateEmbed.description);
+  let messageManager = message.channel;
+  for (const [index, thread] of threads
+    .slice(page.lowerBound, page.upperBound).entries())
   {
-    threadListEmbed[page.currentPage] = new Discord.RichEmbed()
-      .setColor(templateEmbed.color)
-      .setTitle(templateEmbed.title);
-    if(messageMode)
-    {
-      threadListEmbed[page.currentPage]
-        .setDescription(templateEmbed.description);
-    }
-    for (const [index, thread] of threads
-      .slice(page.lowerBound, page.upperBound).entries())
-      {
-        let currentIndex = page.currentPage * page.ITEM_PER_PAGE + index + 1;
-        threadListEmbed[page.currentPage]
-          .addField(`${currentIndex}. Thread ID: ${thread.threadID}`,
-            `topic: ${thread.topic}`);
-      }
-    if(page.maxPage)
-      threadListEmbed[page.currentPage]
-        .setFooter(`Page: ${page.currentPage+1}/${page.maxPage+1}`);
+    let message = await messageManager
+      .fetchMessage(thread.threadMessages[0].messageID);
+    let author = message.author.username;
+    let currentIndex = page.currentPage * page.ITEM_PER_PAGE + index + 1;
+    outputEmbed
+      .addField(`${currentIndex}. ${thread.topic} (id: ${thread.threadID})`,
+        `${author} on ${message.createdAt.toLocaleString()}`);
   }
-  return threadListEmbed;
+  if(page.maxPage)
+    outputEmbed
+      .setFooter(`Page ${page.currentPage+1} of ${page.maxPage+1}`);
+  return outputEmbed;
 }
   
- /**
+/**
   * Creates a page that lists out thread messages inside a thread.
   * @param {Discord.RichEmbed} templateEmbed 
   * template containing Title, Description, and color that
   * the pages will follow
   * @param {import('../../APIFunctions/thread').Thread} threads 
   * An array containing ALL items that will be displayed in the "book"
-  * @param {Discord.RichEmbed[]} threadListEmbed 
-  * The "book" of data, each array index holds one page.
-  * This variable is a collection of pages - a book.
   * @param {Page} page
   * @param {Boolean} messageMode
-  * @return {Discord.RichEmbed[]}
+  * @return {Discord.RichEmbed}
   */
-async function createMessageEmbed(templateEmbed, threads,
-  threadListEmbed, page, message){
-  if(threadListEmbed[page.currentPage] === undefined)
-  {
-    threadListEmbed[page.currentPage] = new Discord.RichEmbed()
-      .setColor(templateEmbed.color)
-      .setTitle(templateEmbed.title);
-    let messageManager = message.channel;
-    for (const [index, message] of threads
-      .slice(page.lowerBound, page.upperBound).entries()) {
-      let currentIndex = page.currentPage * page.ITEM_PER_PAGE + index + 1;
-      let content = await messageManager.fetchMessage(message.messageID);
-      let trimmedMessage = /^\|\s*(\d{4,13})\s*\|\s*(.+)/
+async function createMessageEmbed(threads,
+  templateEmbed, page, message){
+  page.lowerBound++;
+  page.upperBound++;
+  let outputEmbed = new Discord.RichEmbed()
+    .setTitle(templateEmbed.title)
+    .setColor(templateEmbed.color)
+    .setDescription(templateEmbed.description);
+  for(const field of templateEmbed.fields)
+    outputEmbed.addField(field.name, field.value, field.inline);
+  let messageManager = message.channel;
+  for (const message of threads
+    .slice(page.lowerBound, page.upperBound)) {
+    // Get the message and trim the command off
+    let content = await messageManager.fetchMessage(message.messageID);
+    
+    let nonPrefixCheck = /^\|\s*(\d{4,13})\|/
+      .test(content.content);
+    
+    let trimmedMessage = '';
+    if(nonPrefixCheck)
+      trimmedMessage = /^\|\s*(\d{4,13})\s*\|\s*(.+)/
         .exec(content.content)[2];
-      threadListEmbed[page.currentPage]
-        .addField(`Message ${currentIndex}:`,
-          trimmedMessage);
+    else 
+    {
+      let trimmer = new RegExp('^'+ prefix + 'thread\\s*(.+)');
+      trimmedMessage = trimmer
+        .exec(content.content)[1];
     }
-    if(page.maxPage)
-      threadListEmbed[page.currentPage]
-        .setFooter(`Page: ${page.currentPage+1}/${page.maxPage+1}`);
+    outputEmbed
+      .addField(`${trimmedMessage}`,
+        `${content.author.username} on ${content.createdAt.toLocaleString()}`);
   }
-  return threadListEmbed;
+  if(page.maxPage !== -1)
+    outputEmbed
+      .setFooter(`Page ${page.currentPage+1} of ${page.maxPage+1}`);
+  return outputEmbed;
 }
   
 module.exports = 

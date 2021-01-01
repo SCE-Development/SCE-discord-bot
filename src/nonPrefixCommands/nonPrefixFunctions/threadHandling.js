@@ -1,6 +1,5 @@
 
 const Discord  = require('discord.js');
-const { convertSchemaToGraphQL } = require('graphql-compose-mongoose');
 const { THREAD_ID_QUERY, ADD_THREADMESSAGE, CREATE_THREAD } 
   = require('../../APIFunctions/thread');
 const { pagination } = require('./pagination');
@@ -11,10 +10,22 @@ const { pagination } = require('./pagination');
  * @param {Discord.Message} message 
  */
 async function createNewThread(data, message){
+  let lengthCheck = /^\|\s*(\d{4,13})\s*\|\s*(.{0,100})/
+    .test(data.ThreadMsg);
+  if(!lengthCheck)
+  {
+    let warningEmbed = new Discord.RichEmbed()
+      .setTitle('Warning')
+      .setDescription(`The topic is too long for a new thread.
+        If the intention was to add a message to a thread starting\
+        with \`${data.threadID}\`, there is no such thread`);
+    message.channel.send(warningEmbed);
+    return;
+  }
   const confirmAction = async (topic) =>
   {
     const confirmEmbed = new Discord.RichEmbed();
-    confirmEmbed.setTitle('Create new thread?').addField('Topic: ', topic);
+    confirmEmbed.setTitle('Start new thread?').addField('Topic', topic);
     const confirmMessage = await message.channel.send(confirmEmbed);
     confirmMessage
       .react('👍')
@@ -28,7 +39,7 @@ async function createNewThread(data, message){
     };
   
     return await confirmMessage
-      .awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] })
+      .awaitReactions(filter, { max: 1, time: 300090, errors: ['time'] })
       .then((collected) => {
         const reaction = collected.first();
         confirmMessage.delete();
@@ -67,8 +78,17 @@ async function createNewThread(data, message){
     }
     const threadCreateEmbed = new Discord.RichEmbed()
       .setColor('#301934')
-      .setTitle(`Created Thread ${createThread.responseData.threadID}`)
-      .addField('Topic', `${createThread.responseData.topic}`);
+      .setTitle('New Thread')
+      .setDescription(`
+        Use \`|thread id|\` to view the full thread or\
+        \`|thread id|\` <message> to add to
+        the thread.
+        Type at least 4 digits of the thread id.
+        (If thread ID is a new ID, the <message>\
+        will be the topic of the new thread)`)
+      .addField('ID', `${createThread.responseData.threadID}`, true)
+      .addField('Topic', `${createThread.responseData.topic}`, true)
+      .setTimestamp(message.createdAt.toLocaleString());
     await message.channel.send(threadCreateEmbed);
   }
 }
@@ -82,6 +102,7 @@ async function createNewThread(data, message){
 async function addMessageToThread(data, message, threadQuery){
   //  We're adding in a message to the ID that was searched
   data.threadID = threadQuery.responseData[0].threadID;
+  data.topic = threadQuery.responseData[0].topic;
   const addMsg = await ADD_THREADMESSAGE(data);
   if(addMsg.error)
   {
@@ -92,11 +113,20 @@ async function addMessageToThread(data, message, threadQuery){
   }
   const addedEmbed = new Discord.RichEmbed()
     .setColor('#301934')
-    .setTitle(`Added message to Thread ${data.threadID}`)
-    .addField('Message', `${data.threadMsg}`);
+    .setTitle('New Message')
+    .setDescription(
+      `Use \`|thread id|\` to view the full thread or\
+      \`|thread id|\` <message> to add to the thread.
+      Type at least 4 digits of the thread id.
+      (If thread ID is a new ID, the <message>\
+      will be the topic of the new thread)`)
+    .addField('ID', data.threadID, true)
+    .addField('Topic', data.topic, true)
+    .addField('Added Message', data.threadMsg)
+    .setTimestamp(message.createdAt.toLocaleString());
   await message.channel
     .send(addedEmbed)
-    .then((msg) => msg.delete(10000));
+    .then((msg) => msg.delete(300000));
 }
   
 /**
@@ -114,7 +144,8 @@ async function multipleThreadResults(data, message, threadQuery, createMode){
     .setDescription('Choose one! Example: type "1"');
   
   let emojiCollector 
-     = await pagination(templateEmbed, message, threadQuery.responseData, true, 10);
+     = await pagination(templateEmbed, message,
+       threadQuery.responseData, true);
     
   /** 
      * Create Message collector filter
@@ -140,13 +171,13 @@ async function multipleThreadResults(data, message, threadQuery, createMode){
   /** 
    * Create Message collector with filter
    * @description
-   * Will only be active for 5 minutes (30000 ms)
+   * Will only be active for 5 minutes (300000 ms)
    * 
    * Will only collect message with valid messages 
    * @see filter
    **/ 
   const messageCollector = message.channel
-    .createMessageCollector(filter, { time: 30000 });
+    .createMessageCollector(filter, { time: 300000 });
 
   /**
    * Action that happens when the actionlistener is called.
@@ -172,11 +203,16 @@ async function multipleThreadResults(data, message, threadQuery, createMode){
      * User is trying to add a message to a thread
      */
     if(createMode)
-        await addMessageToThread(data, message, threadQuery2);
+      await addMessageToThread(data, message, threadQuery2);
     else
-        await pagination(templateEmbed, message, 
-            threadQuery2.responseData, true, 10);
-      
+    {
+      templateEmbed.setTitle('Thread')
+        .setDescription('')
+        .addField('ID', threadQuery.responseData[index].threadID, true)
+        .addField('Topic', threadQuery.responseData[index].topic, true);
+      await pagination(templateEmbed, message, 
+        threadQuery2.responseData, true);
+    }  
   };
   // collect only one message.
   messageCollector.once('collect', collectMessage);
