@@ -5,8 +5,8 @@ const { prefix } = require('../../../config.json');
 const { THREAD_ID_QUERY } 
   = require('../../APIFunctions/thread');
 const { createNewThread, addMessageToThread, multipleThreadResults } 
-  = require('../nonPrefixFunctions/threadHandling');  
-const { pagination } = require('../nonPrefixFunctions/pagination'); 
+  = require('./threadHandling');  
+const { pagination } = require('./pagination'); 
 /**
  * @typedef   {Object}    Data
  *
@@ -46,7 +46,7 @@ module.exports = new Command({
       threadID : /^\|\s*(\d{4,13})\s*\|/.exec(message)[1],
       messageID : message.id, 
       topic: createMode ? 
-        /^\|\s*(\d{4,13})\s*\|\s*(.{0,100})/.exec(message)[2] : '',
+        /^\|\s*(\d{4,13})\s*\|\s*(.{0,100})/.exec(message)[2] : null,
       creatorID: message.author.id,
       channelID: message.channel.id,
       guildID : message.guild.id,
@@ -55,7 +55,11 @@ module.exports = new Command({
     };
     
     //  MESSAGE HANDLING
-    let threadQuery = await THREAD_ID_QUERY(data);
+    let threadQuery = await THREAD_ID_QUERY({
+      threadID : data.threadID,
+      channelID : data.channelID,
+      guildID : data.guildID
+    });
     if(threadQuery.error)
     {
       let errorEmbed = Discord.RichEmbed()
@@ -76,7 +80,14 @@ module.exports = new Command({
     switch (threadQuery.responseData.length) {
       case 0:   
         if(createMode)
-          await createNewThread(data, message); 
+          await createNewThread({
+            threadID : data.threadID,
+            messageID : data.messageID, 
+            topic: data.topic,
+            creatorID: data.creatorID,
+            channelID: data.channelID,
+            guildID : data.guildID,
+          }, message, data.threadMsg); 
         else
         {
           let noResultEmbed = new Discord.RichEmbed()
@@ -91,19 +102,28 @@ module.exports = new Command({
         break;
       case 1:   
         if(createMode)
-          await addMessageToThread(data, message, threadQuery);
+          await addMessageToThread({
+            threadID : data.threadID,
+            messageID : data.messageID
+          }, message, threadQuery, data.threadMsg);
         else
         {
+          let topic = threadQuery.responseData[0].topic;
           templateEmbed.setTitle('Thread')
             .setDescription('')
             .addField('ID', threadQuery.responseData[0].threadID, true)
-            .addField('Topic', threadQuery.responseData[0].topic, true);
+            .addField('Topic', topic === null ? 'none' : topic, true);
           await pagination(templateEmbed, message, 
             threadQuery.responseData, true);
         }
         break;
       default:  
-        await multipleThreadResults(data, message, threadQuery, createMode);
+        await multipleThreadResults({
+          threadID : data.threadID,
+          messageID : data.messageID,
+          channelID : data.channelID,
+          guildID : data.guildID
+        }, message, threadQuery, createMode, data.threadMsg);
     }
   }
 });

@@ -71,7 +71,7 @@ async function pagination(templateEmbed, message,
   let currentMsg = await message.channel
     .send(threadListEmbed[page.currentPage]);
     // if more than 1 maxPage (not 0) then add transition emojis
-  if(page.maxPage !== -1)
+  if(page.maxPage > 0)
   {
     await currentMsg.react('⬅️');
     await currentMsg.react('➡️'); 
@@ -181,7 +181,7 @@ async function createThreadEmbed(threads,
       .addField(`${currentIndex}. ${thread.topic} (id: ${thread.threadID})`,
         `${author} on ${message.createdAt.toLocaleString()}`);
   }
-  if(page.maxPage)
+  if(page.maxPage > 0)
     outputEmbed
       .setFooter(`Page ${page.currentPage+1} of ${page.maxPage+1}`);
   return outputEmbed;
@@ -228,10 +228,11 @@ async function createMessageEmbed(threads,
         .exec(content.content)[1];
     }
     outputEmbed
-      .addField(`${trimmedMessage}`,
-        `${content.author.username} on ${content.createdAt.toLocaleString()}`);
+      .addField(`${content.author.username} on ${content.createdAt
+        .toLocaleString()}`,
+      `${trimmedMessage}`);
   }
-  if(page.maxPage !== -1)
+  if(page.maxPage > 0)
     outputEmbed
       .setFooter(`Page ${page.currentPage+1} of ${page.maxPage+1}`);
   return outputEmbed;

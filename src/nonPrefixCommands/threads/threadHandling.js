@@ -6,13 +6,11 @@ const { pagination } = require('./pagination');
 
 /**
  * @param {import('../threads/threadMessage').Data} data 
- * Object containing all necessary data to use any APIfunction
+ * Trimmed down to only necessary values
  * @param {Discord.Message} message 
  */
-async function createNewThread(data, message){
-  let lengthCheck = /^\|\s*(\d{4,13})\s*\|\s*(.{0,100})/
-    .test(data.ThreadMsg);
-  if(!lengthCheck)
+async function createNewThread(data, message, threadMsg){
+  if(threadMsg.length > 130)
   {
     let warningEmbed = new Discord.RichEmbed()
       .setTitle('Warning')
@@ -99,7 +97,7 @@ async function createNewThread(data, message){
  * @param {Discord.Message} message 
  * @param {import('../../APIFunctions/thread').ThreadOnePayload} threadQuery
  */
-async function addMessageToThread(data, message, threadQuery){
+async function addMessageToThread(data, message, threadQuery, threadMsg){
   //  We're adding in a message to the ID that was searched
   data.threadID = threadQuery.responseData[0].threadID;
   data.topic = threadQuery.responseData[0].topic;
@@ -121,8 +119,8 @@ async function addMessageToThread(data, message, threadQuery){
       (If thread ID is a new ID, the <message>\
       will be the topic of the new thread)`)
     .addField('ID', data.threadID, true)
-    .addField('Topic', data.topic, true)
-    .addField('Added Message', data.threadMsg)
+    .addField('Topic', data.topic === null ? 'none' : data.topic, true)
+    .addField('Added Message', threadMsg)
     .setTimestamp(message.createdAt.toLocaleString());
   await message.channel
     .send(addedEmbed)
@@ -137,7 +135,8 @@ async function addMessageToThread(data, message, threadQuery){
    * @param {import('../../APIFunctions/thread').ThreadOnePayload} threadQuery
    * @param {Boolean} createMode chooses how to deal with the data
    **/
-async function multipleThreadResults(data, message, threadQuery, createMode){
+async function multipleThreadResults(data, message, threadQuery, 
+  createMode, threadMsg){
   let templateEmbed = new Discord.RichEmbed()
     .setColor('#301934')
     .setTitle(`All threads that start with ID: ${data.threadID}`)
@@ -203,13 +202,17 @@ async function multipleThreadResults(data, message, threadQuery, createMode){
      * User is trying to add a message to a thread
      */
     if(createMode)
-      await addMessageToThread(data, message, threadQuery2);
+      await addMessageToThread({
+        threadID : data.threadID,
+        messageID: data.messageID
+      }, message, threadQuery2, threadMsg);
     else
     {
+      let topic = threadQuery.responseData[index].topic;
       templateEmbed.setTitle('Thread')
         .setDescription('')
         .addField('ID', threadQuery.responseData[index].threadID, true)
-        .addField('Topic', threadQuery.responseData[index].topic, true);
+        .addField('Topic', topic === null ? 'none' : topic, true);
       await pagination(templateEmbed, message, 
         threadQuery2.responseData, true);
     }  
