@@ -1,5 +1,6 @@
 const Discord  = require('discord.js');
 const { prefix } = require('../../../config.json');
+const { DELETE_THREADMESSAGE } = require('../../APIFunctions/thread');
 
 /**
  * @typedef   {Object}    Page
@@ -61,7 +62,7 @@ async function pagination(templateEmbed, message,
     }
     threadListEmbed= new Array(page.maxPage + 1);
     threadListEmbed[0] = await createMessageEmbed(
-      threads[0].threadMessages, templateEmbed, page, message);
+      threads[0].threadMessages, templateEmbed, page, message, threads[0]);
   }
   else
   {
@@ -130,7 +131,7 @@ async function pagination(templateEmbed, message,
       if(threads.length === 1)
       {
         threadListEmbed[page.currentPage] = await createMessageEmbed(
-          threads[0].threadMessages, templateEmbed, page, message);
+          threads[0].threadMessages, templateEmbed, page, message, threads[0]);
       }
       else
       {
@@ -199,7 +200,7 @@ async function createThreadEmbed(threads,
   * @return {Discord.RichEmbed}
   */
 async function createMessageEmbed(threads,
-  templateEmbed, page, message){
+  templateEmbed, page, message, ogThread){
   page.lowerBound++;
   page.upperBound++;
   let outputEmbed = new Discord.RichEmbed()
@@ -212,25 +213,30 @@ async function createMessageEmbed(threads,
   for (const message of threads
     .slice(page.lowerBound, page.upperBound)) {
     // Get the message and trim the command off
-    let content = await messageManager.fetchMessage(message.messageID);
-    
-    let nonPrefixCheck = /^\|\s*(\d{4,13})\|/
-      .test(content.content);
-    
-    let trimmedMessage = '';
-    if(nonPrefixCheck)
-      trimmedMessage = /^\|\s*(\d{4,13})\s*\|\s*(.+)/
-        .exec(content.content)[2];
-    else 
-    {
-      let trimmer = new RegExp('^'+ prefix + 'thread\\s*(.+)');
-      trimmedMessage = trimmer
-        .exec(content.content)[1];
-    }
-    outputEmbed
-      .addField(`${content.author.username} on ${content.createdAt
-        .toLocaleString()}`,
-      `${trimmedMessage}`);
+    await messageManager
+      .fetchMessage(message.messageID)
+      .then(async (content) => {
+        let nonPrefixCheck = /^\|\s*(\d{4,13})\|/
+        .test(content.content);
+      
+      let trimmedMessage = '';
+      if(nonPrefixCheck)
+        trimmedMessage = /^\|\s*(\d{4,13})\s*\|\s*(.+)/
+          .exec(content.content)[2];
+      else 
+      {
+        let trimmer = new RegExp('^'+ prefix + 'thread\\s*(.+)');
+        trimmedMessage = trimmer
+          .exec(content.content)[1];
+      }
+      outputEmbed
+        .addField(`${content.author.username} on ${content.createdAt
+          .toLocaleString()}`,
+        `${trimmedMessage}`);
+      })
+      .catch(async () => {
+        await DELETE_THREADMESSAGE(ogThread.threadID, message.messageID);
+      });
   }
   if(page.maxPage > 0)
     outputEmbed
