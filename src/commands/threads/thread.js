@@ -1,4 +1,3 @@
-
 const Discord = require('discord.js');
 const Command = require('../Command');
 const {
@@ -27,7 +26,7 @@ module.exports = new Command({
     if (param === 'active' || param === 'all') {
       // Show threads
       message.delete(5000).catch(() => null);
-      const response = await THREAD_QUERY();
+      const response = await THREAD_QUERY({ guildID: message.guild.id });
       if (response.error) {
         message.channel
           .send('Oops! Could not query threads')
@@ -44,28 +43,26 @@ module.exports = new Command({
       const fields = [];
       for (let i = 0; i < response.responseData.length; i++) {
         const thread = response.responseData[i];
-        if (
-          thread.guildID !== message.guild.id ||
-          thread.channelID !== message.channel.id
-        ) {
+        if (thread.channelID !== message.channel.id) {
           continue;
         }
         let j = thread.threadMessages.length;
         let lastMessage = null;
-        while (lastMessage === null && j-- >= 0) {
+        while (lastMessage === null && j-- > 0) {
           const threadMessage = thread.threadMessages[j];
           lastMessage = await message.channel
             .fetchMessage(threadMessage.messageID)
             .catch(() => {
               DELETE_THREADMESSAGE({
                 threadID: thread.threadID,
+                guildID: thread.guildID,
                 messageID: threadMessage.messageID,
               }).catch(() => null);
               return null;
             });
         }
         if (lastMessage === null) {
-          DELETE_THREAD(thread.threadID);
+          DELETE_THREAD({ threadID: thread.threadID, guildID: thread.guildID });
           continue;
         }
         if (!checkIfInclude(lastMessage)) {

@@ -156,7 +156,11 @@ module.exports = new Command({
           return;
         }
 
-        const query = await THREAD_ID_QUERY(threadID);
+        const query = await THREAD_ID_QUERY({
+          threadID,
+          channelID: message.channel.id,
+          guildID: message.guild.id,
+        });
         if (query.error) {
           // Error
           message.channel
@@ -164,9 +168,7 @@ module.exports = new Command({
             .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
-        const threads = query.responseData.filter(
-          thread => thread.guildID === message.guild.id
-        );
+        const threads = query.responseData;
         if (threads.length === 0) {
           // No threads
           message.channel
@@ -189,7 +191,10 @@ module.exports = new Command({
           return;
         }
 
-        const response = await DELETE_THREAD(threadID);
+        const response = await DELETE_THREAD({
+          threadID,
+          guildID: message.guild.id,
+        });
         if (response.error) {
           // Error
           message.channel

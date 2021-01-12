@@ -36,7 +36,7 @@ class NonPrefixHandler {
         const command = require(
           `${nonPrefixCommandsPath}/${directory}/${file}`
         );
-        if (command instanceof Command) {
+        if (command instanceof Command && !command.disabled) {
           this.commandArr.push(command);
         }
       }

@@ -15,18 +15,17 @@ const ThreadMutation = {
   threadRemoveMany: ThreadTC.mongooseResolvers.removeMany(),
   threadAddMessage: {
     type: ThreadTC,
-    args: { threadID: 'String!', messageID: 'String!' },
+    args: { threadID: 'String!', guildID: 'String!', messageID: 'String!' },
     resolve: async (source, args) => {
-      const message = await ThreadMessage.create({
-        messageID: args.messageID,
-      }).catch(() => {
+      const { threadID, guildID, messageID } = args;
+      const message = await ThreadMessage.create({ messageID }).catch(() => {
         throw new UserInputError('ThreadMessage failed to create');
       });
       // error
       if (!message) throw new UserInputError('ThreadMessage failed to create');
 
       const thread = await Thread.findOneAndUpdate(
-        { threadID: args.threadID },
+        { threadID, guildID },
         { $addToSet: { threadMessages: message } },
         {
           new: true,
@@ -42,15 +41,14 @@ const ThreadMutation = {
   },
   threadMessageDelete: {
     type: ThreadTC,
-    args: { threadID: 'String!', messageID: 'String!' },
+    args: { threadID: 'String!', guildID: 'String!', messageID: 'String!' },
     resolve: async (source, args) => {
-      let message = await ThreadMessage.findOne({
-        messageID: args.messageID,
-      });
+      const { threadID, guildID, messageID } = args;
+      let message = await ThreadMessage.findOne({ messageID });
       if (!message) throw new UserInputError('Failed to find ThreadMessage');
       // I can't get Thread.findOneAndUpdate() to pull null elements
       const thread = await Thread.findOneAndUpdate(
-        { threadID: args.threadID },
+        { threadID, guildID },
         {
           $pull: { threadMessages: message._id },
         },
@@ -60,9 +58,7 @@ const ThreadMutation = {
         }
       );
       if (!thread) throw new UserInputError('Thread update returned null');
-      message = await ThreadMessage.deleteOne({
-        messageID: args.messageID,
-      });
+      message = await ThreadMessage.deleteOne({ messageID });
       if (!message)
         throw new UserInputError('ThreadMessage remove returned null');
       return thread;
@@ -117,11 +113,11 @@ const ThreadMutation = {
     },
   },
   threadDelete: {
-    args: { threadID: 'String!' },
+    args: { threadID: 'String!', guildID: 'String!' },
     type: ThreadTC,
     resolve: async (source, args) => {
-      const { threadID } = args;
-      const thread = await Thread.findOne({ threadID: threadID }).catch(() => {
+      const { threadID, guildID } = args;
+      const thread = await Thread.findOne({ threadID, guildID }).catch(() => {
         throw new UserInputError('Could not find Thread');
       });
       // Error
