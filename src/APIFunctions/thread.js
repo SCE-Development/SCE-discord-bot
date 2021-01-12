@@ -28,75 +28,56 @@ const { ApiResponse } = require('./ApiResponses');
  */
 
 /**
- * Queries all threads from the database.
+ * Queries for threads. ThreadID matches all IDs from start.
  *
  * @param {Object} args Arguments for the query.
+ * @param {String?} args.threadID
  * @param {String} args.guildID
+ * @param {String?} args.channelID
  *
- * @returns {Promise<ThreadManyPayload>} All threads.
+ * @returns {Promise<ThreadManyPayload>} All threads matching the query.
  */
 const THREAD_QUERY = async args => {
-  const threadQuery = gql`
-    query($guildID: String!) {
-      threadMany(filter: { guildID: $guildID }) {
-        threadID
-        creatorID
-        guildID
-        channelID
-        topic
-        threadMessages {
-          messageID
+  let threadQuery = undefined;
+  if (args.threadID) {
+    args = { ...args };
+    args.threadID = '^' + args.threadID;
+    threadQuery = gql`
+      query($threadID: RegExpAsString!, $channelID: String, $guildID: String!) {
+        threadMany(
+          filter: {
+            _operators: { threadID: { regex: $threadID } }
+            channelID: $channelID
+            guildID: $guildID
+          }
+        ) {
+          threadID
+          creatorID
+          guildID
+          channelID
+          topic
+          threadMessages {
+            messageID
+          }
         }
       }
-    }
-  `;
-
-  let response = new ApiResponse();
-  await request(`${DISCORD_API_URL}/graphql`, threadQuery, args)
-    .then(data => {
-      response.responseData = data.threadMany;
-      response.error = false;
-    })
-    .catch(() => {
-      response.error = true;
-    });
-  return response;
-};
-
-/**
- * Queries all threads that start with an ID from the database.
- *
- * @param {Object} args Arguments for the query.
- * @param {String} args.threadID
- * @param {String} args.guildID
- * @param {String} args.channelID
- *
- * @returns {Promise<ThreadManyPayload>} All threads with an ID that start with
- * threadID.
- */
-const THREAD_ID_QUERY = async args => {
-  args = { ...args };
-  args.threadID = '^' + args.threadID;
-  const threadQuery = gql`
-    query($threadID: RegExpAsString!, $channelID: String!, $guildID: String!) {
-      threadMany(
-        filter: {
-          _operators: { threadID: { regex: $threadID } }
-          channelID: $channelID
-          guildID: $guildID
-        }
-      ) {
-        threadID
-        creatorID
-        guildID
-        channelID
-        topic
-        threadMessages {
-          messageID
+    `;
+  } else {
+    threadQuery = gql`
+      query($channelID: String, $guildID: String!) {
+        threadMany(filter: { channelID: $channelID, guildID: $guildID }) {
+          threadID
+          creatorID
+          guildID
+          channelID
+          topic
+          threadMessages {
+            messageID
+          }
         }
       }
-    }
-  `;
+    `;
+  }
   let response = new ApiResponse();
   await request(`${DISCORD_API_URL}/graphql`, threadQuery, args)
     .then(data => {
@@ -118,7 +99,7 @@ const THREAD_ID_QUERY = async args => {
  * @param  {String} args.guildID
  * @param  {String} args.channelID
  * @param  {String?} args.topic
- * @param  {String} args.messageID
+ * @param  {String?} args.messageID
  *
  * @returns {Promise<ThreadOnePayload>} The created thread.
  */
@@ -133,7 +114,7 @@ const CREATE_THREAD = async args => {
       $guildID: String!
       $channelID: String!
       $topic: String
-      $messageID: String!
+      $messageID: String
     ) {
       threadCreate(
         threadID: $threadID
@@ -296,7 +277,6 @@ const DELETE_THREADMESSAGE = async args => {
 
 module.exports = {
   THREAD_QUERY,
-  THREAD_ID_QUERY,
   CREATE_THREAD,
   ADD_THREADMESSAGE,
   DELETE_THREAD,

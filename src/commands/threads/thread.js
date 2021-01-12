@@ -43,21 +43,20 @@ module.exports = new Command({
       const fields = [];
       for (let i = 0; i < response.responseData.length; i++) {
         const thread = response.responseData[i];
-        if (thread.channelID !== message.channel.id) {
-          continue;
-        }
         let j = thread.threadMessages.length;
         let lastMessage = null;
         while (lastMessage === null && j-- > 0) {
           const threadMessage = thread.threadMessages[j];
           lastMessage = await message.channel
             .fetchMessage(threadMessage.messageID)
-            .catch(() => {
-              DELETE_THREADMESSAGE({
-                threadID: thread.threadID,
-                guildID: thread.guildID,
-                messageID: threadMessage.messageID,
-              }).catch(() => null);
+            .catch(error => {
+              if (error.message === 'Unknown Message') {
+                DELETE_THREADMESSAGE({
+                  threadID: thread.threadID,
+                  guildID: thread.guildID,
+                  messageID: threadMessage.messageID,
+                });
+              }
               return null;
             });
         }

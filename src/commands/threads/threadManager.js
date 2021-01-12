@@ -4,7 +4,7 @@ const Command = require('../Command');
 const {
   CREATE_THREAD,
   DELETE_THREAD,
-  THREAD_ID_QUERY,
+  THREAD_QUERY,
 } = require('../../APIFunctions/thread');
 
 module.exports = new Command({
@@ -156,7 +156,7 @@ module.exports = new Command({
           return;
         }
 
-        const query = await THREAD_ID_QUERY({
+        const query = await THREAD_QUERY({
           threadID,
           channelID: message.channel.id,
           guildID: message.guild.id,

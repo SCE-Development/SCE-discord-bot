@@ -15,7 +15,11 @@ const ThreadMutation = {
   threadRemoveMany: ThreadTC.mongooseResolvers.removeMany(),
   threadAddMessage: {
     type: ThreadTC,
-    args: { threadID: 'String!', guildID: 'String!', messageID: 'String!' },
+    args: {
+      threadID: 'String!',
+      guildID: 'String!',
+      messageID: 'String!',
+    },
     resolve: async (source, args) => {
       const { threadID, guildID, messageID } = args;
       const message = await ThreadMessage.create({ messageID }).catch(() => {
@@ -41,7 +45,11 @@ const ThreadMutation = {
   },
   threadMessageDelete: {
     type: ThreadTC,
-    args: { threadID: 'String!', guildID: 'String!', messageID: 'String!' },
+    args: {
+      threadID: 'String!',
+      guildID: 'String!',
+      messageID: 'String!',
+    },
     resolve: async (source, args) => {
       const { threadID, guildID, messageID } = args;
       let message = await ThreadMessage.findOne({ messageID });
@@ -72,7 +80,7 @@ const ThreadMutation = {
       guildID: 'String!',
       channelID: 'String!',
       topic: 'String',
-      messageID: 'String!',
+      messageID: 'String',
     },
     resolve: async (source, args) => {
       const {
@@ -83,23 +91,35 @@ const ThreadMutation = {
         topic,
         messageID,
       } = args;
-      const message = await ThreadMessage.create({
-        messageID,
-      }).catch(() => {
-        throw new UserInputError('ThreadMessage failed to create');
-      });
-      // error
-      if (!message) throw new UserInputError('ThreadMessage failed to create');
-
+      const threadMessages = [];
+      if (messageID) {
+        const message = await ThreadMessage.create({
+          messageID,
+        }).catch(() => {
+          throw new UserInputError('ThreadMessage failed to create');
+        });
+        // error
+        if (!message)
+          throw new UserInputError('ThreadMessage failed to create');
+        threadMessages.push(message);
+      }
       await Thread.create({
         threadID,
         creatorID,
         guildID,
         channelID,
         topic,
-        threadMessages: [message],
+        threadMessages,
       }).catch(async () => {
-        await ThreadMessage.deleteOne({ _id: message._id });
+        if (threadMessages.length !== 0) {
+          await ThreadMessage.deleteOne({ _id: threadMessages[0]._id }).catch(
+            () => {
+              throw new UserInputError(
+                'Thread failed to create and failed to delete ThreadMessage'
+              );
+            }
+          );
+        }
         throw new UserInputError('Thread failed to create');
       });
       const thread = await Thread.findOne({
@@ -117,7 +137,10 @@ const ThreadMutation = {
     type: ThreadTC,
     resolve: async (source, args) => {
       const { threadID, guildID } = args;
-      const thread = await Thread.findOne({ threadID, guildID }).catch(() => {
+      const thread = await Thread.findOne({
+        threadID,
+        guildID,
+      }).catch(() => {
         throw new UserInputError('Could not find Thread');
       });
       // Error

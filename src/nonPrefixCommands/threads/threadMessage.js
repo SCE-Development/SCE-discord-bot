@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const Command = require('../Command');
 const { prefix } = require('../../../config.json');
 const {
-  THREAD_ID_QUERY,
+  THREAD_QUERY,
   CREATE_THREAD,
   ADD_THREADMESSAGE,
   DELETE_THREADMESSAGE,
@@ -58,7 +58,11 @@ module.exports = new Command({
     };
 
     //  MESSAGE HANDLING
-    let threadQuery = await THREAD_ID_QUERY(data);
+    let threadQuery = await THREAD_QUERY({
+      threadID: data.threadID,
+      guildID: data.guildID,
+      channelID: data.channelID,
+    });
     if (threadQuery.error) {
       let errorEmbed = Discord.RichEmbed()
         .setTitle('Error!')
@@ -172,7 +176,14 @@ async function createNewThread(data, message, threadMsg) {
     .join('');
   //  flips the time stamp
   data.threadID = data.threadID + autogenID.substr(data.threadID.length);
-  const createThread = await CREATE_THREAD(data);
+  const createThread = await CREATE_THREAD({
+    threadID: data.threadID,
+    creatorID: data.creatorID,
+    guildID: data.guildID,
+    channelID: data.channelID,
+    topic: data.topic,
+    messageID: data.messageID,
+  });
   if (createThread.error) {
     message.channel
       .send('Error creating')
@@ -206,7 +217,11 @@ async function addMessageToThread(data, message, threadQuery, threadMsg) {
   //  We're adding in a message to the ID that was searched
   data.threadID = threadQuery.responseData[0].threadID;
   data.topic = threadQuery.responseData[0].topic;
-  const addMsg = await ADD_THREADMESSAGE(data);
+  const addMsg = await ADD_THREADMESSAGE({
+    threadID: data.threadID,
+    guildID: data.guildID,
+    messageID: data.messageID,
+  });
   if (addMsg.error) {
     message.channel
       .send('Error adding')
@@ -258,37 +273,21 @@ async function multipleThreadResults(
     true
   );
 
-  /**
-   * Create Message collector filter
-   * @param {Discord.Message} m message collected by discord
-   * new filter for message collector
-   * @param {Discord.User} user
-   * @return {Boolean}
-   * if message is a number,
-   * is less than array length, and is a positive number
-   * AND same message author ID
-   * return true
-   */
-
   let filter = m => {
-    let goodChoice = /^(\d+)\s*$/.exec(m.content);
-    if (goodChoice) {
-      const index = parseInt(goodChoice[0]) - 1;
-      goodChoice = index >= 0 && index < threadQuery.responseData.length;
-    }
-    return goodChoice && m.author.id === message.author.id;
+    return m.author.id === message.author.id;
   };
   /**
    * Create Message collector with filter
    * @description
-   * Will only be active for 5 minutes (300000 ms)
+   * Will only be active for 1 minute (60000 ms)
    *
-   * Will only collect message with valid messages
+   * Will only collect first message user sends
    * @see filter
    **/
-
   const messageCollector = message.channel.createMessageCollector(filter, {
-    time: 300000,
+    max: 1,
+    time: 60000,
+    errors: ['time'],
   });
 
   /**
@@ -297,13 +296,29 @@ async function multipleThreadResults(
    * @see messageCollector
    */
   const collectMessage = async messageIn => {
+    let choice = /^(\d+)\s*$/.exec(messageIn.content);
+    if (choice) {
+      const index = parseInt(choice[0]) - 1;
+      choice = index >= 0 && index < threadQuery.responseData.length;
+    }
+    if (!choice) {
+      if (emojiCollector !== null) {
+        emojiCollector.stop(['The user has not chosen a new threadID']);
+      }
+      return;
+    }
+
     messageIn.delete().catch(() => null);
     // Get user's choice
     let index = parseInt(messageIn.content) - 1;
     // get the ThreadID that the user chose
     data.threadID = threadQuery.responseData[index].threadID;
     // get new query
-    let threadQuery2 = await THREAD_ID_QUERY(data);
+    let threadQuery2 = await THREAD_QUERY({
+      threadID: data.threadID,
+      guildID: data.guildID,
+      channelID: data.channelID,
+    });
     if (emojiCollector !== null) {
       emojiCollector.stop(['The user has chosen a new threadID']);
     }
@@ -412,7 +427,7 @@ async function pagination(
     threadListEmbed[page.currentPage]
   );
   // if more than 1 maxPage (not 0) then add transition emojis
-  if (page.maxPage === 0) {
+  if (page.maxPage <= 0) {
     return null;
   }
   /**
@@ -527,12 +542,14 @@ async function createThreadEmbed(
       const threadMessage = thread.threadMessages[j];
       lastMessage = await message.channel
         .fetchMessage(threadMessage.messageID)
-        .catch(() => {
-          DELETE_THREADMESSAGE({
-            threadID: thread.threadID,
-            guildID: thread.guildID,
-            messageID: threadMessage.messageID,
-          });
+        .catch(error => {
+          if (error.message === 'Unknown Message') {
+            DELETE_THREADMESSAGE({
+              threadID: thread.threadID,
+              guildID: thread.guildID,
+              messageID: threadMessage.messageID,
+            });
+          }
           return null;
         });
     }
@@ -543,7 +560,7 @@ async function createThreadEmbed(
       let currentIndex = page.currentPage * page.ITEM_PER_PAGE + index + 1;
       outputEmbed.addField(
         `${currentIndex}. ${thread.topic} (id: ${thread.threadID})`,
-        `${author} on ${message.createdAt.toLocaleString()}\n${
+        `${author} on ${lastMessage.createdAt.toLocaleString()}\n${
           lastMessage.content
         }`.substring(0, 150)
       );
@@ -586,28 +603,24 @@ async function createMessageEmbed(
     await messageManager
       .fetchMessage(message.messageID)
       .then(async content => {
-        let nonPrefixCheck = /^\|\s*(\d{4,13})\|/.test(content.content);
-
-        let trimmedMessage = '';
-        if (nonPrefixCheck)
-          trimmedMessage = /^\|\s*(\d{4,13})\s*\|\s*(.+)/.exec(
-            content.content
-          )[2];
-        else {
-          let trimmer = new RegExp('^' + prefix + 'thread\\s*(.+)');
-          trimmedMessage = trimmer.exec(content.content)[1];
+        const text = /^\|\s*(\d{4,13})\s*\|\s*(.+)/.exec(content.content);
+        let trimmedMessage = content.content;
+        if (text && text.length === 3) {
+          trimmedMessage = text[2];
         }
         outputEmbed.addField(
           `${content.author.username} on ${content.createdAt.toLocaleString()}`,
           `${trimmedMessage}`
         );
       })
-      .catch(async () => {
-        DELETE_THREADMESSAGE({
-          threadID: ogThread.threadID,
-          guildID: ogThread.guildID,
-          messageID: message.messageID,
-        });
+      .catch(async error => {
+        if (error.message === 'Unknown Message') {
+          DELETE_THREADMESSAGE({
+            threadID: ogThread.threadID,
+            guildID: ogThread.guildID,
+            messageID: message.messageID,
+          });
+        }
       });
   }
   if (page.maxPage > 0)
