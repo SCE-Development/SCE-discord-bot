@@ -6,10 +6,7 @@ const {
   DELETE_THREADMESSAGE,
   DELETE_THREAD,
 } = require('../../APIFunctions/thread');
-const {
-  createIdByTime,
-  decorateId,
-} = require('../../util/ThreadIDFormatter');
+const { createIdByTime, decorateId } = require('../../util/ThreadIDFormatter');
 
 /**
  * @typedef {Object} Thread
@@ -100,7 +97,11 @@ async function createNewThread(threadID, topic, message) {
   });
   if (createThread.error) {
     message.channel
-      .send('Error creating')
+      .send(
+        `Error creating. Possibly an existing thread uses ID ${decorateId(
+          threadID
+        )}.`
+      )
       .then(msg => msg.delete(10000).catch(() => null));
     return;
   }
