@@ -445,10 +445,10 @@ async function createMessageEmbed(
     await channel
       .fetchMessage(message.messageID)
       .then(async content => {
-        const text = /^\|\s*(\d{4,13})\s*\|\s*(.+)/.exec(content.content);
+        const text = /^\|[\d\s-]{4,20}\|\s*(.+)/.exec(content.content);
         let trimmedMessage = content.content;
-        if (text && text.length === 3) {
-          trimmedMessage = text[2];
+        if (text && text.length === 2) {
+          trimmedMessage = text[1];
         }
         outputEmbed.addField(
           `${content.author.username} on ${content.createdAt.toLocaleString()}`,
