@@ -6,6 +6,7 @@ const {
   DELETE_THREAD,
   DELETE_THREADMESSAGE,
 } = require('../../APIFunctions/thread');
+const { createIdByTime, decorateId } = require('../../util/ThreadIDFormatter');
 
 const THREADS_PER_PAGE = 6;
 const KEEP_ALIVE = 300000; // 5 minutes
@@ -25,12 +26,12 @@ module.exports = new Command({
 
     if (param === 'active' || param === 'all') {
       // Show threads
-      message.delete(5000).catch(() => null);
       const response = await THREAD_QUERY({ guildID: message.guild.id });
       if (response.error) {
-        message.channel
-          .send('Oops! Could not query threads')
-          .then(msg => msg.delete(10000).catch(() => null));
+        message.channel.send('Oops! Could not query threads').then(msg => {
+          msg.delete(10000).catch(() => null);
+          message.delete(10000).catch(() => null);
+        });
         return;
       }
 
@@ -74,9 +75,12 @@ module.exports = new Command({
         }`.substring(0, 150);
         // Add the thread and display the last message
         if (thread.topic === null) {
-          fields.push([`(id: ${thread.threadID})`, blurb]);
+          fields.push([`(id: ${decorateId(thread.threadID)})`, blurb]);
         } else {
-          fields.push([`${thread.topic} (id: ${thread.threadID})`, blurb]);
+          fields.push([
+            `${thread.topic} (id: ${decorateId(thread.threadID)})`,
+            blurb,
+          ]);
         }
       }
 
@@ -149,6 +153,7 @@ module.exports = new Command({
             sentEmbed.edit(newEmbed);
           });
           sentEmbed.delete(KEEP_ALIVE).catch(() => null);
+          message.delete(10000).catch(() => null);
         });
       } else {
         // no pagination
@@ -156,9 +161,10 @@ module.exports = new Command({
         fields.forEach(field => {
           embed.addField(field[0], field[1]);
         });
-        message.channel
-          .send(embed)
-          .then(msg => msg.delete(KEEP_ALIVE).catch(() => null));
+        message.channel.send(embed).then(msg => {
+          msg.delete(KEEP_ALIVE).catch(() => null);
+          message.delete(10000).catch(() => null);
+        });
       }
     } else if (param.length > 0) {
       // Start new thread
@@ -209,11 +215,7 @@ module.exports = new Command({
       if (!confirmed) {
         return;
       }
-      const threadID = message.createdTimestamp
-        .toString()
-        .split('')
-        .reverse()
-        .join('');
+      const threadID = createIdByTime(message.createdAt);
 
       const mutation = {
         threadID: threadID,
@@ -247,7 +249,7 @@ module.exports = new Command({
                 `|thread id| <message>` to add to the thread.\n\
                 Type at least 4 digits of the thread id.'
           )
-          .addField('ID', response.responseData.threadID, true)
+          .addField('ID', decorateId(response.responseData.threadID), true)
           .addField('Topic', response.responseData.topic, true)
       );
     } else {

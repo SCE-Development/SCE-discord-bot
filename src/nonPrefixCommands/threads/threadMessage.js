@@ -8,17 +8,18 @@ const {
   pagination,
   multipleThreadResults,
 } = require('./threadMessageUtil');
+const { decorateId, undecorateId } = require('../../util/ThreadIDFormatter');
 
 module.exports = new Command({
   name: 'threadmessage',
-  regex: new RegExp(/^\|\s*(\d{4,13})\s*\|/),
+  regex: new RegExp(/^\|[\d\s-]{4,20}\|/),
   description: 'Create or add to a thread with an ID',
   example: '|<thread ID>| [message]',
   category: 'custom threads',
   permissions: 'general',
   execute: async message => {
-    const input = /^\|\s*(\d{4,13})\s*\|\s*(.*)/.exec(message);
-    const threadID = input[1];
+    const input = /^\|([\d\s-]{4,20})\|\s*(.*)/.exec(message);
+    const threadID = undecorateId(input[1]);
     const body = input[2].length === 0 ? null : input[2];
 
     //  MESSAGE HANDLING
@@ -30,7 +31,7 @@ module.exports = new Command({
     if (threadQuery.error) {
       const errorEmbed = new Discord.RichEmbed()
         .setTitle('Error!')
-        .setDescription(`Error searching for thread ${threadID}`);
+        .setDescription(`Error searching for thread ${decorateId(threadID)}`);
       message.channel
         .send(errorEmbed)
         .then(msg => msg.delete(100000).catch(() => null));
@@ -39,7 +40,7 @@ module.exports = new Command({
 
     const templateEmbed = new Discord.RichEmbed()
       .setColor('#301934')
-      .setTitle(`All threads that start with ID: ${threadID}`)
+      .setTitle(`All threads that start with ID: ${decorateId(threadID)}`)
       .setDescription('Choose one! Example: type "1"');
     // Special cases when there are 0, 1, or more than 1 thread responses
     switch (threadQuery.responseData.length) {
@@ -51,7 +52,8 @@ module.exports = new Command({
             .setTitle('No results')
             .setDescription(
               `There may have been a typo, you can use \`${prefix}thread all\`\
-            to check if a thread starts with \`${threadID}\` manually`
+            to check if a thread starts with\
+            \`${decorateId(threadID)}\` manually`
             );
           message.channel
             .send(noResultEmbed)
@@ -65,7 +67,11 @@ module.exports = new Command({
           templateEmbed
             .setTitle('Thread')
             .setDescription('')
-            .addField('ID', threadQuery.responseData[0].threadID, true)
+            .addField(
+              'ID',
+              decorateId(threadQuery.responseData[0].threadID),
+              true
+            )
             .addField('Topic', topic || 'none', true);
           pagination(templateEmbed, message, threadQuery.responseData);
         }

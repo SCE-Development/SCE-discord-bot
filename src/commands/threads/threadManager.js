@@ -6,6 +6,11 @@ const {
   DELETE_THREAD,
   THREAD_QUERY,
 } = require('../../APIFunctions/thread');
+const {
+  createIdByTime,
+  decorateId,
+  undecorateId,
+} = require('../../util/ThreadIDFormatter');
 
 module.exports = new Command({
   name: 'threadmanager',
@@ -32,7 +37,9 @@ module.exports = new Command({
           .setTitle('Start new thread?')
           .addField('Topic', info[0], true);
       } else {
-        confirmEmbed.setTitle('Remove thread?').addField('ID', info[0], true);
+        confirmEmbed
+          .setTitle('Remove thread?')
+          .addField('ID', decorateId(info[0]), true);
         if (info.length === 2) {
           confirmEmbed.addField('Topic', info[1], true);
         }
@@ -87,11 +94,7 @@ module.exports = new Command({
         if (!confirmed) {
           return;
         }
-        const threadID = message.createdTimestamp
-          .toString()
-          .split('')
-          .reverse()
-          .join('');
+        const threadID = createIdByTime(message.createdAt);
 
         const mutation = {
           threadID: threadID,
@@ -122,7 +125,7 @@ module.exports = new Command({
             `|thread id| <message>` to add to the thread.\n\
             Type at least 4 digits of the thread id.'
             )
-            .addField('ID', threadID, true)
+            .addField('ID', decorateId(threadID), true)
             .addField('Topic', topic, true)
         );
         break;
@@ -141,16 +144,13 @@ module.exports = new Command({
           );
           return;
         }
-        let threadID = args
-          .slice(1)
-          .join('')
-          .replace(/\s+/, '');
-        if (!/^\d{1,18}/.test(threadID)) {
+        let threadID = undecorateId(args.slice(1).join(''));
+        if (!/^\d+$/.test(threadID)) {
           // Invalid id
           message.channel
             .send(
-              `Could not remove thread ${threadID}.
-              ID should be a number up to 18 digits.`
+              `Could not remove thread ${decorateId(threadID)}.
+              ID should be a number up to 13 digits.`
             )
             .then(msg => msg.delete(10000).catch(() => null));
           return;
@@ -164,7 +164,9 @@ module.exports = new Command({
         if (query.error) {
           // Error
           message.channel
-            .send(`Oops! Could not remove thread with id ${threadID}.`)
+            .send(
+              `Oops! Could not remove thread with id ${decorateId(threadID)}.`
+            )
             .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
@@ -172,14 +174,14 @@ module.exports = new Command({
         if (threads.length === 0) {
           // No threads
           message.channel
-            .send(`Oops! Found no threads with id ${threadID}.`)
+            .send(`Oops! Found no threads with id ${decorateId(threadID)}.`)
             .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
         if (threads.length !== 1) {
           // Too many threads
           message.channel
-            .send(`Oops! Multiple threads matched id ${threadID}.`)
+            .send(`Oops! Multiple threads matched id ${decorateId(threadID)}.`)
             .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
@@ -198,15 +200,18 @@ module.exports = new Command({
         if (response.error) {
           // Error
           message.channel
-            .send(`Oops! Could not remove thread with id ${threadID}.`)
+            .send(
+              `Oops! Could not remove thread with id ${decorateId(threadID)}.`
+            )
             .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
         const removalMessage =
           response.responseData.topic === null
-            ? `Removed thread (id: ${response.responseData.threadID})`
+            ? `Removed thread (id: \
+${decorateId(response.responseData.threadID)})`
             : `Removed thread ${response.responseData.topic} \
-(id: ${response.responseData.threadID})`;
+(id: ${decorateId(response.responseData.threadID)})`;
         message.channel.send(removalMessage);
         message.delete().catch(() => null);
         break;

@@ -6,6 +6,10 @@ const {
   DELETE_THREADMESSAGE,
   DELETE_THREAD,
 } = require('../../APIFunctions/thread');
+const {
+  createIdByTime,
+  decorateId,
+} = require('../../util/ThreadIDFormatter');
 
 /**
  * @typedef {Object} Thread
@@ -40,7 +44,7 @@ async function createNewThread(threadID, topic, message) {
     const warningEmbed = new Discord.RichEmbed().setTitle('Warning')
       .setDescription(`The topic is too long for a new thread.
         If the intention was to add a message to a thread starting\
-        with \`${threadID}\`, there is no such thread`);
+        with \`${decorateId(threadID)}\`, there is no such thread`);
     message.channel.send(warningEmbed);
     return;
   }
@@ -83,13 +87,9 @@ async function createNewThread(threadID, topic, message) {
       .then(msg => msg.delete(10000).catch(() => null));
     return;
   }
-  const autogenID = message.createdTimestamp
-    .toString()
-    .split('')
-    .reverse()
-    .join('');
   //  flips the time stamp
-  threadID = threadID + autogenID.substr(threadID.length);
+  threadID =
+    threadID + createIdByTime(message.createdAt).substr(threadID.length);
   const createThread = await CREATE_THREAD({
     threadID: threadID,
     creatorID: message.member.id,
@@ -115,7 +115,7 @@ async function createNewThread(threadID, topic, message) {
         (If thread ID is a new ID, the <message>\
         will be the topic of the new thread)`
     )
-    .addField('ID', `${createThread.responseData.threadID}`, true)
+    .addField('ID', `${decorateId(createThread.responseData.threadID)}`, true)
     .addField('Topic', `${createThread.responseData.topic}`, true)
     .setTimestamp(message.createdAt.toLocaleString());
   message.channel.send(threadCreateEmbed);
@@ -149,7 +149,7 @@ async function addMessageToThread(message, thread) {
       (If thread ID is a new ID, the <message>\
       will be the topic of the new thread)`
     )
-    .addField('ID', thread.threadID, true)
+    .addField('ID', decorateId(thread.threadID), true)
     .addField('Topic', thread.topic || 'none', true)
     .addField('Added Message', message.content);
   await message.channel
@@ -169,7 +169,7 @@ async function addMessageToThread(message, thread) {
 async function multipleThreadResults(threadID, message, threads, createMode) {
   const templateEmbed = new Discord.RichEmbed()
     .setColor('#301934')
-    .setTitle(`All threads that start with ID: ${threadID}`)
+    .setTitle(`All threads that start with ID: ${decorateId(threadID)}`)
     .setDescription('Choose one! Example: type "1"');
 
   const emojiCollector = await pagination(templateEmbed, message, threads);
@@ -225,9 +225,9 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
       templateEmbed
         .setTitle('Thread')
         .setDescription('')
-        .addField('ID', threads[index].threadID, true)
+        .addField('ID', decorateId(threads[index].threadID), true)
         .addField('Topic', topic === null ? 'none' : topic, true);
-      pagination(templateEmbed, message, threadQuery2.responseData, true);
+      pagination(templateEmbed, message, threadQuery2.responseData);
     }
   };
   // collect only one message.
@@ -399,7 +399,7 @@ async function createThreadEmbed(threads, templateEmbed, page, channel) {
       const author = lastMessage.author.username;
       const currentIndex = page.currentPage * page.itemsPerPage + index + 1;
       outputEmbed.addField(
-        `${currentIndex}. ${thread.topic} (id: ${thread.threadID})`,
+        `${currentIndex}. ${thread.topic} (id: ${decorateId(thread.threadID)})`,
         `${author} on ${lastMessage.createdAt.toLocaleString()}\n${
           lastMessage.content
         }`.substring(0, 150)
