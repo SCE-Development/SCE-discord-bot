@@ -86,8 +86,8 @@ module.exports = new Command({
 
       const makeEmbed = (page, numPages) => {
         const embed = new Discord.RichEmbed().setDescription(
-          'Use `|thread id|` to view the full thread or\
-              `|thread id| <message>` to add to the thread.\n\
+          'Use `|<thread id>|` to view the full thread or\
+              `|<thread id>| <message>` to add to the thread.\n\
               Type at least 4 digits of the thread id.'
         );
         if (getAll) {
@@ -245,9 +245,9 @@ module.exports = new Command({
         new Discord.RichEmbed()
           .setTitle('New Thread')
           .setDescription(
-            'Use `|thread id|` to view the full thread or\
-                `|thread id| <message>` to add to the thread.\n\
-                Type at least 4 digits of the thread id.'
+            'Use `|<thread id>|` to view the full thread or\
+            `|<thread id>| <message>` to add to the thread.\n\
+            Type at least 4 digits of the thread id.'
           )
           .addField('ID', decorateId(response.responseData.threadID), true)
           .addField('Topic', response.responseData.topic, true)
@@ -260,9 +260,9 @@ module.exports = new Command({
           .setColor('#ccffff')
           .setTitle('Thread')
           .setDescription(
-            'View or start threads\nUse `|thread id|` to view\
-          the full thread or `|thread id| <message>` to add to the thread.\n\
-          Type at least 4 digits of the thread id.'
+            'View or start threads\nUse `|<thread id>|` to view\
+            the full thread or `|<thread id>| <message>` to add to the\
+            thread.\nType at least 4 digits of the thread id.'
           )
           .addField('`s!thread all`', 'View all threads')
           .addField(

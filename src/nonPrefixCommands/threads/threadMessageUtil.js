@@ -40,7 +40,7 @@ async function createNewThread(threadID, topic, message) {
   if (message.content > 130) {
     const warningEmbed = new Discord.RichEmbed().setTitle('Warning')
       .setDescription(`The topic is too long for a new thread.
-        If the intention was to add a message to a thread starting\
+        If the intention was to add a message to a thread starting
         with \`${decorateId(threadID)}\`, there is no such thread`);
     message.channel.send(warningEmbed);
     return;
@@ -109,13 +109,9 @@ async function createNewThread(threadID, topic, message) {
     .setColor('#301934')
     .setTitle('New Thread')
     .setDescription(
-      `Use \`|thread id|\` to view the full thread or\
-        \`|thread id|\` <message> to add to
-        the thread.
-        Type at least 4 digits of the thread id.
-        (If thread ID is a new ID, the <message>\
-        will be the topic of the new thread)`
-    )
+      'Use `|<thread id>|` to view the full thread or\
+      `|<thread id>| <message>` to add to the thread.\
+      Type at least 4 digits of the thread id.')
     .addField('ID', `${decorateId(createThread.responseData.threadID)}`, true)
     .addField('Topic', `${createThread.responseData.topic}`, true)
     .setTimestamp(message.createdAt.toLocaleString());
@@ -144,12 +140,9 @@ async function addMessageToThread(message, thread) {
     .setColor('#301934')
     .setTitle('New Message')
     .setDescription(
-      `Use \`|thread id|\` to view the full thread or\
-      \`|thread id|\` <message> to add to the thread.
-      Type at least 4 digits of the thread id.
-      (If thread ID is a new ID, the <message>\
-      will be the topic of the new thread)`
-    )
+      'Use `|<thread id>|` to view the full thread or\
+      `|<thread id>| <message>` to add to the thread.\
+      Type at least 4 digits of the thread id.')
     .addField('ID', decorateId(thread.threadID), true)
     .addField('Topic', thread.topic || 'none', true)
     .addField('Added Message', message.content);
@@ -171,7 +164,7 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
   const templateEmbed = new Discord.RichEmbed()
     .setColor('#301934')
     .setTitle(`All threads that start with ID: ${decorateId(threadID)}`)
-    .setDescription('Choose one! Example: type "1"');
+    .setDescription('Choose one! Example: type `1`');
 
   const emojiCollector = await pagination(templateEmbed, message, threads);
 

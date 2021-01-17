@@ -121,9 +121,9 @@ module.exports = new Command({
           new Discord.RichEmbed()
             .setTitle('New Thread')
             .setDescription(
-              'Use `|thread id|` to view the full thread or\
-            `|thread id| <message>` to add to the thread.\n\
-            Type at least 4 digits of the thread id.'
+              'Use `|<thread id>|` to view the full thread or\
+              `|<thread id>| <message>` to add to the thread.\n\
+              Type at least 4 digits of the thread id.'
             )
             .addField('ID', decorateId(threadID), true)
             .addField('Topic', topic, true)
@@ -208,10 +208,10 @@ module.exports = new Command({
         }
         const removalMessage =
           response.responseData.topic === null
-            ? `Removed thread (id: \
-${decorateId(response.responseData.threadID)})`
-            : `Removed thread ${response.responseData.topic} \
-(id: ${decorateId(response.responseData.threadID)})`;
+            ? `Removed thread (id:
+              ${decorateId(response.responseData.threadID)})`
+            : `Removed thread ${response.responseData.topic}
+            (id: ${decorateId(response.responseData.threadID)})`;
         message.channel.send(removalMessage);
         message.delete().catch(() => null);
         break;

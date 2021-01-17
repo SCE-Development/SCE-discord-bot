@@ -41,7 +41,7 @@ module.exports = new Command({
     const templateEmbed = new Discord.RichEmbed()
       .setColor('#301934')
       .setTitle(`All threads that start with ID: ${decorateId(threadID)}`)
-      .setDescription('Choose one! Example: type "1"');
+      .setDescription('Choose one! Example: type `1`');
     // Special cases when there are 0, 1, or more than 1 thread responses
     switch (threadQuery.responseData.length) {
       case 0:
@@ -51,8 +51,8 @@ module.exports = new Command({
           const noResultEmbed = new Discord.RichEmbed()
             .setTitle('No results')
             .setDescription(
-              `There may have been a typo, you can use \`${prefix}thread all\`\
-            to check if a thread starts with\
+              `There may have been a typo, you can use \`${prefix}thread all\`
+              to check if a thread starts with\
             \`${decorateId(threadID)}\` manually`
             );
           message.channel
