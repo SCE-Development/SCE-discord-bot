@@ -88,7 +88,8 @@ async function createNewThread(threadID, topic, message) {
   }
   //  flips the time stamp
   threadID =
-    threadID + createIdByTime(message.createdAt).substr(threadID.length);
+    threadID +
+    createIdByTime(message.createdAt).substr(0, 13 - threadID.length);
   const createThread = await CREATE_THREAD({
     threadID: threadID,
     creatorID: message.member.id,
