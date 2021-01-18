@@ -24,10 +24,17 @@ function createIdByTime(time = new Date()) {
  * @returns {String} The ID with separators.
  */
 function decorateId(id, sep = ' ', step = 4) {
+  if (id.length <= step) {
+    return id;
+  }
   const decorated = [];
-  for (let i = 0; i < id.length; i += step) {
+  let i = 0;
+  for (; i + 2 * step < id.length; i += step) {
     decorated.push(id.substr(i, step));
   }
+  const half = Math.ceil((id.length - i) / 2);
+  decorated.push(id.substr(i, half));
+  decorated.push(id.substr(i + half));
   return decorated.join(sep);
 }
 

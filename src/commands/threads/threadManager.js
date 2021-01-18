@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const { isOfficer } = require('../../util/Permission');
+const { prefix } = require('../../../config.json');
 const Command = require('../Command');
 const {
   CREATE_THREAD,
@@ -16,10 +17,9 @@ module.exports = new Command({
   name: 'threadmanager',
   description: 'Thread Manager. Used for managing custom threads.',
   aliases: ['tm'],
-  example: 's!tm <create | remove> <[topic] | id>',
+  example: `${prefix}tm <create | remove> <[topic] | id>`,
   permissions: 'admin',
   category: 'custom threads',
-  disabled: false,
   execute: async (message, args) => {
     // Check for author permissions
     if (!isOfficer(message.member)) {
@@ -121,8 +121,8 @@ module.exports = new Command({
           new Discord.RichEmbed()
             .setTitle('New Thread')
             .setDescription(
-              'Use `|<thread id>|` to view the full thread or\
-              `|<thread id>| <message>` to add to the thread.\n\
+              'Use `[thread id]` to view the full thread or\
+              `[thread id] message` to add to the thread.\n\
               Type at least 4 digits of the thread id.'
             )
             .addField('ID', decorateId(threadID), true)
@@ -139,7 +139,10 @@ module.exports = new Command({
             new Discord.RichEmbed()
               .setColor('#ccffff')
               .setTitle('Remove Thread')
-              .addField('`s!tm remove <thread id>`', 'Removes a thread')
+              .addField(
+                `\`${prefix}tm remove <thread id>\``,
+                'Removes a thread'
+              )
               .addField('Aliases', 'rm')
           );
           return;
@@ -211,7 +214,7 @@ module.exports = new Command({
             ? `Removed thread (id:
               ${decorateId(response.responseData.threadID)})`
             : `Removed thread ${response.responseData.topic}
-            (id: ${decorateId(response.responseData.threadID)})`;
+              (id: ${decorateId(response.responseData.threadID)})`;
         message.channel.send(removalMessage);
         message.delete().catch(() => null);
         break;
@@ -225,11 +228,11 @@ module.exports = new Command({
             .setTitle('Thread Manager')
             .setDescription('Unrecognized paramter, try using:')
             .addField(
-              '`s!tm create [topic]`',
+              `\`${prefix}tm create [topic]\``,
               'Creates a new thread - [topic] (optional)'
             )
             .addField(
-              '`s!tm remove <thread ID>`',
+              `\`${prefix}tm remove <thread id>\``,
               'Removes a thread - alias (rm)'
             )
         );

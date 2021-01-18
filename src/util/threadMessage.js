@@ -5,8 +5,8 @@ const {
   ADD_THREADMESSAGE,
   DELETE_THREADMESSAGE,
   DELETE_THREAD,
-} = require('../../APIFunctions/thread');
-const { createIdByTime, decorateId } = require('../../util/ThreadIDFormatter');
+} = require('../APIFunctions/thread');
+const { createIdByTime, decorateId } = require('./ThreadIDFormatter');
 
 /**
  * @typedef {Object} Thread
@@ -37,12 +37,14 @@ const { createIdByTime, decorateId } = require('../../util/ThreadIDFormatter');
  * @param {Discord.Message} message The invoking message.
  */
 async function createNewThread(threadID, topic, message) {
-  if (message.content > 130) {
-    const warningEmbed = new Discord.RichEmbed().setTitle('Warning')
-      .setDescription(`The topic is too long for a new thread.
-        If the intention was to add a message to a thread starting
-        with \`${decorateId(threadID)}\`, there is no such thread`);
-    message.channel.send(warningEmbed);
+  if (topic.length > 130) {
+    message.channel
+      .send(
+        `The topic is too long for a new thread.
+      If the intention was to add a message to a thread starting
+      with \`${decorateId(threadID)}\`, there is no such thread`
+      )
+      .then(msg => msg.delete(10000).catch(() => null));
     return;
   }
   const confirmAction = async topic => {
@@ -98,9 +100,8 @@ async function createNewThread(threadID, topic, message) {
   if (createThread.error) {
     message.channel
       .send(
-        `Error creating. Possibly an existing thread uses ID ${decorateId(
-          threadID
-        )}.`
+        `Error creating. Possibly an existing thread uses ID
+        ${decorateId(threadID)}.`
       )
       .then(msg => msg.delete(10000).catch(() => null));
     return;
@@ -109,9 +110,10 @@ async function createNewThread(threadID, topic, message) {
     .setColor('#301934')
     .setTitle('New Thread')
     .setDescription(
-      'Use `|<thread id>|` to view the full thread or\
-      `|<thread id>| <message>` to add to the thread.\
-      Type at least 4 digits of the thread id.')
+      'Use `[thread id]` to view the full thread or\
+      `[thread id] message` to add to the thread.\
+      Type at least 4 digits of the thread id.'
+    )
     .addField('ID', `${decorateId(createThread.responseData.threadID)}`, true)
     .addField('Topic', `${createThread.responseData.topic}`, true)
     .setTimestamp(message.createdAt.toLocaleString());
@@ -132,7 +134,7 @@ async function addMessageToThread(message, thread) {
   });
   if (addMsg.error) {
     message.channel
-      .send('Error adding')
+      .send('Internal error adding message')
       .then(msg => msg.delete(10000).catch(() => null));
     return;
   }
@@ -140,9 +142,10 @@ async function addMessageToThread(message, thread) {
     .setColor('#301934')
     .setTitle('New Message')
     .setDescription(
-      'Use `|<thread id>|` to view the full thread or\
-      `|<thread id>| <message>` to add to the thread.\
-      Type at least 4 digits of the thread id.')
+      'Use `[thread id]` to view the full thread or\
+      `[thread id] message` to add to the thread.\
+      Type at least 4 digits of the thread id.'
+    )
     .addField('ID', decorateId(thread.threadID), true)
     .addField('Topic', thread.topic || 'none', true)
     .addField('Added Message', message.content);
@@ -154,7 +157,7 @@ async function addMessageToThread(message, thread) {
 /**
  * Handles when there are multiple threads.
  *
- * @param {import('./threadMessage').Input} input The input from the command.
+ * @param {String} threadID The requested thread ID.
  * @param {Discord.Message} message The invoking message.
  * @param {Thread[]} threads The threads to handle.
  * @param {Boolean} createMode If the user is creating a thread or adding a
@@ -438,7 +441,7 @@ async function createMessageEmbed(
     await channel
       .fetchMessage(message.messageID)
       .then(async content => {
-        const text = /^\|[\d\s-]{4,20}\|\s*(.+)/.exec(content.content);
+        const text = /^\[[\d\s-]{4,20}\]\s*(.+)/.exec(content.content);
         let trimmedMessage = content.content;
         if (text && text.length === 2) {
           trimmedMessage = text[1];

@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { prefix } = require('../../../config.json');
 const Command = require('../Command');
 const {
   THREAD_QUERY,
@@ -17,10 +18,9 @@ module.exports = new Command({
   name: 'thread',
   description: 'View active threads or start a new one',
   aliases: [],
-  example: 's!thread <[all | active | none] | topic>',
+  example: `${prefix}thread <all | active | none | topic>`,
   permissions: 'general',
   category: 'custom threads',
-  disabled: false,
   execute: async (message, args) => {
     const param = args.join(' ').trim();
 
@@ -86,9 +86,9 @@ module.exports = new Command({
 
       const makeEmbed = (page, numPages) => {
         const embed = new Discord.RichEmbed().setDescription(
-          'Use `|<thread id>|` to view the full thread or\
-              `|<thread id>| <message>` to add to the thread.\n\
-              Type at least 4 digits of the thread id.'
+          'Use `[thread id]` to view the full thread or\
+          `[thread id] message` to add to the thread.\n\
+          Type at least 4 digits of the thread id.'
         );
         if (getAll) {
           embed.setTitle('All Threads');
@@ -245,8 +245,8 @@ module.exports = new Command({
         new Discord.RichEmbed()
           .setTitle('New Thread')
           .setDescription(
-            'Use `|<thread id>|` to view the full thread or\
-            `|<thread id>| <message>` to add to the thread.\n\
+            'Use `[thread id]` to view the full thread or\
+            `[thread id] message` to add to the thread.\n\
             Type at least 4 digits of the thread id.'
           )
           .addField('ID', decorateId(response.responseData.threadID), true)
@@ -260,17 +260,23 @@ module.exports = new Command({
           .setColor('#ccffff')
           .setTitle('Thread')
           .setDescription(
-            'View or start threads\nUse `|<thread id>|` to view\
-            the full thread or `|<thread id>| <message>` to add to the\
+            'View or start threads\nUse `[thread id]` to view\
+            the full thread or `[thread id] message` to add to the\
             thread.\nType at least 4 digits of the thread id.'
           )
-          .addField('`s!thread all`', 'View all threads')
+          .addField(`\`${prefix}thread all\``, 'View all threads')
           .addField(
-            '`s!thread active`',
+            `\`${prefix}thread active\``,
             `View threads with activity in the last ${ACTIVE_DAYS} days`
           )
-          .addField('`s!thread <topic>`', 'Start a new thread with a topic')
-          .addField('`s!thread none`', 'Start a new thread without a topic')
+          .addField(
+            `\`${prefix}thread <topic>\``,
+            'Start a new thread with a topic'
+          )
+          .addField(
+            `\`${prefix}thread none\``,
+            'Start a new thread without a topic'
+          )
       );
     }
   },
