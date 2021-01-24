@@ -37,16 +37,7 @@ const { createIdByTime, decorateId } = require('./ThreadIDFormatter');
  * @param {Discord.Message} message The invoking message.
  */
 async function createNewThread(threadID, topic, message) {
-  if (topic.length > 130) {
-    message.channel
-      .send(
-        `The topic is too long for a new thread.
-      If the intention was to add a message to a thread starting
-      with \`${decorateId(threadID)}\`, there is no such thread`
-      )
-      .then(msg => msg.delete(10000).catch(() => null));
-    return;
-  }
+  topic = topic.substring(0, 130);
   const confirmAction = async topic => {
     const confirmEmbed = new Discord.RichEmbed()
       .setTitle('Start new thread?')
@@ -100,10 +91,7 @@ async function createNewThread(threadID, topic, message) {
   });
   if (createThread.error) {
     message.channel
-      .send(
-        `Error creating. Possibly an existing thread uses ID
-        ${decorateId(threadID)}.`
-      )
+      .send('Internal error creating the thread.')
       .then(msg => msg.delete(10000).catch(() => null));
     return;
   }
@@ -111,9 +99,9 @@ async function createNewThread(threadID, topic, message) {
     .setColor('#301934')
     .setTitle('New Thread')
     .setDescription(
-      'Use `[thread id]` to view the full thread or\
-      `[thread id] message` to add to the thread.\
-      Type at least 4 digits of the thread id.'
+      'Use `[thread id]` to view the full thread or ' +
+        '`[thread id] message` to add to the thread. ' +
+        'Type at least 4 digits of the thread id.'
     )
     .addField('ID', `${decorateId(createThread.responseData.threadID)}`, true)
     .addField('Topic', `${createThread.responseData.topic}`, true)
@@ -143,9 +131,9 @@ async function addMessageToThread(message, thread) {
     .setColor('#301934')
     .setTitle('New Message')
     .setDescription(
-      'Use `[thread id]` to view the full thread or\
-      `[thread id] message` to add to the thread.\
-      Type at least 4 digits of the thread id.'
+      'Use `[thread id]` to view the full thread or ' +
+        '`[thread id] message` to add to the thread. ' +
+        'Type at least 4 digits of the thread id.'
     )
     .addField('ID', decorateId(thread.threadID), true)
     .addField('Topic', thread.topic || 'none', true)
@@ -170,7 +158,7 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
     .setTitle(`All threads that start with ID: ${decorateId(threadID)}`)
     .setDescription('Choose one! Example: type `1`');
 
-  const emojiCollector = await pagination(templateEmbed, message, threads);
+  const page = await pagination(templateEmbed, message, threads);
 
   const filter = m => {
     return m.author.id === message.author.id;
@@ -196,8 +184,10 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
       choice = index >= 0 && index < threads.length;
     }
     if (!choice) {
-      if (emojiCollector !== null) {
-        emojiCollector.stop(['The user has not chosen a new threadID']);
+      if (page.type === 'collector') {
+        page.collector.stop(['The user has not chosen a new threadID']);
+      } else {
+        page.message.delete().catch(() => null);
       }
       return;
     }
@@ -213,12 +203,15 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
       guildID: message.guild.id,
       channelID: message.channel.id,
     });
-    if (emojiCollector !== null) {
-      emojiCollector.stop(['The user has chosen a new threadID']);
+    if (page.type === 'collector') {
+      page.collector.stop(['The user has chosen a new threadID']);
+    } else {
+      page.message.delete().catch(() => null);
     }
 
-    if (createMode) addMessageToThread(message, threadQuery2.responseData[0]);
-    else {
+    if (createMode) {
+      addMessageToThread(message, threadQuery2.responseData[0]);
+    } else {
       const topic = threads[index].topic;
       templateEmbed
         .setTitle('Thread')
@@ -241,7 +234,11 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
  * @param {Thread} threads An array containing all the threads to display.
  * @param {Number?} itemsPerPage The number of items to display on each page.
  *
- * @return {Promise<Discord.ReactionCollector>}
+ * @return {Promise<{
+ *  type: 'message' | 'collector',
+ *  message: Discord.Message?,
+ *  collector: Discord.ReactionCollector?,
+ * }>}
  */
 async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
   /**
@@ -295,7 +292,8 @@ async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
 
   // do not add listeners for single page
   if (page.maxPage <= 0) {
-    return null;
+    currentMsg.delete(300000).catch(() => null);
+    return { type: 'message', message: currentMsg };
   }
 
   const filter = (reaction, user) => {
@@ -349,9 +347,9 @@ async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
   await currentMsg.react('⬅️');
   await currentMsg.react('➡️');
   reactionCollector.on('end', () => {
-    currentMsg.delete(120000).catch(() => null);
+    currentMsg.delete().catch(() => null);
   });
-  return reactionCollector;
+  return { type: 'collector', collector: reactionCollector };
 }
 
 /**

@@ -86,9 +86,9 @@ module.exports = new Command({
 
       const makeEmbed = (page, numPages) => {
         const embed = new Discord.RichEmbed().setDescription(
-          'Use `[thread id]` to view the full thread or\
-          `[thread id] message` to add to the thread.\n\
-          Type at least 4 digits of the thread id.'
+          'Use `[thread id]` to view the full thread or ' +
+            '`[thread id] message` to add to the thread.\n' +
+            'Type at least 4 digits of the thread id.'
         );
         if (getAll) {
           embed.setTitle('All Threads');
@@ -169,11 +169,11 @@ module.exports = new Command({
     } else if (param.length > 0) {
       // Start new thread
       // Confirm action
-      const confirmAction = async () => {
+      const confirmAction = async topic => {
         const confirmMessage = await message.channel.send(
           new Discord.RichEmbed()
             .setTitle('Start new thread?')
-            .addField('Topic', param, true)
+            .addField('Topic', topic, true)
         );
         confirmMessage
           .react('👍')
@@ -211,7 +211,8 @@ module.exports = new Command({
         return confirmed;
       };
       // Create thread
-      const confirmed = await confirmAction();
+      const topic = param.substring(0, 130);
+      const confirmed = await confirmAction(topic);
       if (!confirmed) {
         return;
       }
@@ -224,8 +225,8 @@ module.exports = new Command({
         channelID: message.channel.id,
         messageID: message.id,
       };
-      if (param !== 'none') {
-        mutation.topic = param;
+      if (topic !== 'none') {
+        mutation.topic = topic;
       }
 
       const response = await CREATE_THREAD(mutation);
@@ -245,9 +246,9 @@ module.exports = new Command({
         new Discord.RichEmbed()
           .setTitle('New Thread')
           .setDescription(
-            'Use `[thread id]` to view the full thread or\
-            `[thread id] message` to add to the thread.\n\
-            Type at least 4 digits of the thread id.'
+            'Use `[thread id]` to view the full thread or ' +
+              '`[thread id] message` to add to the thread.\n' +
+              'Type at least 4 digits of the thread id.'
           )
           .addField('ID', decorateId(response.responseData.threadID), true)
           .addField('Topic', response.responseData.topic, true)
@@ -260,9 +261,9 @@ module.exports = new Command({
           .setColor('#ccffff')
           .setTitle('Thread')
           .setDescription(
-            'View or start threads\nUse `[thread id]` to view\
-            the full thread or `[thread id] message` to add to the\
-            thread.\nType at least 4 digits of the thread id.'
+            'View or start threads\nUse `[thread id]` to view ' +
+              'the full thread or `[thread id] message` to add to the ' +
+              'thread.\nType at least 4 digits of the thread id.'
           )
           .addField(`\`${prefix}thread all\``, 'View all threads')
           .addField(

@@ -52,9 +52,9 @@ module.exports = new Command({
           const noResultEmbed = new Discord.RichEmbed()
             .setTitle('No results')
             .setDescription(
-              `There may have been a typo, you can use \`${prefix}thread all\`
-              to check if a thread starts with\
-            \`${decorateId(threadID)}\` manually`
+              'There may have been a typo, you can use ' +
+                `\`${prefix}thread all\` to check if a thread starts with ` +
+                `\`${decorateId(threadID)}\` manually.`
             );
           message.channel
             .send(noResultEmbed)

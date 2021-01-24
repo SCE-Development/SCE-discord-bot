@@ -86,7 +86,10 @@ module.exports = new Command({
     switch (args[0]) {
       case 'create': {
         // Create a thread
-        let topic = args.slice(1).join(' ');
+        let topic = args
+          .slice(1)
+          .join(' ')
+          .substring(0, 130);
         if (topic.length === 0) {
           topic = 'none';
         }
@@ -121,9 +124,9 @@ module.exports = new Command({
           new Discord.RichEmbed()
             .setTitle('New Thread')
             .setDescription(
-              'Use `[thread id]` to view the full thread or\
-              `[thread id] message` to add to the thread.\n\
-              Type at least 4 digits of the thread id.'
+              'Use `[thread id]` to view the full thread or ' +
+                '`[thread id] message` to add to the thread.\n' +
+                'Type at least 4 digits of the thread id.'
             )
             .addField('ID', decorateId(threadID), true)
             .addField('Topic', topic, true)
@@ -152,8 +155,8 @@ module.exports = new Command({
           // Invalid id
           message.channel
             .send(
-              `Could not remove thread ${decorateId(threadID)}.
-              ID should be a number up to 13 digits.`
+              `Could not remove thread ${decorateId(threadID)}. ` +
+                'ID should be a number up to 13 digits.'
             )
             .then(msg => msg.delete(10000).catch(() => null));
           return;
