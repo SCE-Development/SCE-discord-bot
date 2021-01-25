@@ -4,9 +4,10 @@ const { ApiResponse } = require('./ApiResponses');
 
 const POINTS_QUERY = async (message) => {
   const author = message.member;
+  const guild = message.guild;
   const query = gql`
   query {
-    pointOne (filter: {userID: "${author.id}"}) {
+    pointOne (filter: {guildID: "${guild.id}", userID: "${author.id}"}) {
       guildID
       userID
       totalPoints
@@ -28,11 +29,13 @@ const POINTS_QUERY = async (message) => {
   return response;
 };
 
-const ADD_POINTS = async (message) => {
-  const author = message.member;
+const ADD_POINTS = async (point) => {
   const mutation = gql`
   mutation {
-    pointUpdateOne (userID: "${author.id}") {
+    pointUpdateOne (guildID: "${point.guildID}", userID: "${point.userID}",
+    totalPoints: "${point.totalPoints}", weekPoints: "${point.weekPoints}",
+    monthPoints: "${point.monthPoints}", yearPoints: "${point.yearPoints}",
+    lastTalked: "${point.lastTalked}") {
       guildID
       userID
       totalPoints
@@ -44,14 +47,12 @@ const ADD_POINTS = async (message) => {
   }
   `;
   let response = new ApiResponse();
-  await request(`${DISCORD_API_URL}/graphql`, mutation)
-    .then((data) => {
-      response.responseData = data;
-    })
-    .catch(() => {
-      response.responseData = {};
-      response.error = true;
-    });
+  try {
+    const data = await request(`${DISCORD_API_URL}/graphql`, mutation, point)
+    response.responseData = data.pointUpdateOne;
+  } catch (e) {
+    response.error = true;
+  }
   return response;
 };
 
