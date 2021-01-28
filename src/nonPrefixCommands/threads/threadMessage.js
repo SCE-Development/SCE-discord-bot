@@ -63,7 +63,7 @@ module.exports = new Command({
         break;
       case 1:
         if (body) {
-          addMessageToThread(message, threadQuery.responseData[0]);
+          addMessageToThread(message, threadQuery.responseData[0], body);
         } else {
           const topic = threadQuery.responseData[0].topic;
           const templateEmbed = new Discord.RichEmbed()

@@ -115,7 +115,7 @@ async function createNewThread(threadID, topic, message) {
  * @param {Discord.Message} message The added message.
  * @param {Thread} thread Thread to add on.
  */
-async function addMessageToThread(message, thread) {
+async function addMessageToThread(message, thread, content) {
   const addMsg = await ADD_THREADMESSAGE({
     threadID: thread.threadID,
     guildID: thread.guildID,
@@ -137,7 +137,7 @@ async function addMessageToThread(message, thread) {
     )
     .addField('ID', decorateId(thread.threadID), true)
     .addField('Topic', thread.topic || 'none', true)
-    .addField('Added Message', message.content);
+    .addField('Added Message', content);
   await message.channel
     .send(addedEmbed)
     .then(msg => msg.delete(300000).catch(() => null));
