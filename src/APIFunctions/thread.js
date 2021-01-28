@@ -3,132 +3,114 @@ const { DISCORD_API_URL } = require('../../config.json');
 const { ApiResponse } = require('./ApiResponses');
 
 /**
- * @typedef   {Object} Thread
+ * @typedef {Object} Thread
  *
- * @property  {String}    threadID        The ID of the thread.
- * @property  {String}    creatorID       The user ID of the creator.
- * @property  {String}    guildID         The ID of the guild.
- * @property  {String}    channelID       The ID of the channel.
- * @property  {String}    [topic]         The topic of the thread.
- * @property  {String[]}  threadMessages  The IDs of messages in the thread.
+ * @property {String} threadID The ID of the thread.
+ * @property {String} creatorID The user ID of the creator.
+ * @property {String} guildID The ID of the guild.
+ * @property {String} channelID The ID of the channel.
+ * @property {String} [topic] The topic of the thread.
+ * @property {String[]} threadMessages The IDs of messages in the thread.
  */
 
 /**
- * @typedef   {Object} NewThread
+ * @typedef {Object} ThreadManyPayload
  *
- * @property  {String}    threadID        The ID of the thread.
- * @property  {String}    creatorID       The user ID of the creator.
- * @property  {String}    guildID         The ID of the guild.
- * @property  {String}    channelID       The ID of the channel.
- * @property  {String}    [topic]         The topic of the thread.
- * @property  {String}    messageID       The ID of the message creating the
- *                                        thread.
+ * @property {Thread[]} responseData The threads that matched the query.
+ * @property {boolean} error If the query had an error.
  */
 
 /**
- * @typedef   {Object} ThreadManyPayload
+ * @typedef {Object} ThreadOnePayload
  *
- * @property  {Thread[]}  responseData  The threads that matched the query.
- * @property  {boolean}   error         If the query had an error.
+ * @property {Thread} responseData The thread that matched the query.
+ * @property {boolean} error If the query had an error.
  */
 
 /**
- * @typedef   {Object} ThreadOnePayload
+ * Queries for threads. ThreadID matches all IDs from start.
  *
- * @property  {Thread}  responseData  The thread that matched the query.
- * @property  {boolean} error         If the query had an error.
- */
-
-/**
- * Queries all threads from the database.
+ * @param {Object} args Arguments for the query.
+ * @param {String?} args.threadID
+ * @param {String} args.guildID
+ * @param {String?} args.channelID
  *
- * @returns {ThreadManyPayload} All threads.
+ * @returns {Promise<ThreadManyPayload>} All threads matching the query.
  */
-const THREAD_QUERY = async () => {
-  const threadQuery = gql`
-    {
-      threadMany {
-        threadID
-        creatorID
-        guildID
-        channelID
-        topic
-        threadMessages {
-          messageID
+const THREAD_QUERY = async args => {
+  let threadQuery;
+  if (args.threadID) {
+    args = { ...args };
+    args.threadID = '^' + args.threadID;
+    threadQuery = gql`
+      query($threadID: RegExpAsString!, $channelID: String, $guildID: String!) {
+        threadMany(
+          filter: {
+            _operators: { threadID: { regex: $threadID } }
+            channelID: $channelID
+            guildID: $guildID
+          }
+        ) {
+          threadID
+          creatorID
+          guildID
+          channelID
+          topic
+          threadMessages {
+            messageID
+          }
         }
       }
-    }
-  `;
+    `;
+  } else {
+    threadQuery = gql`
+      query($channelID: String, $guildID: String!) {
+        threadMany(filter: { channelID: $channelID, guildID: $guildID }) {
+          threadID
+          creatorID
+          guildID
+          channelID
+          topic
+          threadMessages {
+            messageID
+          }
+        }
+      }
+    `;
+  }
 
-  let response = new ApiResponse();
-  await request(`${DISCORD_API_URL}/graphql`, threadQuery)
-    .then(data => {
-      response.responseData = data.threadMany;
-      response.error = false;
-    })
-    .catch(() => {
-      response.error = true;
-    });
+  const response = new ApiResponse();
+  try {
+    const data = await request(`${DISCORD_API_URL}/graphql`, threadQuery, args);
+    response.responseData = data.threadMany;
+  } catch (e) {
+    response.error = true;
+  }
   return response;
 };
 
 /**
- * Queries all threads that start with an ID from the database.
+ * Creates a new thread in the database.
  *
- * @param {String} threadID The thread ID to search for, matching from the
- * start.
+ * @param  {Object} args Arguments for the mutation.
+ * @param  {String} args.threadID
+ * @param  {String} args.creatorID
+ * @param  {String} args.guildID
+ * @param  {String} args.channelID
+ * @param  {String?} args.topic
+ * @param  {String?} args.messageID
  *
- * @returns {ThreadManyPayload} All threads with an ID that start with
- * threadID.
+ * @returns {Promise<ThreadOnePayload>} The created thread.
  */
-const THREAD_ID_QUERY = async threadID => {
-  const threadQuery = gql`
-    query($threadID: RegExpAsString!) {
-      threadMany(filter: { _operators: { threadID: { regex: $threadID } } }) {
-        threadID
-        creatorID
-        guildID
-        channelID
-        topic
-        threadMessages {
-          messageID
-        }
-      }
-    }
-  `;
-  let response = new ApiResponse();
-  await request(`${DISCORD_API_URL}/graphql`, threadQuery, {
-    threadID: '^' + threadID,
-  })
-    .then(data => {
-      response.responseData = data.threadMany;
-      response.error = false;
-    })
-    .catch(() => {
-      response.error = true;
-    });
-  return response;
-};
-
-/**
- * Creates a new thread in the database..
- *
- * @param {NewThread} thread The thread to create.
- *
- * @returns {ThreadOnePayload} The created thread.
- */
-const CREATE_THREAD = async thread => {
-  let response = new ApiResponse();
-
-  // Create the thread message
-  const makeThreadMessage = gql`
+const CREATE_THREAD = async args => {
+  const makeThread = gql`
     mutation(
       $threadID: String!
       $creatorID: String!
       $guildID: String!
       $channelID: String!
       $topic: String
-      $messageID: String!
+      $messageID: String
     ) {
       threadCreate(
         threadID: $threadID
@@ -149,32 +131,36 @@ const CREATE_THREAD = async thread => {
       }
     }
   `;
-  await request(`${DISCORD_API_URL}/graphql`, makeThreadMessage, thread)
-    .then(data => {
-      response.responseData = data.threadCreate;
-    })
-    .catch(() => {
-      response.responseData = {};
-      response.error = true;
-    });
+
+  const response = new ApiResponse();
+  try {
+    const data = await request(`${DISCORD_API_URL}/graphql`, makeThread, args);
+    response.responseData = data.threadCreate;
+  } catch (e) {
+    response.error = true;
+  }
   return response;
 };
 
 /**
  * Add a message to a thread in the database.
  *
- * @param {String} threadID   The ID of the thread to add the message to.
- * @param {String} messageID  The ID of the message to add.
+ * @param {Object} args Arguments for the mutation.
+ * @param {String} args.threadID
+ * @param {String} args.guildID
+ * @param {String} args.messageID
  *
- * @returns {Thread} The thread that the message was added to.
+ * @returns {Promise<ThreadOnePayload>} The thread that the message was added
+ * to.
  */
-const ADD_THREADMESSAGE = async (threadID, messageID) => {
-  let response = new ApiResponse();
-
-  // Create the thread message
-  const makeThreadMessage = gql`
-    mutation($threadID: String!, $messageID: String!) {
-      threadAddMessage(threadID: $threadID, messageID: $messageID) {
+const ADD_THREADMESSAGE = async args => {
+  const addThreadMessage = gql`
+    mutation($threadID: String!, $guildID: String!, $messageID: String!) {
+      threadAddMessage(
+        threadID: $threadID
+        guildID: $guildID
+        messageID: $messageID
+      ) {
         threadID
         creatorID
         guildID
@@ -187,34 +173,33 @@ const ADD_THREADMESSAGE = async (threadID, messageID) => {
     }
   `;
 
-  await request(`${DISCORD_API_URL}/graphql`, makeThreadMessage, {
-    threadID,
-    messageID,
-  })
-    .then(data => {
-      response.responseData = data.threadAddMessage;
-    })
-    .catch(() => {
-      response.responseData = {};
-      response.error = true;
-    });
+  const response = new ApiResponse();
+  try {
+    const data = await request(
+      `${DISCORD_API_URL}/graphql`,
+      addThreadMessage,
+      args
+    );
+    response.responseData = data.threadAddMessage;
+  } catch (e) {
+    response.error = true;
+  }
   return response;
 };
 
 /**
  * Delete a thread and all its messages from the database.
  *
- * @param {String} threadID The ID of the thread to delete.
+ * @param {Object} args Arguments for the mutation.
+ * @param {String} args.threadID
+ * @param {String} args.guildID
  *
- * @returns {Thread} The deleted thread.
+ * @returns {Promise<ThreadOnePayload>} The deleted thread.
  */
-const DELETE_THREAD = async threadID => {
-  let response = new ApiResponse();
-
-  // Delete the thread
+const DELETE_THREAD = async args => {
   const deleteThread = gql`
-    mutation($threadID: String!) {
-      threadDelete(threadID: $threadID) {
+    mutation($threadID: String!, $guildID: String!) {
+      threadDelete(threadID: $threadID, guildID: $guildID) {
         threadID
         creatorID
         guildID
@@ -227,32 +212,39 @@ const DELETE_THREAD = async threadID => {
     }
   `;
 
-  await request(`${DISCORD_API_URL}/graphql`, deleteThread, { threadID })
-    .then(data => {
-      response.responseData = data.threadDelete;
-    })
-    .catch(() => {
-      response.responseData = {};
-      response.error = true;
-    });
+  const response = new ApiResponse();
+  try {
+    const data = await request(
+      `${DISCORD_API_URL}/graphql`,
+      deleteThread,
+      args
+    );
+    response.responseData = data.threadDelete;
+  } catch (e) {
+    response.error = true;
+  }
   return response;
 };
 
 /**
  * Delete a thread message from the database.
  *
- * @param {String} threadID The ID of the thread containing the message.
- * @param {String} messageID The ID of the message to delete.
+ * @param {Object} args Arguments for the mutation.
+ * @param {String} args.threadID
+ * @param {String} args.guildID
+ * @param {String} args.messageID
  *
- * @returns {Thread} The thread where the message was deleted.
+ * @returns {Promise<ThreadOnePayload>} The thread where the message was
+ * deleted.
  */
-const DELETE_THREADMESSAGE = async (threadID, messageID) => {
-  let response = new ApiResponse();
-
-  // Delete the thread message and remove it from the thread
+const DELETE_THREADMESSAGE = async args => {
   const deleteThreadMessage = gql`
-    mutation($threadID: String!, $messageID: String!) {
-      threadMessageDelete(threadID: $threadID, messageID: $messageID) {
+    mutation($threadID: String!, $guildID: String!, $messageID: String!) {
+      threadMessageDelete(
+        threadID: $threadID
+        guildID: $guildID
+        messageID: $messageID
+      ) {
         threadID
         creatorID
         guildID
@@ -265,23 +257,22 @@ const DELETE_THREADMESSAGE = async (threadID, messageID) => {
     }
   `;
 
-  await request(`${DISCORD_API_URL}/graphql`, deleteThreadMessage, {
-    threadID,
-    messageID,
-  })
-    .then(data => {
-      response.responseData = data.threadRemoveMessage;
-    })
-    .catch(() => {
-      response.responseData = {};
-      response.error = true;
-    });
+  const response = new ApiResponse();
+  try {
+    const data = await request(
+      `${DISCORD_API_URL}/graphql`,
+      deleteThreadMessage,
+      args
+    );
+    response.responseData = data.threadRemoveMessage;
+  } catch (e) {
+    response.error = true;
+  }
   return response;
 };
 
 module.exports = {
   THREAD_QUERY,
-  THREAD_ID_QUERY,
   CREATE_THREAD,
   ADD_THREADMESSAGE,
   DELETE_THREAD,

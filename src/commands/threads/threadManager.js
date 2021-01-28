@@ -1,20 +1,25 @@
 const Discord = require('discord.js');
 const { isOfficer } = require('../../util/Permission');
+const { prefix } = require('../../../config.json');
 const Command = require('../Command');
 const {
   CREATE_THREAD,
   DELETE_THREAD,
-  THREAD_ID_QUERY,
+  THREAD_QUERY,
 } = require('../../APIFunctions/thread');
+const {
+  createIdByTime,
+  decorateId,
+  undecorateId,
+} = require('../../util/ThreadIDFormatter');
 
 module.exports = new Command({
   name: 'threadmanager',
   description: 'Thread Manager. Used for managing custom threads.',
   aliases: ['tm'],
-  example: 's!tm <create | remove> <[topic] | id>',
+  example: `${prefix}tm <create | remove> <[topic] | id>`,
   permissions: 'admin',
   category: 'custom threads',
-  disabled: true,
   execute: async (message, args) => {
     // Check for author permissions
     if (!isOfficer(message.member)) {
@@ -32,7 +37,9 @@ module.exports = new Command({
           .setTitle('Start new thread?')
           .addField('Topic', info[0], true);
       } else {
-        confirmEmbed.setTitle('Remove thread?').addField('ID', info[0], true);
+        confirmEmbed
+          .setTitle('Remove thread?')
+          .addField('ID', decorateId(info[0]), true);
         if (info.length === 2) {
           confirmEmbed.addField('Topic', info[1], true);
         }
@@ -79,7 +86,10 @@ module.exports = new Command({
     switch (args[0]) {
       case 'create': {
         // Create a thread
-        let topic = args.slice(1).join(' ');
+        let topic = args
+          .slice(1)
+          .join(' ')
+          .substring(0, 130);
         if (topic.length === 0) {
           topic = 'none';
         }
@@ -87,11 +97,7 @@ module.exports = new Command({
         if (!confirmed) {
           return;
         }
-        const threadID = message.createdTimestamp
-          .toString()
-          .split('')
-          .reverse()
-          .join('');
+        const threadID = createIdByTime(message.createdAt);
 
         const mutation = {
           threadID: threadID,
@@ -118,11 +124,11 @@ module.exports = new Command({
           new Discord.RichEmbed()
             .setTitle('New Thread')
             .setDescription(
-              'Use `|thread id|` to view the full thread or\
-            `|thread id| <message>` to add to the thread.\n\
-            Type at least 4 digits of the thread id.'
+              'Use `[thread id]` to view the full thread or ' +
+                '`[thread id] message` to add to the thread.\n' +
+                'Type at least 4 digits of the thread id.'
             )
-            .addField('ID', threadID, true)
+            .addField('ID', decorateId(threadID), true)
             .addField('Topic', topic, true)
         );
         break;
@@ -136,48 +142,52 @@ module.exports = new Command({
             new Discord.RichEmbed()
               .setColor('#ccffff')
               .setTitle('Remove Thread')
-              .addField('`s!tm remove <thread id>`', 'Removes a thread')
+              .addField(
+                `\`${prefix}tm remove <thread id>\``,
+                'Removes a thread'
+              )
               .addField('Aliases', 'rm')
           );
           return;
         }
-        let threadID = args
-          .slice(1)
-          .join('')
-          .replace(/\s+/, '');
-        if (!/^\d{1,18}/.test(threadID)) {
+        let threadID = undecorateId(args.slice(1).join(''));
+        if (!/^\d+$/.test(threadID)) {
           // Invalid id
           message.channel
             .send(
-              `Could not remove thread ${threadID}.
-              ID should be a number up to 18 digits.`
+              `Could not remove thread ${decorateId(threadID)}. ` +
+                'ID should be a number up to 13 digits.'
             )
             .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
 
-        const query = await THREAD_ID_QUERY(threadID);
+        const query = await THREAD_QUERY({
+          threadID,
+          channelID: message.channel.id,
+          guildID: message.guild.id,
+        });
         if (query.error) {
           // Error
           message.channel
-            .send(`Oops! Could not remove thread with id ${threadID}.`)
+            .send(
+              `Oops! Could not remove thread with id ${decorateId(threadID)}.`
+            )
             .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
-        const threads = query.responseData.filter(
-          thread => thread.guildID === message.guild.id
-        );
+        const threads = query.responseData;
         if (threads.length === 0) {
           // No threads
           message.channel
-            .send(`Oops! Found no threads with id ${threadID}.`)
+            .send(`Oops! Found no threads with id ${decorateId(threadID)}.`)
             .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
         if (threads.length !== 1) {
           // Too many threads
           message.channel
-            .send(`Oops! Multiple threads matched id ${threadID}.`)
+            .send(`Oops! Multiple threads matched id ${decorateId(threadID)}.`)
             .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
@@ -189,19 +199,25 @@ module.exports = new Command({
           return;
         }
 
-        const response = await DELETE_THREAD(threadID);
+        const response = await DELETE_THREAD({
+          threadID,
+          guildID: message.guild.id,
+        });
         if (response.error) {
           // Error
           message.channel
-            .send(`Oops! Could not remove thread with id ${threadID}.`)
+            .send(
+              `Oops! Could not remove thread with id ${decorateId(threadID)}.`
+            )
             .then(msg => msg.delete(10000).catch(() => null));
           return;
         }
         const removalMessage =
           response.responseData.topic === null
-            ? `Removed thread (id: ${response.responseData.threadID})`
-            : `Removed thread ${response.responseData.topic} \
-(id: ${response.responseData.threadID})`;
+            ? `Removed thread (id:
+              ${decorateId(response.responseData.threadID)})`
+            : `Removed thread ${response.responseData.topic}
+              (id: ${decorateId(response.responseData.threadID)})`;
         message.channel.send(removalMessage);
         message.delete().catch(() => null);
         break;
@@ -215,11 +231,11 @@ module.exports = new Command({
             .setTitle('Thread Manager')
             .setDescription('Unrecognized paramter, try using:')
             .addField(
-              '`s!tm create [topic]`',
+              `\`${prefix}tm create [topic]\``,
               'Creates a new thread - [topic] (optional)'
             )
             .addField(
-              '`s!tm remove <thread ID>`',
+              `\`${prefix}tm remove <thread id>\``,
               'Removes a thread - alias (rm)'
             )
         );

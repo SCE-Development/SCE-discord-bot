@@ -15,7 +15,7 @@ function createNonPrefixRegex() {
   for (const directory in commandFiles) {
     for (const file in commandFiles[directory]) {
       const command = require(`${nonPrefixCommandsPath}/${directory}/${file}`);
-      if (command instanceof Command) {
+      if (command instanceof Command && !command.disabled) {
         regExp += `|(${command.regex.source})`;
       }
     }
