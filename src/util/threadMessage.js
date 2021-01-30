@@ -114,8 +114,9 @@ async function createNewThread(threadID, topic, message) {
  *
  * @param {Discord.Message} message The added message.
  * @param {Thread} thread Thread to add on.
+ * @param {String?} content The trimmed content of the message.
  */
-async function addMessageToThread(message, thread, content) {
+async function addMessageToThread(message, thread, content = message.content) {
   const addMsg = await ADD_THREADMESSAGE({
     threadID: thread.threadID,
     guildID: thread.guildID,
