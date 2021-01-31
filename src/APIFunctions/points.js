@@ -31,11 +31,11 @@ const POINTS_QUERY = async (message) => {
 
 const ADD_POINTS = async (point) => {
   const mutation = gql`
-  mutation {
-    pointUpdateOne (guildID: "${point.guildID}", userID: "${point.userID}",
-    totalPoints: "${point.totalPoints}", weekPoints: "${point.weekPoints}",
-    monthPoints: "${point.monthPoints}", yearPoints: "${point.yearPoints}",
-    lastTalked: "${point.lastTalked}") {
+  mutation ($guildID: String!, $userID: String!, $totalPoints: Int,
+    $weekPoints: Int, $monthPoints: Int, $yearPoints: Int, $lastTalked: Date) {
+    pointUpdateOne (guildID: $guildID, userID: $userID, totalPoints: $totalPoints,
+    weekPoints: $weekPoints, monthPoints: $monthPoints, yearPoints: $yearPoints,
+    lastTalked: $lastTalked) {
       guildID
       userID
       totalPoints
@@ -50,6 +50,7 @@ const ADD_POINTS = async (point) => {
   try {
     const data = await request(`${DISCORD_API_URL}/graphql`, mutation, point)
     response.responseData = data.pointUpdateOne;
+    console.log(response.responseData);
   } catch (e) {
     response.error = true;
   }

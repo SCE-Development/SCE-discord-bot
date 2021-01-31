@@ -32,13 +32,7 @@ const PointMutation = {
           }
         },
         { new: true, useFindAndModify: false, upsert: true },
-      ).catch((error) => {
-        // This error will trigger if time between messages < 3min
-        if (error.codeName == 'DuplicateKey') {
-          return null;
-          // throw new ApolloError('User talked too recently');
-        }
-      });
+      );
       return points;
     }
   },

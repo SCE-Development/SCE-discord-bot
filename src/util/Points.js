@@ -1,13 +1,3 @@
-
-// implement: reset/cooldown
-/*
-1. MessageHandler calls points(message)
-Inside function points(message)
-2. Query the user to get their points data
-3. Using last talked, update the points object for week, month, year
-4. check if they're on cooldown and update points accordingly
-5. Mutation to update the database with the your points object (create a new object if the user is not in the db already)
-*/
 const { POINTS_QUERY, ADD_POINTS } = require('../APIFunctions/points.js');
 
 async function increment(message) {
@@ -21,17 +11,57 @@ async function increment(message) {
   const response = await POINTS_QUERY(message);
   if (response.error)
     return;
-  const points = response.responseData;
+  let points = response.responseData;
+  console.log(response);
+  // If no points, add a points object
+  if (!points) {
+    points = {
+      guildID: guild.id,
+      userID: author.id,
+      weekPoints: p,
+      monthPoints: p,
+      yearPoints: p,
+      totalPoints: p,
+      lastTalked: new Date()
+    };
+    ADD_POINTS(points);
+  }
   // If last message passed cooldown, add points
-  if (message.createdAt - points.lastTalked > c) {
+  else if (message.createdAt - new Date(points.lastTalked) > c) {
     points.weekPoints += p;
     points.monthPoints += p;
     points.yearPoints += p;
     points.totalPoints += p;
     ADD_POINTS(points);
   }
-  // If talking past week/month/year lines, reset that
-  // point set to 0, then add points
+  // If day of week is Monday, set weekPoints to 0, then add
+  else if (getDay(message.createdAt) == 0) {
+    points.weekPoints = 0;
+    points.weekPoints += p;
+    points.monthPoints += p;
+    points.yearPoints += p;
+    points.totalPoints += p;
+    ADD_POINTS(points);
+  }
+  // If 1st day of month, set monthPoints to 0, then add
+  else if (getDate(message.createdAt) == 1) {
+    points.monthPoints = 0;
+    points.weekPoints += p;
+    points.monthPoints += p;
+    points.yearPoints += p;
+    points.totalPoints += p;
+    ADD_POINTS(points);
+  }
+  // If Jan 1, set yearPoints to 0, then add
+  else if (getDate(message.createdAt) == 1
+    && getMonth(message.createdAt) == 0) {
+    points.yearPoints = 0;
+    points.weekPoints += p;
+    points.monthPoints += p;
+    points.yearPoints += p;
+    points.totalPoints += p;
+    ADD_POINTS(points);
+  }
 }
 
 module.exports = { increment }
