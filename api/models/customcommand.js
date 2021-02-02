@@ -1,7 +1,18 @@
 const mongoose = require('mongoose');
 const { composeMongoose } = require('graphql-compose-mongoose');
 
-
+/**
+ * @typedef {Object} CustomCommand
+ * object stored in the database
+ * 
+ * @property {String} commandName
+ * @property {String} creatorID
+ * @property {String} guildID
+ * @property {String} message 
+ * the response message when command is called
+ * @property {Number} timesUsed
+ * @property {Date} createdAt
+ */
 const CCSchema = mongoose.Schema(
   {
     commandName: {
@@ -9,7 +20,7 @@ const CCSchema = mongoose.Schema(
       required: true,
       unique: true
     },
-    userID: {
+    creatorID: {
       type: String,
       required: true,
     },
