@@ -15,16 +15,16 @@ const { composeMongoose } = require('graphql-compose-mongoose');
  */
 const CCSchema = mongoose.Schema(
   {
+    guildID: {
+      type: String,
+      required: true,
+    },
     commandName: {
       type: String,
       required: true,
       unique: true
     },
     creatorID: {
-      type: String,
-      required: true,
-    },
-    guildID: {
       type: String,
       required: true,
     },

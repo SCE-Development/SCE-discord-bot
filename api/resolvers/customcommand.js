@@ -15,6 +15,27 @@ const { SystemError, UserInputError } = require('apollo-server');
     CustomCommandUpdateOne: CustomCommandTC.mongooseResolvers.updateOne(),
     CustomCommandRemoveOne: CustomCommandTC.mongooseResolvers.removeOne(),
     CustomCommandRemoveMany: CustomCommandTC.mongooseResolvers.removeMany(),
+    CustomCommandCreate: {
+      args: { creatorID: 'String!', guildID: 'String!',
+        message: 'String!', commandName: 'String'
+     },
+      type: CustomCommandTC,
+      resolve: async (source, args) => {
+      CustomCommand.create(args)
+        .catch(async () => {
+          throw new UserInputError(
+            'CustomCommand has failed to create'
+          );
+        });
+      const customCommand = CustomCommand.findOne(args)
+        .catch(async () => {
+          throw new UserInputError(
+            'CustomCommand creation has returned null'
+          );
+        })
+        return customCommand;
+      },
+    }
   };
   
   module.exports = { CCQuery, CCMutation };
