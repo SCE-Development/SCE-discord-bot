@@ -7,7 +7,6 @@ const PointSchema = mongoose.Schema(
     guildID: {
       type: String,
       required: true,
-      default: '717588052964409366',
     },
     userID: {
       type: String,

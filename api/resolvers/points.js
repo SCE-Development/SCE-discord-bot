@@ -16,8 +16,8 @@ const PointMutation = {
     type: PointTC,
     args: {
       guildID: 'String!', userID: 'String!', points: 'Int',
-      weekPoints: 'Int', monthPoints: 'Int', yearPoints: 'Int', totalPoints: 'Int',
-      lastTalked: 'Date'
+      weekPoints: 'Int', monthPoints: 'Int', yearPoints: 'Int',
+      totalPoints: 'Int', lastTalked: 'Date'
     },
     resolve: async (source, args) => {
       const points = await Point.findOneAndUpdate(

@@ -9,11 +9,42 @@ module.exports = new Command({
   permissions: 'member',
   execute: (message) => {
     const author = message.member;
-    POINTS_QUERY(message)
+    // Query author points
+    if (!message.mentions.members.first()) {
+      POINTS_QUERY({
+        guildID: message.guild.id,
+        userID: author.id
+      })
+        .then((points) => {
+          if (points.responseData == null) {
+            message.channel.send('User has no points.');
+          }
+          else {
+            message.channel.send(
+              author.toString() + '\'s Points: '
+              + points.responseData.totalPoints
+            );
+          }
+        });
+      return;
+    }
+    // If a user is mentioned, query their points
+    const user = message.mentions.members.first();
+    POINTS_QUERY({
+      guildID: message.guild.id,
+      userID: user.id
+    })
       .then((points) => {
-        message.channel.send(
-          author + '\'s Points: ' + points.responseData.totalPoints
-        );
+        console.log(points);
+        if (points.responseData == null) {
+          message.channel.send('User has no points.');
+        }
+        else {
+          message.channel.send(
+            user + '\'s Points: ' + points.responseData.totalPoints
+          );
+        }
       });
+    return;
   }
 });
