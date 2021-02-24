@@ -1,5 +1,6 @@
 const Command = require('../Command');
 const { POINTS_QUERY } = require('../../APIFunctions/points');
+const Discord = require('discord.js');
 
 module.exports = new Command({
   name: 'points',
@@ -16,14 +17,20 @@ module.exports = new Command({
         userID: author.id
       })
         .then((points) => {
+          const pointsEmbedNoMention = new Discord.RichEmbed()
+            .setColor('#03dffc')
+            .setTitle('Point Breakdown')
+            .setThumbnail(author.user.avatarURL)
+            .addField('Total Points', points.responseData.totalPoints)
+            .addField('Gained This Week', points.responseData.weekPoints)
+            .addField('Gained This Month', points.responseData.monthPoints)
+            .addField('Gained This Year', points.responseData.yearPoints)
+            .setTimestamp()
           if (points.responseData == null) {
             message.channel.send('User has no points.');
           }
           else {
-            message.channel.send(
-              author.toString() + '\'s Points: '
-              + points.responseData.totalPoints
-            );
+            message.channel.send(pointsEmbedNoMention);
           }
         });
       return;
@@ -35,14 +42,21 @@ module.exports = new Command({
       userID: user.id
     })
       .then((points) => {
-        console.log(points);
         if (points.responseData == null) {
           message.channel.send('User has no points.');
         }
         else {
-          message.channel.send(
-            user + '\'s Points: ' + points.responseData.totalPoints
-          );
+          const pointsEmbedMention = new Discord.RichEmbed()
+            .setColor('#03dffc')
+            .setTitle('Point Breakdown')
+            .setThumbnail(user.user.avatarURL)
+            .addField('User', user)
+            .addField('Total Points', points.responseData.totalPoints)
+            .addField('Gained This Week', points.responseData.weekPoints)
+            .addField('Gained This Month', points.responseData.monthPoints)
+            .addField('Gained This Year', points.responseData.yearPoints)
+            .setTimestamp()
+          message.channel.send(pointsEmbedMention);
         }
       });
     return;
