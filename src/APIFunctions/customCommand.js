@@ -14,7 +14,7 @@ const { ApiResponse } = require('./ApiResponses');
  * @returns {Promise<[commandName, messsage]>} The created thread.
  */
 const CREATE_COMMAND = async args => {
-    const makeCMD = gql`
+  const makeCMD = gql`
       mutation(
         $commandName: String!
         $creatorID: String!
@@ -37,17 +37,17 @@ const CREATE_COMMAND = async args => {
       }
     `;
   
-    const response = new ApiResponse();
-    try {
-      const data = await request(`${DISCORD_API_URL}/graphql`, makeCMD, args);
-      response.responseData = data.CustomCommandCreate;
-    } catch (e) {
-      response.error = true;
-    }
-    return response;
-  };
+  const response = new ApiResponse();
+  try {
+    const data = await request(`${DISCORD_API_URL}/graphql`, makeCMD, args);
+    response.responseData = data.CustomCommandCreate;
+  } catch (e) {
+    response.error = true;
+  }
+  return response;
+};
 
-    /**
+/**
    * Creates a new command in the database.
    *
    * @param  {Object} args Arguments for the mutation.
@@ -59,8 +59,8 @@ const CREATE_COMMAND = async args => {
    *  CustomCommand[]>} all customcommands in DB 
    */
   
-  const DELETE_COMMAND = async args => {
-    const deleteCommand = gql `
+const DELETE_COMMAND = async args => {
+  const deleteCommand = gql `
     mutation(
       $creatorID: String!
       $commandName: String!
@@ -82,17 +82,18 @@ const CREATE_COMMAND = async args => {
         }
         }
     }
-    `
-    const response = new ApiResponse();
-    try {
-      const data = await request(`${DISCORD_API_URL}/graphql`, deleteCommand, args);
-      response.responseData = data.CustomCommandRemoveOne;
-    } catch (e) {
-      response.error = true;
-    }
-    return response;
+    `;
+  const response = new ApiResponse();
+  try {
+    const data = await request(`${DISCORD_API_URL}/graphql`
+      , deleteCommand, args);
+    response.responseData = data.CustomCommandRemoveOne;
+  } catch (e) {
+    response.error = true;
   }
-  /**
+  return response;
+};
+/**
    * Creates a new command in the database.
    *
    * @param  {Object} args Arguments for the mutation.
@@ -101,8 +102,8 @@ const CREATE_COMMAND = async args => {
    * @returns {Promise<import('../../api/models/customcommand').
    *  CustomCommand[]>} all customcommands in DB 
    */
-  const QUERY_GUILD = async args => {
-    const queryAllCommands = gql `
+const QUERY_GUILD = async args => {
+  const queryAllCommands = gql `
     query(
       $guildID: String!
     )
@@ -118,19 +119,20 @@ const CREATE_COMMAND = async args => {
         createdAt
       }
     }
-    `
-    const response = new ApiResponse();
-    try {
-      const data = await request(`${DISCORD_API_URL}/graphql`, queryAllCommands, args);
-      response.responseData = data.CustomCommandMany;
-    } catch (e) {
-      response.error = true;
-    }
-    return response;
+    `;
+  const response = new ApiResponse();
+  try {
+    const data = await request(`${DISCORD_API_URL}/graphql`
+      , queryAllCommands, args);
+    response.responseData = data.CustomCommandMany;
+  } catch (e) {
+    response.error = true;
   }
+  return response;
+};
 
-  const QUERY_ALL = async args => {
-    const queryAllCommands = gql `
+const QUERY_ALL = async args => {
+  const queryAllCommands = gql `
     query
     {
       CustomCommandMany
@@ -143,27 +145,28 @@ const CREATE_COMMAND = async args => {
         guildID
       }
     }
-    `
-    const response = new ApiResponse();
+    `;
+  const response = new ApiResponse();
     
-    try {
-      const data = await request(`${DISCORD_API_URL}/graphql`, queryAllCommands, args);
-      response.responseData = data.CustomCommandMany;
-      // sort it by guild ID
-      response.responseData.sort(function(a, b) {
-        const LHS = parseInt(a.guildID);
-        const RHS = parseInt(b.guildID);
-        if( LHS > RHS ) return 1;
-        if( LHS < RHS) return -1;
-        return 0;
-      })
-    } catch (e) {
-      response.error = true;
-    }
-    return response;
+  try {
+    const data = await request(`${DISCORD_API_URL}/graphql`
+      , queryAllCommands, args);
+    response.responseData = data.CustomCommandMany;
+    // sort it by guild ID
+    response.responseData.sort(function(a, b) {
+      const LHS = parseInt(a.guildID);
+      const RHS = parseInt(b.guildID);
+      if( LHS > RHS ) return 1;
+      if( LHS < RHS) return -1;
+      return 0;
+    });
+  } catch (e) {
+    response.error = true;
   }
+  return response;
+};
   
-  /**
+/**
    * Creates a new command in the database.
    *
    * @param  {Object} args Arguments for the mutation.
@@ -172,8 +175,8 @@ const CREATE_COMMAND = async args => {
    * @returns {Promise<import('../../api/models/customcommand').
    *  CustomCommand[]>} all customcommands in DB 
    */
-  const QUERY_SINGLE = async args => {
-    const queryCommand = gql `
+const QUERY_SINGLE = async args => {
+  const queryCommand = gql `
     query($commandName:String!)
     {
       CustomCommandOne(filter:{
@@ -188,18 +191,19 @@ const CREATE_COMMAND = async args => {
         createdAt
       }
     }
-    `
-    const response = new ApiResponse();
-    try {
-      const data = await request(`${DISCORD_API_URL}/graphql`, queryCommand, args);
-      response.responseData = data.CustomCommandOne;
-    } catch (e) {
-      response.error = true;
-    }
-    return response;
+    `;
+  const response = new ApiResponse();
+  try {
+    const data = await request(`${DISCORD_API_URL}/graphql`
+      , queryCommand, args);
+    response.responseData = data.CustomCommandOne;
+  } catch (e) {
+    response.error = true;
   }
+  return response;
+};
   
-  /**
+/**
    * Creates a new command in the database.
    *
    * @param  {Object} args Arguments for the mutation.
@@ -209,8 +213,8 @@ const CREATE_COMMAND = async args => {
    * @returns {Promise<import('../../api/models/customcommand').
    *  CustomCommand[]>} all customcommands in DB 
    */
-  const UPDATE_COMMAND = async args => {
-    const theUpdoot = gql `
+const UPDATE_COMMAND = async args => {
+  const theUpdoot = gql `
     mutation(
       $commandName: String!
       $timesUsed:Float!
@@ -234,23 +238,23 @@ const CREATE_COMMAND = async args => {
         }
         }
     }
-    `
-    const response = new ApiResponse();
-    try {
-      const data = await request(`${DISCORD_API_URL}/graphql`, theUpdoot, args);
-      response.responseData = data.CustomCommandUpdateOne;
-    } catch (e) {
-      response.error = true;
-    }
-    return response;
+    `;
+  const response = new ApiResponse();
+  try {
+    const data = await request(`${DISCORD_API_URL}/graphql`, theUpdoot, args);
+    response.responseData = data.CustomCommandUpdateOne;
+  } catch (e) {
+    response.error = true;
   }
+  return response;
+};
 
-  module.exports = {
-    QUERY_ALL,
-    QUERY_GUILD,
-    QUERY_SINGLE,
-    CREATE_COMMAND,
-    DELETE_COMMAND,
-    UPDATE_COMMAND,
-  };
+module.exports = {
+  QUERY_ALL,
+  QUERY_GUILD,
+  QUERY_SINGLE,
+  CREATE_COMMAND,
+  DELETE_COMMAND,
+  UPDATE_COMMAND,
+};
   
