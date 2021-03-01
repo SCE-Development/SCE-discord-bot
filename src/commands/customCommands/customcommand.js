@@ -8,6 +8,7 @@ const {
   UPDATE_COMMAND,
 } = require('../../APIFunctions/customCommand');
 const { pagination } = require('../../util/dataDisplay');
+const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
   name: 'customcommand',
@@ -25,7 +26,7 @@ module.exports = new Command({
         break;
       case 'delete':
         deleteCustomCommand(message.author.id, message.channel
-          , message.guild.id);
+          , message.guild.id, message.member);
         break;
       default:{
         let commandName = args[0].toLowerCase();
@@ -134,7 +135,7 @@ function createCustomCommand(authorID, channel){
   messageCollector.on('collect', collectMessage);
 }
 
-function deleteCustomCommand(authorID, channel, guildID ){
+function deleteCustomCommand(authorID, channel, guildID, author ){
 
   let instructionEmbed = new Discord.RichEmbed()
     .setTitle('Type in your desired command name')
@@ -162,22 +163,25 @@ function deleteCustomCommand(authorID, channel, guildID ){
   const collectMessage = async newMessage => {
     let commandName = newMessage.content.toLowerCase();
     const commandQuery = await QUERY_SINGLE({commandName: commandName});
-    if(commandQuery.responseData === null){
-      channel.send('No such command')
-        .then(msg => msg.delete(30000).catch(() => null));
-      return;
-    }
-    if(guildID != commandQuery.responseData.guildID)
+    if(!isOfficer(author))
     {
-      channel.send('Cannot delete other guild\'s command')
-        .then(msg => msg.delete(30000).catch(() => null));
-      return;
-    }
-    if(authorID != commandQuery.responseData.creatorID)
-    {
-      channel.send('Cannot delete other people\'s command')
-        .then(msg => msg.delete(30000).catch(() => null));
-      return;
+      if(commandQuery.responseData === null){
+        channel.send('No such command')
+          .then(msg => msg.delete(30000).catch(() => null));
+        return;
+      }
+      if(guildID != commandQuery.responseData.guildID)
+      {
+        channel.send('Cannot delete other guild\'s command')
+          .then(msg => msg.delete(30000).catch(() => null));
+        return;
+      }
+      if(authorID != commandQuery.responseData.creatorID)
+      {
+        channel.send('Cannot delete other people\'s command')
+          .then(msg => msg.delete(30000).catch(() => null));
+        return;
+      }
     }
     await DELETE_COMMAND({
       creatorID: authorID,

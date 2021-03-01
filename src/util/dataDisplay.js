@@ -1,5 +1,21 @@
 
 const Discord = require('discord.js');
+/**
+ * 
+ * @param {Discord.RichEmbed} templateEmbed 
+ * Copies the settings of this templateEmbed, will also grab fields.
+ * @param {Discord.channel} channel 
+ * Channel the command was called in
+ * @param {Discord.user.id} authorID 
+ * The userID of who sent the message.
+ * @param {Object} fieldData 
+ * FieldData is an array of enumerations 
+ * {
+ * title
+ * field
+ * }
+ * @param {Number} itemsPerPage 
+ */
 async function pagination(templateEmbed, channel, authorID, 
   fieldData, itemsPerPage = 5)
 {
