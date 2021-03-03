@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const Command = require('../Command');
+const { prefix } = require('../../../config.json');
 const { GithubMessageGenerator } = require('../../util/GithubMessageGenerator');
 
 /**
@@ -13,10 +14,9 @@ module.exports = new Command({
   description: 'Displays following information from SCE github repos:\
   Contributor leaderboard, Pull requests, merged commits',
   aliases: ['git'],
-  example: 's!git',
+  example: `${prefix}git <pr | leaderboard | commits> <repo>`,
   permissions: 'general',
   category: 'github',
-  disabled: false,
   execute: (message, args) => {
     const messageGenerator = new GithubMessageGenerator();
 
@@ -24,6 +24,11 @@ module.exports = new Command({
       case 'pr':
         messageGenerator.generatePullRequestMessage(args[1])
           .then(prMessage => {
+            if (prMessage.length === 0) {
+              message.channel.send(`${args[1]} has no pull requests.`);
+              return;
+            }
+
             let pageIndex = 0;
 
             const prEmbed = new Discord.RichEmbed()
@@ -76,14 +81,23 @@ module.exports = new Command({
               });
             });
           })
-          .catch(_ => {
-            message.channel.send(_);
+          .catch(() => {
+            message.channel.send(
+              'Oops! There was an error fetching your request.'
+            );
           });
         break;
 
       case 'leaderboard':
         messageGenerator.generateLeaderboardMessage(args[1])
           .then(leaderboardMessage => {
+            if (leaderboardMessage.length === 0) {
+              message.channel.send(
+                `${args[1]} has no leaderboard yet. Get coding!`
+              );
+              return;
+            }
+
             const leaderboardEmbed = new Discord.RichEmbed()
               .setColor('#ccffff');
             leaderboardMessage.forEach(embed => {
@@ -93,8 +107,10 @@ module.exports = new Command({
             });
             message.channel.send(leaderboardEmbed);
           })
-          .catch(_ => {
-            message.channel.send(_);
+          .catch(() => {
+            message.channel.send(
+              'Oops! There was an error fetching your request.'
+            );
           });
         break;
 
@@ -108,10 +124,18 @@ module.exports = new Command({
         }
         messageGenerator.generateCommitMessage(args[1], args[2])
           .then(commitMessage => {
+            if (commitMessage.length === 0) {
+              message.channel.send(
+                `Not much happening: ${args[1]} has no merged commits.`
+              );
+              return;
+            }
             message.channel.send(commitMessage);
           })
-          .catch(_ => {
-            message.channel.send(_);
+          .catch(() => {
+            message.channel.send(
+              'Oops! There was an error fetching your request.'
+            );
           });
         break;
 
@@ -120,11 +144,14 @@ module.exports = new Command({
         message.channel.send(
           new Discord.RichEmbed()
             .setDescription('Unrecognized parameter try using:')
-            .addField('pr <repo>', 'View pull requests')
-            .addField('leaderboard <repo>', 'Top 5 contributors')
+            .addField(`\`${prefix}git pr <repo>\``, 'View pull requests')
             .addField(
-              'commits <repo> <num>',
-              'Merged commits - <num> (optional, Limit: 25)'
+              `\`${prefix}git leaderboard <repo>\``,
+              'Top 5 contributors'
+            )
+            .addField(
+              `\`${prefix}git commits <repo> [num]\``,
+              'Merged commits - `[num]` (optional, Limit: 25)'
             )
         );
     }
