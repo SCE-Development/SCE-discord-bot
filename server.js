@@ -46,7 +46,7 @@ const startBot = async () => {
 
 // Connect to mongoose
 const startDatabase = () => {
-  const url = `mongodb://localhost/${database}`;
+  const url = `mongodb://mongo:27017/${database}`;
   mongoose.connect(url, {
     autoIndex: true,
     poolSize: 50,
