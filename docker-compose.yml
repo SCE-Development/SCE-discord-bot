@@ -23,7 +23,7 @@ services:
       - MONGO_BOT_USER=${MONGO_BOT_USER}
       - MONGO_BOT_PASSWORD=${MONGO_BOT_PASSWORD}
     volumes:
-      - ./data/db:/data/db
+      - /data/docker/db:/data/db
       - ./data/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
     ports:
       - '27017:27017'
