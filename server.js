@@ -46,6 +46,7 @@ const startBot = async () => {
 
 // Connect to mongoose
 const startDatabase = () => {
+  // change mongo to localhost to run without docker
   const url = `mongodb://mongo:27017/${database}`;
   mongoose.connect(url, {
     autoIndex: true,

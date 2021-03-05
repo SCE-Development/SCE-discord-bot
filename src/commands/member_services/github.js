@@ -91,21 +91,7 @@ module.exports = new Command({
       case 'leaderboard':
         messageGenerator.generateLeaderboardMessage(args[1])
           .then(leaderboardMessage => {
-            if (leaderboardMessage.length === 0) {
-              message.channel.send(
-                `${args[1]} has no leaderboard yet. Get coding!`
-              );
-              return;
-            }
-
-            const leaderboardEmbed = new Discord.RichEmbed()
-              .setColor('#ccffff');
-            leaderboardMessage.forEach(embed => {
-              let name = embed.author.name;
-              let commits = embed.description;
-              leaderboardEmbed.addField(name, commits);
-            });
-            message.channel.send(leaderboardEmbed);
+            message.channel.send(leaderboardMessage);
           })
           .catch(() => {
             message.channel.send(
@@ -124,12 +110,6 @@ module.exports = new Command({
         }
         messageGenerator.generateCommitMessage(args[1], args[2])
           .then(commitMessage => {
-            if (commitMessage.length === 0) {
-              message.channel.send(
-                `Not much happening: ${args[1]} has no merged commits.`
-              );
-              return;
-            }
             message.channel.send(commitMessage);
           })
           .catch(() => {
@@ -147,7 +127,7 @@ module.exports = new Command({
             .addField(`\`${prefix}git pr <repo>\``, 'View pull requests')
             .addField(
               `\`${prefix}git leaderboard <repo>\``,
-              'Top 5 contributors'
+              'Top 5 contributors this month'
             )
             .addField(
               `\`${prefix}git commits <repo> [num]\``,
