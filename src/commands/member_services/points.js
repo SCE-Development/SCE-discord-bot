@@ -21,12 +21,12 @@ module.exports = new Command({
             .setColor('#03dffc')
             .setTitle('Point Breakdown')
             .setThumbnail(author.user.avatarURL)
-            .addField('Total Points', points.responseData.totalPoints)
-            .addField('Gained This Week', points.responseData.weekPoints)
-            .addField('Gained This Month', points.responseData.monthPoints)
-            .addField('Gained This Year', points.responseData.yearPoints)
-            .setTimestamp()
-          if (points.responseData == null) {
+            .addField('Total Points', points.responseData[0].totalPoints)
+            .addField('Gained This Week', points.responseData[0].weekPoints)
+            .addField('Gained This Month', points.responseData[0].monthPoints)
+            .addField('Gained This Year', points.responseData[0].yearPoints)
+            .setTimestamp();
+          if (points.responseData[0] == null) {
             message.channel.send('User has no points.');
           }
           else {
@@ -42,7 +42,7 @@ module.exports = new Command({
       userID: user.id
     })
       .then((points) => {
-        if (points.responseData == null) {
+        if (points.responseData[0] == null) {
           message.channel.send('User has no points.');
         }
         else {
@@ -51,11 +51,11 @@ module.exports = new Command({
             .setTitle('Point Breakdown')
             .setThumbnail(user.user.avatarURL)
             .addField('User', user)
-            .addField('Total Points', points.responseData.totalPoints)
-            .addField('Gained This Week', points.responseData.weekPoints)
-            .addField('Gained This Month', points.responseData.monthPoints)
-            .addField('Gained This Year', points.responseData.yearPoints)
-            .setTimestamp()
+            .addField('Total Points', points.responseData[0].totalPoints)
+            .addField('Gained This Week', points.responseData[0].weekPoints)
+            .addField('Gained This Month', points.responseData[0].monthPoints)
+            .addField('Gained This Year', points.responseData[0].yearPoints)
+            .setTimestamp();
           message.channel.send(pointsEmbedMention);
         }
       });

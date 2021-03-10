@@ -15,7 +15,7 @@ const PointMutation = {
   pointUpdateOne: {
     type: PointTC,
     args: {
-      guildID: 'String!', userID: 'String!', points: 'Int',
+      guildID: 'String!', userID: 'String', points: 'Int',
       weekPoints: 'Int', monthPoints: 'Int', yearPoints: 'Int',
       totalPoints: 'Int', lastTalked: 'Date'
     },

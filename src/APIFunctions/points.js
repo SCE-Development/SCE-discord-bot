@@ -3,14 +3,21 @@ const { DISCORD_API_URL } = require('../../config.json');
 const { ApiResponse } = require('./ApiResponses');
 
 /**
- * JSDocs formatting for later. Explain how
- * the GraphQL works
+ * @typedef {Object} Points
+ *
+ * @property {String} guildID The Discord server's ID.
+ * @property {String} userID The user's Discord ID.
+ * @property {Int} totalPoints Number of points gained overall.
+ * @property {Int} weekPoints Number of points gained since 7 days.
+ * @property {Int} monthPoints Number of points gained since 1st of month.
+ * @property {Int} yearPoints Number of points gained since Jan 1.
+ * @property {Date} lastTalked Date the user's last message was sent.
  */
 
 const POINTS_QUERY = async (args) => {
   const query = gql`
-  query {
-    pointOne (filter: {guildID: "${args.guildID}", userID: "${args.userID}"}) {
+  query ($guildID: String!, $userID: String) {
+    pointMany (filter: {guildID: $guildID, userID: $userID}) {
       guildID
       userID
       totalPoints
@@ -22,9 +29,12 @@ const POINTS_QUERY = async (args) => {
   }
     `;
   let response = new ApiResponse();
-  await request(`${DISCORD_API_URL}/graphql`, query)
+  await request(`${DISCORD_API_URL}/graphql`, query, {
+    guildID: args.guildID,
+    userID: args.userID
+  })
     .then((data) => {
-      response.responseData = data.pointOne;
+      response.responseData = data.pointMany;
     })
     .catch(() => {
       response.error = true;
