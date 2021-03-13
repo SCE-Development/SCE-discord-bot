@@ -1,8 +1,8 @@
 {
     "API_TOKEN": "token goes here",
-    "database": "Discord",
+    "DATABASE_URL": "mongodb://mongo or localhost:27017/Discord",
     "DATABASE_USER": "sce-discord-bot",
-    "DATABASE_PASSWORD": "password goes here",
+    "DATABASE_PASSWORD": "password from .env goes here",
     "EVENTS_CAL": "",
     "DISCORD_API_URL": "http://localhost:5000",
     "OfficerRole": "XXXXXXXXXXXXXXXXXX",
