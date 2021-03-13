@@ -25,7 +25,7 @@ const startBot = async () => {
   const newMemberHandler = new NewMemberAddHandler();
   client.once('ready', () => {
     messageHandler.initialize();
-    client.user.setActivity('Managing the SCE');
+    client.user.setActivity('ask me for s!help');
     console.log('Discord bot live');
   });
 
