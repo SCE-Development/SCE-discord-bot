@@ -1,6 +1,8 @@
 {
     "API_TOKEN": "token goes here",
     "database": "Discord",
+    "DATABASE_USER": "sce-discord-bot",
+    "DATABASE_PASSWORD": "password goes here",
     "EVENTS_CAL": "",
     "DISCORD_API_URL": "http://localhost:5000",
     "OfficerRole": "XXXXXXXXXXXXXXXXXX",

@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { prefix } = require('../../../config.json');
 const Command = require('../Command');
 const {
   THREAD_QUERY,
@@ -6,6 +7,7 @@ const {
   DELETE_THREAD,
   DELETE_THREADMESSAGE,
 } = require('../../APIFunctions/thread');
+const { createIdByTime, decorateId } = require('../../util/ThreadIDFormatter');
 
 const THREADS_PER_PAGE = 6;
 const KEEP_ALIVE = 300000; // 5 minutes
@@ -16,21 +18,20 @@ module.exports = new Command({
   name: 'thread',
   description: 'View active threads or start a new one',
   aliases: [],
-  example: 's!thread <[all | active | none] | topic>',
+  example: `${prefix}thread <all | active | none | topic>`,
   permissions: 'general',
   category: 'custom threads',
-  disabled: true,
   execute: async (message, args) => {
     const param = args.join(' ').trim();
 
     if (param === 'active' || param === 'all') {
       // Show threads
-      message.delete(5000).catch(() => null);
-      const response = await THREAD_QUERY();
+      const response = await THREAD_QUERY({ guildID: message.guild.id });
       if (response.error) {
-        message.channel
-          .send('Oops! Could not query threads')
-          .then(msg => msg.delete(10000).catch(() => null));
+        message.channel.send('Oops! Could not query threads').then(msg => {
+          msg.delete(10000).catch(() => null);
+          message.delete(10000).catch(() => null);
+        });
         return;
       }
 
@@ -43,28 +44,25 @@ module.exports = new Command({
       const fields = [];
       for (let i = 0; i < response.responseData.length; i++) {
         const thread = response.responseData[i];
-        if (
-          thread.guildID !== message.guild.id ||
-          thread.channelID !== message.channel.id
-        ) {
-          continue;
-        }
         let j = thread.threadMessages.length;
         let lastMessage = null;
-        while (lastMessage === null && j-- >= 0) {
+        while (lastMessage === null && j-- > 0) {
           const threadMessage = thread.threadMessages[j];
           lastMessage = await message.channel
             .fetchMessage(threadMessage.messageID)
-            .catch(() => {
-              DELETE_THREADMESSAGE({
-                threadID: thread.threadID,
-                messageID: threadMessage.messageID,
-              }).catch(() => null);
+            .catch(error => {
+              if (error.message === 'Unknown Message') {
+                DELETE_THREADMESSAGE({
+                  threadID: thread.threadID,
+                  guildID: thread.guildID,
+                  messageID: threadMessage.messageID,
+                });
+              }
               return null;
             });
         }
         if (lastMessage === null) {
-          DELETE_THREAD(thread.threadID);
+          DELETE_THREAD({ threadID: thread.threadID, guildID: thread.guildID });
           continue;
         }
         if (!checkIfInclude(lastMessage)) {
@@ -77,17 +75,20 @@ module.exports = new Command({
         }`.substring(0, 150);
         // Add the thread and display the last message
         if (thread.topic === null) {
-          fields.push([`(id: ${thread.threadID})`, blurb]);
+          fields.push([`(id: ${decorateId(thread.threadID)})`, blurb]);
         } else {
-          fields.push([`${thread.topic} (id: ${thread.threadID})`, blurb]);
+          fields.push([
+            `${thread.topic} (id: ${decorateId(thread.threadID)})`,
+            blurb,
+          ]);
         }
       }
 
       const makeEmbed = (page, numPages) => {
         const embed = new Discord.RichEmbed().setDescription(
-          'Use `|thread id|` to view the full thread or\
-              `|thread id| <message>` to add to the thread.\n\
-              Type at least 4 digits of the thread id.'
+          'Use `[thread id]` to view the full thread or ' +
+            '`[thread id] message` to add to the thread.\n' +
+            'Type at least 4 digits of the thread id.'
         );
         if (getAll) {
           embed.setTitle('All Threads');
@@ -152,6 +153,7 @@ module.exports = new Command({
             sentEmbed.edit(newEmbed);
           });
           sentEmbed.delete(KEEP_ALIVE).catch(() => null);
+          message.delete(10000).catch(() => null);
         });
       } else {
         // no pagination
@@ -159,18 +161,19 @@ module.exports = new Command({
         fields.forEach(field => {
           embed.addField(field[0], field[1]);
         });
-        message.channel
-          .send(embed)
-          .then(msg => msg.delete(KEEP_ALIVE).catch(() => null));
+        message.channel.send(embed).then(msg => {
+          msg.delete(KEEP_ALIVE).catch(() => null);
+          message.delete(10000).catch(() => null);
+        });
       }
     } else if (param.length > 0) {
       // Start new thread
       // Confirm action
-      const confirmAction = async () => {
+      const confirmAction = async topic => {
         const confirmMessage = await message.channel.send(
           new Discord.RichEmbed()
             .setTitle('Start new thread?')
-            .addField('Topic', param, true)
+            .addField('Topic', topic, true)
         );
         confirmMessage
           .react('👍')
@@ -208,15 +211,12 @@ module.exports = new Command({
         return confirmed;
       };
       // Create thread
-      const confirmed = await confirmAction();
+      const topic = param.substring(0, 130);
+      const confirmed = await confirmAction(topic);
       if (!confirmed) {
         return;
       }
-      const threadID = message.createdTimestamp
-        .toString()
-        .split('')
-        .reverse()
-        .join('');
+      const threadID = createIdByTime(message.createdAt);
 
       const mutation = {
         threadID: threadID,
@@ -225,8 +225,8 @@ module.exports = new Command({
         channelID: message.channel.id,
         messageID: message.id,
       };
-      if (param !== 'none') {
-        mutation.topic = param;
+      if (topic !== 'none') {
+        mutation.topic = topic;
       }
 
       const response = await CREATE_THREAD(mutation);
@@ -246,11 +246,11 @@ module.exports = new Command({
         new Discord.RichEmbed()
           .setTitle('New Thread')
           .setDescription(
-            'Use `|thread id|` to view the full thread or\
-                `|thread id| <message>` to add to the thread.\n\
-                Type at least 4 digits of the thread id.'
+            'Use `[thread id]` to view the full thread or ' +
+              '`[thread id] message` to add to the thread.\n' +
+              'Type at least 4 digits of the thread id.'
           )
-          .addField('ID', response.responseData.threadID, true)
+          .addField('ID', decorateId(response.responseData.threadID), true)
           .addField('Topic', response.responseData.topic, true)
       );
     } else {
@@ -261,17 +261,23 @@ module.exports = new Command({
           .setColor('#ccffff')
           .setTitle('Thread')
           .setDescription(
-            'View or start threads\nUse `|thread id|` to view\
-          the full thread or `|thread id| <message>` to add to the thread.\n\
-          Type at least 4 digits of the thread id.'
+            'View or start threads\nUse `[thread id]` to view ' +
+              'the full thread or `[thread id] message` to add to the ' +
+              'thread.\nType at least 4 digits of the thread id.'
           )
-          .addField('`s!thread all`', 'View all threads')
+          .addField(`\`${prefix}thread all\``, 'View all threads')
           .addField(
-            '`s!thread active`',
+            `\`${prefix}thread active\``,
             `View threads with activity in the last ${ACTIVE_DAYS} days`
           )
-          .addField('`s!thread <topic>`', 'Start a new thread with a topic')
-          .addField('`s!thread none`', 'Start a new thread without a topic')
+          .addField(
+            `\`${prefix}thread <topic>\``,
+            'Start a new thread with a topic'
+          )
+          .addField(
+            `\`${prefix}thread none\``,
+            'Start a new thread without a topic'
+          )
       );
     }
   },

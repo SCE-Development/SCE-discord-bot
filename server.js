@@ -1,8 +1,14 @@
 const Discord = require('discord.js');
-const { prefix, API_TOKEN, database } = require('./config.json');
+const {
+  prefix,
+  API_TOKEN,
+  database,
+  DATABASE_USER,
+  DATABASE_PASSWORD,
+} = require('./config.json');
 const { MessageHandler } = require('./src/handlers/MessageHandler');
 const {
-  VoiceChannelChangeHandler
+  VoiceChannelChangeHandler,
 } = require('./src/handlers/VoiceChannelChangeHandler');
 const mongoose = require('mongoose');
 const express = require('express');
@@ -31,7 +37,7 @@ const startBot = async () => {
     vcChangeHandler.handleChangeMemberInVoiceChannel(oldMember, newMember);
   });
 
-  client.on('guildMemberAdd', (newMember) => {
+  client.on('guildMemberAdd', newMember => {
     newMemberHandler.handleNewMember(newMember);
   });
 
@@ -40,7 +46,8 @@ const startBot = async () => {
 
 // Connect to mongoose
 const startDatabase = () => {
-  const url = `mongodb://localhost/${database}`;
+  // change mongo to localhost to run without docker
+  const url = `mongodb://mongo:27017/${database}`;
   mongoose.connect(url, {
     autoIndex: true,
     poolSize: 50,
@@ -48,19 +55,15 @@ const startDatabase = () => {
     keepAlive: 120,
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true
+    useCreateIndex: true,
+    user: DATABASE_USER,
+    pass: DATABASE_PASSWORD,
   });
-  mongoose.connection.once('open', () =>
-    console.log('Connected to Mongo')
-  );
+  mongoose.connection.once('open', () => console.log('Connected to Mongo'));
 };
 
 const startServer = async () => {
-  const server = new ApolloServer({
-    schema,
-    playground: true,
-    introspection: true
-  });
+  const server = new ApolloServer({ schema });
   // Express app
   const app = express();
   app.use(bodyParser.urlencoded({ extended: true }));
@@ -69,9 +72,7 @@ const startServer = async () => {
 
   // start app
   app.listen(port, () => console.log(`Server running at port ${port}`));
-
 };
-
 
 startBot();
 startDatabase();
