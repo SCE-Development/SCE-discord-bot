@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const {
   prefix,
   API_TOKEN,
-  database,
+  DATABASE_URL,
   DATABASE_USER,
   DATABASE_PASSWORD,
 } = require('./config.json');
@@ -25,7 +25,7 @@ const startBot = async () => {
   const newMemberHandler = new NewMemberAddHandler();
   client.once('ready', () => {
     messageHandler.initialize();
-    client.user.setActivity('Managing the SCE');
+    client.user.setActivity('ask me for s!help');
     console.log('Discord bot live');
   });
 
@@ -46,9 +46,7 @@ const startBot = async () => {
 
 // Connect to mongoose
 const startDatabase = () => {
-  // change mongo to localhost to run without docker
-  const url = `mongodb://mongo:27017/${database}`;
-  mongoose.connect(url, {
+  mongoose.connect(DATABASE_URL, {
     autoIndex: true,
     poolSize: 50,
     bufferMaxEntries: 0,
