@@ -6,8 +6,8 @@ node_modules/
 config.json
 
 # MongoDB
-data/db
-data/log
+mongo/data
+mongo/log
 
 # other
 .DS_Store
