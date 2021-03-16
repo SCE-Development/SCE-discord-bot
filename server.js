@@ -25,7 +25,12 @@ const startBot = async () => {
   const newMemberHandler = new NewMemberAddHandler();
   client.once('ready', () => {
     messageHandler.initialize();
-    client.user.setActivity('ask me for s!help');
+    client.user.setPresence({
+      game: {
+        name: `${prefix}help`,
+        type: 'LISTENING',
+      },
+    });
     console.log('Discord bot live');
   });
 
