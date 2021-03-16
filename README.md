@@ -32,9 +32,7 @@ the Discord server with custom commands.
    2. `DATABASE_URL` needs `mongo` replaced with `localhost` (i.e. `mongodb://localhost:27017/Discord`)
    3. `DATABASE_PASSWORD` can be whatever you want
 2. Create a user for the bot in MongoDB
-   1. Make sure MongoDB is running
-      1. Instructions will depend on your environment
-      2. Use `mongod` to start the MongoDB daemon on Linux
+   1. Use `mongod` to start the MongoDB daemon (Linux)
    2. In your terminal, open the MongoDB shell with `mongo`
    3. Type `use Discord` to create and switch to the `Discord` database
    4. Copy and paste `db.createUser({ user: 'sce-discord-bot', pwd: passwordPrompt(), roles: [{ role: 'readWrite', db: 'Discord' }] })` to create a user for the bot

@@ -10,8 +10,6 @@ services:
       - '5000:5000'
     links:
       - mongo
-    # networks:
-    #   - core-v4_sce-local
   mongo:
     container_name: mongo
     image: mongo:4.4.1
@@ -23,14 +21,10 @@ services:
       - MONGO_BOT_USER=${MONGO_BOT_USER}
       - MONGO_BOT_PASSWORD=${MONGO_BOT_PASSWORD}
     volumes:
-      # change paths to ../ to make mongo local
-      - ../data/sce-discord-bot/db:/data/db
-      - ../etc/sce-discord-bot/mongod.conf:/etc/mongod.conf
-      - ../log/sce-discord-bot/mongod.log:/log/mongod.log
-      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
+      - ./data/db:/data/db
+      - ./data/mongod.conf:/etc/mongod.conf:ro
+      - ./data/log/mongod.log:/log/mongod.log
+      - ./data/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
     ports:
       - '27017:27017'
-    command: ["-f", "/etc/mongod.conf"]
-# networks:
-#   core-v4_sce-local:
-#     external: true
+    command: ["--config", "/etc/mongod.conf"]
