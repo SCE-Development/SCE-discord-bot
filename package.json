@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
+    "prod": "node server.js",
     "lint": "./node_modules/.bin/eslint ./",
     "fix": "./node_modules/.bin/eslint ./ --fix"
   },
