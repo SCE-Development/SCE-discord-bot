@@ -2,6 +2,7 @@ const { schemaComposer } = require('graphql-compose');
 const { PointQuery, PointMutation } = require('./points');
 const { ThreadQuery, ThreadMutation } = require('./thread');
 const { CCQuery, CCMutation } = require('./customcommand');
+const { guildConfigQuery, guildConfigMutation } = require('./guildConfig');
 const {
   ThreadMessageQuery,
   ThreadMessageMutation
@@ -12,6 +13,7 @@ schemaComposer.Query.addFields({
   ...ThreadQuery,
   ...ThreadMessageQuery,
   ...CCQuery,
+  ...guildConfigQuery,
 });
 
 schemaComposer.Mutation.addFields({
@@ -19,6 +21,7 @@ schemaComposer.Mutation.addFields({
   ...ThreadMutation,
   ...ThreadMessageMutation,
   ...CCMutation,
+  ...guildConfigMutation,
 });
 
 const schema = schemaComposer.buildSchema();
