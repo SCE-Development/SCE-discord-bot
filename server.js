@@ -7,9 +7,7 @@ const {
   DATABASE_PASSWORD,
 } = require('./config.json');
 const { MessageHandler } = require('./src/handlers/MessageHandler');
-const {
-  VoiceChannelChangeHandler,
-} = require('./src/handlers/VoiceChannelChangeHandler');
+const { VoiceChannelChangeHandler } = require('./src/handlers/VoiceChannelChangeHandler');
 const mongoose = require('mongoose');
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
