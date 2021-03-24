@@ -1,6 +1,6 @@
 const Command = require('../Command');
 const Discord = require('discord.js');
-
+const { Egg } = require('../../util/eggUtils');
 var runningIntervals = {};
 
 function startEgghunt(channelName, guild)
@@ -8,44 +8,36 @@ function startEgghunt(channelName, guild)
     if(guild === undefined) return;
     if(!guild.available) return;
     let channel = guild.channels.find(channel => channel.name === channelName);
-    let interval = eggGenerator(10000, channel);
-    runningIntervals[channelName] = interval;
-    
+    if(!channel) return;
+    runningIntervals[channelName] = new Egg(20000, channel, guild);
+    runningIntervals[channelName].start();
 }
 
-function stopEgghunt(channelName, guild)
+function stopEgghunt(guild, channelName)
 {
     if(guild === undefined) return;
     if(!guild.available) return;
-    clearInterval(runningIntervals[channelName]);
-    delete runningIntervals[channelName];
-}
-function stopEgghunt(guild)
-{
-    if(guild === undefined) return;
-    if(!guild.available) return;
-    for(var channelName in runningIntervals)
+    console.log(channelName);
+    if (channelName !== undefined)
     {
-        console.log(channelName);
-        clearInterval(runningIntervals[channelName]);
+        runningIntervals[channelName].stop();
         delete runningIntervals[channelName];
     }
-
-}
-/**
- * 
- * @param {Number} delayValue 
- */
-function eggGenerator(delayValue, channel)
-{
-    function egg(){
-        channel.send("egg " + new Date().toLocaleTimeString());
+    else
+    {
+        for(var channelName in runningIntervals)
+        {
+            if(runningIntervals[channelName] != undefined)
+            {
+                console.log(channelName);
+                runningIntervals[channelName].stop();
+                delete runningIntervals[channelName];
+            }
+        }
     }
-    
-    return setInterval(egg, delayValue);
 }
+
 module.exports = {
     startEgghunt,
-    eggGenerator,
     stopEgghunt,
 }

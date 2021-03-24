@@ -29,12 +29,7 @@ module.exports = new Command({
           startEgghunt(args[2], message.guild);
           break;
         case 'stop':
-          if(args[2] === undefined)
-          {
-            stopEgghunt(message.guild);
-            return;
-          } 
-          stopEgghunt(args[2], message.guild);
+          stopEgghunt(message.guild, args[2]);
           break;
         default:
           console.log("Type valid");
