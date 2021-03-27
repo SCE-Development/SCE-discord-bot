@@ -6,13 +6,44 @@ the Discord server with custom commands.
 
 ## How to use
 
-1. Obtain Discord API token from SCE slack
+### Prerequisites
+
+1. [npm](https://www.npmjs.com)
+2. [mongoDB](https://www.mongodb.com)
+3. [docker](https://www.docker.com)
+
+### With Docker
+
+1. Create a `.env` file with the same format as `.env.example`
+   1. `MONGO_ROOT_PASSWORD` is the password for the root user on the Docker build's MongoDB database (can be set to anything for first build)
+   2. `MONGO_BOT_PASSWORD` is the password for the bot to use with MongoDB (can be set to anything for first build)
+2. Create a `config.json` file with the same format as `config.example.json`
+   1. `API_TOKEN` is the Discord API token (ask a team member for this)
+   2. `DATABASE_PASSWORD` should be the same as `MONGO_BOT_PASSWORD` from `.env`
+3. In your terminal (in the root directory of the project) run `docker-compose up --build bot`
+   1. Make sure Docker is running first
+   2. Omit the `--build` flag to reuse an old build
+4. Test out the bot in the discord channel!
+
+### Without Docker
+
 1. Create a `config.json` file with the same format as `config.example.json`
-1. Replace `API_TOKEN, DATABASE_URL, DATABASE_PASSWORD` with the appropriate values
-   1. `DATABASE_URL` should be `localhost` to use without Docker
-   2. `DATABASE_PASSWORD` should be the same as `MONGO_BOT_PASSWORD` in `.env`,can be anything if authentication is not enabled in your MongoDB config
-1. In the terminal, run `npm start`
-1. Test out the bot in the discord channel!
+   1. `API_TOKEN` is the Discord API token (ask a team member for this)
+   2. `DATABASE_URL` needs `mongo` replaced with `localhost` (i.e. `mongodb://localhost:27017/Discord`)
+   3. `DATABASE_PASSWORD` can be whatever you want
+2. Create a user for the bot in MongoDB
+   1. Make sure MongoDB is running
+      1. Instructions will depend on your environment
+      2. Use `mongod` to start the MongoDB daemon on Linux
+   2. In your terminal, open the MongoDB shell with `mongo`
+   3. Type `use Discord` to create and switch to the `Discord` database
+   4. Copy and paste `db.createUser({ user: 'sce-discord-bot', pwd: passwordPrompt(), roles: [{ role: 'readWrite', db: 'Discord' }] })` to create a user for the bot
+   5. Set the password to whatever you have for `DATABASE_PASSWORD` from `config.json`
+   6. Type `exit`
+3. In your terminal (in the root directory of the project)
+   1. run `npm install`
+   2. run `npm start`
+4. Test out the bot in the discord channel!
 
 ### How to use with Docker
 
@@ -46,26 +77,6 @@ our [Discord server](https://discord.gg/e2Dsgd9). This Discord bot
 will allow us to combine the functionalities of these four bots
 into one. It will also be tailored specifically towards the SCE discord
 server.
-
-## Commands to add
-
-Administration
-
-- Kick/Ban/Warn/etc
-- Autorole functionalities
-
-Fun commands
-
-- Points for talking in the server
-- Blackjack/slots
-
-Custom commands
-
-- Connect this to Core-v4 website
-- Check doorcode (s!doorcode --> Bot dms you your code)
-- Printing (s!print --> Pops up a series of embeds that enable you to
-  print)
-- Automate club event broadcasting
 
 ## Directory structure
 
