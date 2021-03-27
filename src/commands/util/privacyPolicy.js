@@ -8,7 +8,7 @@ module.exports = new Command ({
   example: 's!privacypolicy',
   permission: 'general',
   category: 'information',
-  execute: async (message, args) => {
+  execute: async (message) => {
     const privacyEmbed = new Discord.RichEmbed()
       .setColor('#ccffff')
       .setTitle('Privacy Policy')
@@ -22,4 +22,4 @@ module.exports = new Command ({
         msg.delete(300000).catch(() => null);
       });
   }
-})
+});
