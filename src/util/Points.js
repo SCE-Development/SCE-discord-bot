@@ -42,7 +42,7 @@ async function increment(message) {
   });
   if (response.error)
     return;
-  let points = response.responseData;
+  let points = response.responseData[0];
   // If no points, add a points object
   if (!points) {
     points = {
@@ -55,6 +55,7 @@ async function increment(message) {
       lastTalked: new Date()
     };
     points = await UPDATE_POINTS(points);
+    console.log('created object', points);
     return points.responseData;
   }
 

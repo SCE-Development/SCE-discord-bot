@@ -38,8 +38,7 @@ const PointSchema = mongoose.Schema(
     },
     lastTalked: {
       type: Date,
-      required: true,
-      default: new Date(),
+      required: true
     },
   },
   { collection: 'Point' }

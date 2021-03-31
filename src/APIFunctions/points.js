@@ -75,9 +75,6 @@ const UPDATE_POINTS = async (point) => {
   return response;
 };
 
-// Reset mutation
-
-// Delete mutation
 module.exports = {
   POINTS_QUERY,
   UPDATE_POINTS
