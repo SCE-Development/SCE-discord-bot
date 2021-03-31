@@ -6,7 +6,7 @@ const EasterEggSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  name: {
+  eggID: {
     type: String,
     required: true,
   },
