@@ -55,7 +55,7 @@ async function createNewThread(threadID, topic, message) {
     };
 
     return await confirmMessage
-      .awaitReactions(filter, { max: 1, time: 300090, errors: ['time'] })
+      .awaitReactions(filter, { max: 1, time: 60000, errors: ['time'] })
       .then(collected => {
         const reaction = collected.first();
         confirmMessage.delete().catch(() => null);
@@ -63,18 +63,20 @@ async function createNewThread(threadID, topic, message) {
       })
       .catch(() => {
         confirmMessage.delete().catch(() => null);
-        message.channel
-          .send('Not created')
-          .then(msg => msg.delete(10000).catch(() => null));
+        message.channel.send('Not created').then(msg => {
+          msg.delete(10000).catch(() => null);
+          message.delete(10000).catch(() => null);
+        });
         return false;
       });
   };
 
   const confirmed = await confirmAction(topic);
   if (!confirmed) {
-    message.channel
-      .send('Not created')
-      .then(msg => msg.delete(10000).catch(() => null));
+    message.channel.send('Not created').then(msg => {
+      msg.delete(10000).catch(() => null);
+      message.delete(10000).catch(() => null);
+    });
     return;
   }
   //  flips the time stamp
@@ -90,9 +92,10 @@ async function createNewThread(threadID, topic, message) {
     messageID: message.id,
   });
   if (createThread.error) {
-    message.channel
-      .send('Internal error creating the thread.')
-      .then(msg => msg.delete(10000).catch(() => null));
+    message.channel.send('Internal error creating the thread.').then(msg => {
+      msg.delete(10000).catch(() => null);
+      message.delete(10000).catch(() => null);
+    });
     return;
   }
   const threadCreateEmbed = new Discord.RichEmbed()
@@ -141,7 +144,7 @@ async function addMessageToThread(message, thread, content = message.content) {
     .addField('Added Message', content);
   await message.channel
     .send(addedEmbed)
-    .then(msg => msg.delete(300000).catch(() => null));
+    .then(msg => msg.delete(10000).catch(() => null));
 }
 
 /**
@@ -159,11 +162,16 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
     .setTitle(`All threads that start with ID: ${decorateId(threadID)}`)
     .setDescription('Choose one! Example: type `1`');
 
-  const page = await pagination(templateEmbed, message, threads);
+  const page = await pagination({
+    templateEmbed,
+    message,
+    threads,
+  });
 
   const filter = m => {
     return m.author.id === message.author.id;
   };
+
   /**
    * Create Message collector with filter
    * @description
@@ -219,7 +227,12 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
         .setDescription('')
         .addField('ID', decorateId(threads[index].threadID), true)
         .addField('Topic', topic === null ? 'none' : topic, true);
-      pagination(templateEmbed, message, threadQuery2.responseData);
+      pagination({
+        templateEmbed,
+        message,
+        threads: threadQuery2.responseData,
+        keepalive: 60000,
+      });
     }
   };
   // collect only one message.
@@ -229,11 +242,14 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
 /**
  * Sends a message displaying an array of threads with pages.
  *
- * @param {Discord.RichEmbed} templateEmbed Template containing Title,
+ * @param {Discord.RichEmbed} args.templateEmbed Template containing Title,
  * Description, and color that the pages will follow
- * @param {Discord.Message} message The invoking message.
- * @param {Thread} threads An array containing all the threads to display.
- * @param {Number?} itemsPerPage The number of items to display on each page.
+ * @param {Discord.Message} args.message The invoking message.
+ * @param {Thread} args.threads An array containing all the threads to display.
+ * @param {Number?} args.itemsPerPage The number of items to display on each
+ * page. Defaults to 5.
+ * @param {Number?} args.keepalive Milliseconds to keep the message open.
+ * Defaults to 60000.
  *
  * @return {Promise<{
  *  type: 'message' | 'collector',
@@ -241,7 +257,11 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
  *  collector: Discord.ReactionCollector?,
  * }>}
  */
-async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
+async function pagination(args) {
+  const { templateEmbed, message, threads } = args;
+  const itemsPerPage = args.itemsPerPage || 5;
+  const keepalive = args.keepalive || 60000;
+
   /**
    * @description Information about the pages of the book.
    * @type {Page}
@@ -293,7 +313,7 @@ async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
 
   // do not add listeners for single page
   if (page.maxPage <= 0) {
-    currentMsg.delete(300000).catch(() => null);
+    currentMsg.delete(keepalive).catch(() => null);
     return { type: 'message', message: currentMsg };
   }
 
@@ -305,7 +325,7 @@ async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
   };
 
   const reactionCollector = currentMsg.createReactionCollector(filter, {
-    time: 300000,
+    time: keepalive,
   });
 
   const handlePageTurn = async reaction => {

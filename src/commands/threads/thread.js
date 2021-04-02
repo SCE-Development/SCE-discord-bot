@@ -10,7 +10,7 @@ const {
 const { createIdByTime, decorateId } = require('../../util/ThreadIDFormatter');
 
 const THREADS_PER_PAGE = 6;
-const KEEP_ALIVE = 300000; // 5 minutes
+const KEEP_ALIVE = 60000; // 1 minute
 const ACTIVE_DAYS = 7;
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -26,9 +26,12 @@ module.exports = new Command({
 
     if (param === 'active' || param === 'all') {
       // Show threads
+      const displayMessage = await message.channel.send(
+        'Looking for threads...'
+      );
       const response = await THREAD_QUERY({ guildID: message.guild.id });
       if (response.error) {
-        message.channel.send('Oops! Could not query threads').then(msg => {
+        displayMessage.edit('Oops! Could not query threads').then(msg => {
           msg.delete(10000).catch(() => null);
           message.delete(10000).catch(() => null);
         });
@@ -112,7 +115,7 @@ module.exports = new Command({
         for (let i = 0; i < THREADS_PER_PAGE; i++) {
           embed.addField(fields[i][0], fields[i][1]);
         }
-        message.channel.send(embed).then(async sentEmbed => {
+        displayMessage.edit('', { embed }).then(async sentEmbed => {
           await sentEmbed.react('⬅️');
           await sentEmbed.react('➡️');
 
@@ -161,7 +164,7 @@ module.exports = new Command({
         fields.forEach(field => {
           embed.addField(field[0], field[1]);
         });
-        message.channel.send(embed).then(msg => {
+        displayMessage.edit('', { embed }).then(msg => {
           msg.delete(KEEP_ALIVE).catch(() => null);
           message.delete(10000).catch(() => null);
         });
@@ -196,16 +199,18 @@ module.exports = new Command({
             if (reaction.emoji.name === '👍') {
               confirmed = true;
             } else {
-              message.channel
-                .send('New thread canceled')
-                .then(msg => msg.delete(10000).catch(() => null));
+              message.channel.send('New thread canceled').then(msg => {
+                msg.delete(10000).catch(() => null);
+                message.delete(10000).catch(() => null);
+              });
             }
           })
           .catch(() => {
             confirmMessage.delete().catch(() => null);
-            message.channel
-              .send('New thread canceled')
-              .then(msg => msg.delete(10000).catch(() => null));
+            message.channel.send('New thread canceled').then(msg => {
+              msg.delete(10000).catch(() => null);
+              message.delete(10000).catch(() => null);
+            });
           });
 
         return confirmed;
@@ -235,50 +240,57 @@ module.exports = new Command({
         message.channel
           .send('Oops! Could not create thread ' + param)
           .then(msg => {
-            msg.delete(20000).catch(() => null);
+            msg.delete(10000).catch(() => null);
+            message.delete(10000).catch(() => null);
           });
         return;
       }
       if (response.responseData.topic === null) {
         response.responseData.topic = 'none';
       }
-      message.channel.send(
-        new Discord.RichEmbed()
-          .setTitle('New Thread')
-          .setDescription(
-            'Use `[thread id]` to view the full thread or ' +
-              '`[thread id] message` to add to the thread.\n' +
-              'Type at least 4 digits of the thread id.'
-          )
-          .addField('ID', decorateId(response.responseData.threadID), true)
-          .addField('Topic', response.responseData.topic, true)
-      );
+      message.channel
+        .send(
+          new Discord.RichEmbed()
+            .setTitle('New Thread')
+            .setDescription(
+              'Use `[thread id]` to view the full thread or ' +
+                '`[thread id] message` to add to the thread.\n' +
+                'Type at least 4 digits of the thread id.'
+            )
+            .addField('ID', decorateId(response.responseData.threadID), true)
+            .addField('Topic', response.responseData.topic, true)
+        )
+        .then(msg => msg.delete(20000).catch(() => null));
     } else {
       // Help
-      message.delete().catch(() => null);
-      message.channel.send(
-        new Discord.RichEmbed()
-          .setColor('#ccffff')
-          .setTitle('Thread')
-          .setDescription(
-            'View or start threads\nUse `[thread id]` to view ' +
-              'the full thread or `[thread id] message` to add to the ' +
-              'thread.\nType at least 4 digits of the thread id.'
-          )
-          .addField(`\`${prefix}thread all\``, 'View all threads')
-          .addField(
-            `\`${prefix}thread active\``,
-            `View threads with activity in the last ${ACTIVE_DAYS} days`
-          )
-          .addField(
-            `\`${prefix}thread <topic>\``,
-            'Start a new thread with a topic'
-          )
-          .addField(
-            `\`${prefix}thread none\``,
-            'Start a new thread without a topic'
-          )
-      );
+      message.channel
+        .send(
+          new Discord.RichEmbed()
+            .setColor('#ccffff')
+            .setTitle('Thread')
+            .setDescription(
+              'View or start threads\nUse `[thread id]` to view ' +
+                'the full thread or `[thread id] message` to add to the ' +
+                'thread.\nType at least 4 digits of the thread id.'
+            )
+            .addField(`\`${prefix}thread all\``, 'View all threads')
+            .addField(
+              `\`${prefix}thread active\``,
+              `View threads with activity in the last ${ACTIVE_DAYS} days`
+            )
+            .addField(
+              `\`${prefix}thread <topic>\``,
+              'Start a new thread with a topic'
+            )
+            .addField(
+              `\`${prefix}thread none\``,
+              'Start a new thread without a topic'
+            )
+        )
+        .then(msg => {
+          msg.delete(20000).catch(() => null);
+          message.delete(10000).catch(() => null);
+        });
     }
   },
 });
