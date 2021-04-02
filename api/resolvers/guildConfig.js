@@ -1,5 +1,9 @@
-const { SystemError, UserInputError } = require('apollo-server');
-const { GuildConfigTC, GuildConfig } = require('../models/guildConfig');
+const { UserInputError } = require('apollo-server');
+const {
+  GuildConfigTC,
+  GuildConfig,
+  GuildConfigITC,
+} = require('../models/guildConfig');
 const { EasterEgg } = require('../models/easterEgg');
 
 const GuildConfigQuery = {
@@ -9,10 +13,31 @@ const GuildConfigQuery = {
 };
 
 const GuildConfigMutation = {
-  guildConfigCreateOne: GuildConfigTC.mongooseResolvers.createOne(),
-  guildConfigUpdateOne: GuildConfigTC.mongooseResolvers.updateOne(),
   guildConfigRemoveOne: GuildConfigTC.mongooseResolvers.removeOne(),
   guildConfigRemoveMany: GuildConfigTC.mongooseResolvers.removeMany(),
+  guildConfigSet: {
+    type: GuildConfigTC,
+    args: {
+      input: GuildConfigITC,
+    },
+    resolve: async (source, args) => {
+      const { input } = args;
+      const guildConfig = await GuildConfig.findOneAndUpdate(
+        { guildID: input.guildID },
+        input,
+        {
+          new: true,
+          upsert: true,
+          omitUndefined: true,
+          useFindAndModify: false,
+        }
+      );
+
+      if (!guildConfig) throw new UserInputError('Failed to set GuildConfig');
+
+      return guildConfig;
+    },
+  },
   guildConfigAddEasterEggChannel: {
     type: GuildConfigTC,
     args: {
@@ -35,6 +60,41 @@ const GuildConfigMutation = {
               channelID,
               egg,
               period,
+            },
+          },
+        },
+        {
+          new: true,
+          useFindAndModify: false,
+        }
+      );
+      if (!guildConfig) {
+        throw new UserInputError('Failed to find and update GuildConfig');
+      }
+
+      return guildConfig;
+    },
+  },
+  guildConfigRemoveEasterEggChannel: {
+    type: GuildConfigTC,
+    args: {
+      guildID: 'String!',
+      channelID: 'String!',
+      eggID: 'String!',
+    },
+    resolve: async (source, args) => {
+      const { guildID, channelID, eggID } = args;
+
+      const egg = await EasterEgg.findOne({ eggID });
+      if (!egg) throw new UserInputError('Failed to find EasterEgg');
+
+      const guildConfig = await GuildConfig.findOneAndUpdate(
+        { guildID },
+        {
+          $pull: {
+            'easter.eggChannels': {
+              channelID,
+              egg,
             },
           },
         },

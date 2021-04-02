@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { schemaComposer } = require('graphql-compose');
 const { composeMongoose } = require('graphql-compose-mongoose');
 
 const GuildConfigSchema = mongoose.Schema({
@@ -11,10 +12,35 @@ const GuildConfigSchema = mongoose.Schema({
     eggChannels: [
       {
         channelID: { type: String, required: true },
-        egg: { type: mongoose.Schema.Types.ObjectId, ref: 'EasterEgg' },
+        egg: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'EasterEgg',
+          required: true,
+        },
         period: { type: Number, default: 30 },
       },
     ],
+  },
+});
+
+const GuildConfigITC = schemaComposer.createInputTC({
+  name: 'GuildConfigInput',
+  fields: {
+    guildID: 'String!',
+    easter: {
+      type: 'JSON',
+      eggChannels: [
+        {
+          channelID: { type: String, required: true },
+          egg: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'EasterEgg',
+            required: true,
+          },
+          period: { type: Number, default: 30 },
+        },
+      ],
+    },
   },
 });
 
@@ -24,4 +50,5 @@ const GuildConfigTC = composeMongoose(GuildConfig);
 module.exports = {
   GuildConfig,
   GuildConfigTC,
+  GuildConfigITC,
 };

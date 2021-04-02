@@ -14,6 +14,7 @@ const EasterBasketSchema = mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'EasterEgg',
+      required: true,
     },
   ],
 });
