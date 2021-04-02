@@ -26,7 +26,10 @@ module.exports = new Command({
       // thread ID too short
       message.channel
         .send(`Error: ID ${decorateId(threadID)} must be at least 4 digits.`)
-        .then(msg => msg.delete(10000).catch(() => null));
+        .then(msg => {
+          msg.delete(10000).catch(() => null);
+          message.delete(10000).catch(() => null);
+        });
       return;
     }
 
@@ -39,7 +42,10 @@ module.exports = new Command({
     if (threadQuery.error) {
       message.channel
         .send(`Internal error searching for thread ${decorateId(threadID)}`)
-        .then(msg => msg.delete(10000).catch(() => null));
+        .then(msg => {
+          msg.delete(10000).catch(() => null);
+          message.delete(10000).catch(() => null);
+        });
       return;
     }
 
@@ -56,9 +62,10 @@ module.exports = new Command({
                 `\`${prefix}thread all\` to check if a thread starts with ` +
                 `\`${decorateId(threadID)}\` manually.`
             );
-          message.channel
-            .send(noResultEmbed)
-            .then(msg => msg.delete(30000).catch(() => null));
+          message.channel.send(noResultEmbed).then(msg => {
+            msg.delete(10000).catch(() => null);
+            message.delete(10000).catch(() => null);
+          });
         }
         break;
       case 1:
@@ -75,7 +82,13 @@ module.exports = new Command({
               true
             )
             .addField('Topic', topic || 'none', true);
-          pagination(templateEmbed, message, threadQuery.responseData);
+          pagination({
+            templateEmbed,
+            message,
+            threads: threadQuery.responseData,
+            keepalive: 120000,
+          });
+          message.delete(10000).catch(() => null);
         }
         break;
       default:
@@ -85,6 +98,7 @@ module.exports = new Command({
           threadQuery.responseData,
           body
         );
+        if (!body) message.delete(10000).catch(() => null);
     }
   },
 });
