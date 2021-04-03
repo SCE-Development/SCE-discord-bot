@@ -214,10 +214,10 @@ module.exports = new Command({
         }
         const removalMessage =
           response.responseData.topic === null
-            ? `Removed thread (id:
-              ${decorateId(response.responseData.threadID)})`
-            : `Removed thread ${response.responseData.topic}
-              (id: ${decorateId(response.responseData.threadID)})`;
+            ? 'Removed thread (id: ' +
+              decorateId(response.responseData.threadID)
+            : `Removed thread ${response.responseData.topic} ` +
+              `(id: ${decorateId(response.responseData.threadID)})`;
         message.channel.send(removalMessage);
         message.delete().catch(() => null);
         break;

@@ -6,8 +6,27 @@ services:
       context: ./
       dockerfile: ./Dockerfile
     restart: 'on-failure'
-    networks:
-      - core-v4_sce-local
-networks:
-  core-v4_sce-local:
-    external: true
+    ports:
+      - '5000:5000'
+    links:
+      - mongo
+    # networks:
+    #   - core-v4_sce-local
+  mongo:
+    container_name: mongo
+    image: mongo:4.4.1
+    restart: 'on-failure'
+    environment:
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+      - MONGO_BOT_USER=${MONGO_BOT_USER}
+      - MONGO_BOT_PASSWORD=${MONGO_BOT_PASSWORD}
+    volumes:
+      - /data/docker/db:/data/db
+      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
+    ports:
+      - '27017:27017'
+# networks:
+#   core-v4_sce-local:
+#     external: true

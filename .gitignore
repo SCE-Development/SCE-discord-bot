@@ -1,15 +1,17 @@
 # Node modules
 node_modules/
-.idea/
-.vscode/
+
 # tokens
 .env
 config.json
 
-# EC2 ssh key
-jerry-discord-gen.pem
+# MongoDB
+data/db
 
 # other
 .DS_Store
-.history/
+.vscode/
+.idea/
 .prettierrc.js
+.history/
+jerry-discord-gen.pem
