@@ -1,6 +1,7 @@
 const Command = require('../Command');
 const Discord = require('discord.js');
 const { Egg } = require('../../util/eggUtils');
+const { pagination } = require('../../util/dataDisplay')
 var runningIntervals = {};
 
 function startEgghunt(channelName, guild)
@@ -37,7 +38,42 @@ function stopEgghunt(guild, channelName)
     }
 }
 
+async function displayEggs(userID, guildID, channel, type)
+{
+    if(type === undefined) return;
+    let templateEmbed = new Discord.RichEmbed();
+    let Query; 
+    switch(type)
+    {
+        case 'caught':
+            templateEmbed.setTitle('How many eggs do you have?')
+                .setDescription('1 egg 2 egg red egg blue egg ' + userID);
+            //Query = await QUERY_BASKET(userID);
+            break;
+        case 'hidden':
+            templateEmbed.setTitle('Eggs where!?')
+                .setDescription('egg there egg here egg in the grassy pear ' + guildID);
+            //Query = await QUERY_EGG(guildID);
+            break;
+        case 'leader':
+            templateEmbed.setTitle('Eggs kingdom')
+                .setDescription('eggy mceggster '+ guildID);
+            //Query = await QUERY_EGG(guildID);
+            break;
+    }
+    let items = [];
+    for(i =0; i<10; i++)
+    {
+        let testInput = {}
+        testInput['title'] = 'egg' + i;
+        testInput['field'] = 'EGG!!!!!!!!!!!!!!!';
+        items.push(testInput);
+    }
+    pagination(templateEmbed, channel, userID, items);
+}
+
 module.exports = {
     startEgghunt,
     stopEgghunt,
+    displayEggs,
 }

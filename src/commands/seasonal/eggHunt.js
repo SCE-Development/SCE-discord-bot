@@ -2,6 +2,7 @@ const Command = require('../Command');
 const {
   startEgghunt,
   stopEgghunt,
+  displayEggs
 } = require('./eggSwitch');
 
 module.exports = new Command({
@@ -33,6 +34,21 @@ module.exports = new Command({
           break;
         default:
           console.log("Type valid");
+      }
+    }
+    else
+    {
+      let mode = undefined; 
+      switch(args[0])
+      {
+        case 'leaderboard':
+          mode = 'leader';
+        case 'eggs':
+          mode = mode === undefined ? 'hidden' : mode;
+        case 'basket':
+          mode = mode === undefined ? 'caught' : mode;
+        default:
+          displayEggs(message.author.id,message.guild.id, message.channel, mode);
       }
     } 
   }
