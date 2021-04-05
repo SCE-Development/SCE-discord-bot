@@ -1,12 +1,18 @@
 const Discord = require('discord.js');
+const {
+    QUERY_BASKET,
+    CREATE_BASKET,
+} = require('../APIFunctions/easterResponses')
 
 class Egg {
     delayRange = [1000, 2000];
     channel = undefined;
     guild = undefined;
     timeout = undefined;
-    eggPics = ['pics/Egg1.png', 'pics/Egg2.png', 'pics/Egg3.png'];
-    
+    mongoID = undefined
+    eggPics = ['https://cdn.discordapp.com/attachments/308817739999608832/828026817964539954/eggac.png', 
+        'https://cdn.discordapp.com/attachments/308817739999608832/828025305456312411/eggdiluc.png', 
+        'https://cdn.discordapp.com/attachments/308817739999608832/828028933088870440/eggme.png'];
     constructor(delayTime, channel, guild)
     {
         this.delayRange = [delayTime * 0.68, delayTime * 1.4];
@@ -24,10 +30,11 @@ class Egg {
 
         let choice = Math.floor(Math.random() * 3);
         const eggEmbed = new Discord.RichEmbed()
-        .setTitle('Egg!Egg!')
-        .setDescription('Hey look an egg!')
-        .attachFile(this.eggPics[choice])
-        .setThumbnail('attachment://' + this.eggPics[choice]);
+            .setTitle('Egg!Egg!')
+            .setDescription('Hey look an egg!')
+            .setThumbnail(this.eggPics[choice]);
+
+
         let sentMessage = await this.channel.send(eggEmbed);
         await sentMessage.react('🐰');
 
@@ -45,7 +52,20 @@ class Egg {
 
           const collectReaction = async (reaction) => {
             let user = reaction.users.last();
-            let userId = user.id;
+            let guildID = reaction.message.guild.id;
+            let userID = user.id;
+            let queryBasket = await QUERY_BASKET({
+                guildID: guildID,
+                userID: userID
+            });
+            if(queryBasket.responseData === null)
+            {
+                await CREATE_BASKET({
+                    guildID: guildID,
+                    userID: userID
+                });
+                // ADD D EGG
+            }
             this.channel.send(`\`${user.username}\` has taken the egg!`);
             }
         collector.once('collect', collectReaction);

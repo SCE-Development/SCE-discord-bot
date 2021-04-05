@@ -2,6 +2,12 @@ const Command = require('../Command');
 const Discord = require('discord.js');
 const { Egg } = require('../../util/eggUtils');
 const { pagination } = require('../../util/dataDisplay')
+const {
+    QUERY_BASKET,
+    QUERY_ALLBASKETS,
+    QUERY_ALLEGGS,
+    CREATE_BASKET,
+} = require('../../APIFunctions/easterResponses')
 var runningIntervals = {};
 
 function startEgghunt(channelName, guild)
@@ -48,20 +54,24 @@ async function displayEggs(userID, guildID, channel, type)
         case 'caught':
             templateEmbed.setTitle('How many eggs do you have?')
                 .setDescription('1 egg 2 egg red egg blue egg ' + userID);
-            //Query = await QUERY_BASKET(userID);
+            Query = await QUERY_BASKET({
+                guildID: guildID,
+                userID: userID
+            });
             break;
         case 'hidden':
             templateEmbed.setTitle('Eggs where!?')
                 .setDescription('egg there egg here egg in the grassy pear ' + guildID);
-            //Query = await QUERY_EGG(guildID);
+            Query = await QUERY_ALLEGGS({guildID: guildID});
             break;
         case 'leader':
             templateEmbed.setTitle('Eggs kingdom')
                 .setDescription('eggy mceggster '+ guildID);
-            //Query = await QUERY_EGG(guildID);
+            Query = await QUERY_ALLBASKETS({guildID: guildID});
             break;
     }
     let items = [];
+    console.log(Query);
     for(i =0; i<10; i++)
     {
         let testInput = {}
