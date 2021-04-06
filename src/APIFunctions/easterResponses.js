@@ -112,9 +112,61 @@ const CREATE_BASKET = async args => {
     return response;
   };
 
+  const QUERY_EGG = async args => {
+    const eggQuery = gql`
+      query($code: String) {
+        easterEggOne(filter: {code: $code}) {
+          eggID
+        }
+      }
+    `;
+    const response = new ApiResponse();
+  
+    try {
+      const data = await request(
+        `${DISCORD_API_URL}/graphql`,
+        eggQuery,
+        args,
+      );
+      response.responseData = data.easterEggOne;
+    } catch (e) {
+      response.error = true;
+    }
+  
+    return response;
+  };
+  const ADD_EGG = async args => {
+    const eggMutation = gql`
+    mutation($userID: String!, $eggID: String!) {
+      easterBasketAddEgg(
+        userID: $userID
+        eggID: $eggID	
+      ) {
+        guildID
+        userID
+        eggs
+      }
+    }
+    `;
+    const response = new ApiResponse();
+    try {
+      const data = await request(
+        `${DISCORD_API_URL}/graphql`,
+        eggMutation,
+        args
+      );
+      response.responseData = data.easterEggOne;
+    } catch (e) {
+      response.error = true;
+    }
+  
+    return response;
+  };
   module.exports = {
     QUERY_BASKET,
     QUERY_ALLBASKETS,
     QUERY_ALLEGGS,
     CREATE_BASKET,
+    ADD_EGG,
+    QUERY_EGG,
   }

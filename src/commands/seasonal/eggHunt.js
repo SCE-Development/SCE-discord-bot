@@ -2,7 +2,8 @@ const Command = require('../Command');
 const {
   startEgghunt,
   stopEgghunt,
-  displayEggs
+  displayEggs,
+  CreateEgg,
 } = require('./eggSwitch');
 
 module.exports = new Command({
@@ -31,6 +32,9 @@ module.exports = new Command({
           break;
         case 'stop':
           stopEgghunt(message.guild, args[2]);
+          break;
+        case 'add':
+          CreateEgg(message.channel, message.author.id);
           break;
         default:
           console.log("Type valid");

@@ -13,12 +13,14 @@ class Egg {
     eggPics = ['https://cdn.discordapp.com/attachments/308817739999608832/828026817964539954/eggac.png', 
         'https://cdn.discordapp.com/attachments/308817739999608832/828025305456312411/eggdiluc.png', 
         'https://cdn.discordapp.com/attachments/308817739999608832/828028933088870440/eggme.png'];
-    constructor(delayTime, channel, guild)
+    eggID = "";
+    constructor(delayTime, channel, guild, eggID)
     {
         this.delayRange = [delayTime * 0.68, delayTime * 1.4];
         this.channel = channel;
         this.guild = guild;
         this.timeout = undefined;
+        this.eggID = eggID;
     }
 
     async start(delayTime)
