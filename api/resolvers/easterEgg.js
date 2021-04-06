@@ -15,12 +15,12 @@ const EasterEggMutation = {
   easterEggCreate: {
     type: EasterEggTC,
     args: {
-      guildID: "String!",
-      eggID: "String!",
-      imageUrl: "String",
-      code: "String",
-      description: "String",
-      hint: "String",
+      guildID: 'String!',
+      eggID: 'String',
+      imageUrl: 'String',
+      code: 'String',
+      description: 'String',
+      hint: 'String',
     },
     resolve: async (source, args) => {
       const {
@@ -53,29 +53,19 @@ const EasterEggMutation = {
   easterEggDeleteOne: {
     type: EasterEggTC,
     args: {
-      guildID: "String!",
-      eggID: "String!",
-      imageUrl: "String",
-      code: "String",
-      description: "String",
-      hint: "String",
+      guildID: 'String!',
+      eggID: 'String!',
+   
     },
     resolve: async (source, args) => {
       const {
         guildID,
         eggID,
-        imageUrl,
-        code,
-        description,
-        hint,
       } = args;
       const egg = await EasterEgg.findOne({
         guildID,
         eggID,
-        imageUrl,
-        code,
-        description,
-        hint
+       
       });
       await EasterEgg.deleteOne({_id: egg._id});
       return egg;

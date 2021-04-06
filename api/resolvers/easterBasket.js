@@ -1,5 +1,6 @@
 const { SystemError, UserInputError } = require('apollo-server');
 const { EasterBasketTC, EasterBasket } = require('../models/easterBasket');
+const { EasterEgg } = require('../models/easterEgg');
 
 const EasterBasketQuery = {
   easterBasketOne: EasterBasketTC.mongooseResolvers.findOne(),
@@ -21,17 +22,23 @@ const EasterBasketMutation = {
     },
     resolve: async (source, args) => {
       const {guildID, userID, eggID } = args;
-
-      const egg = await EasterBasket.findOneAndUpdate(
+      const egg = await EasterEgg.findOne({guildID: guildID, eggID: eggID});
+      const basket = await EasterBasket.findOne({guildID, userID});
+      if(!basket) {
+        await EasterBasket.create({
+          guildID,
+          userID,
+        });
+      }
+      const mutation = await EasterBasket.findOneAndUpdate(
         {guildID, userID},
-        { $addToSet: { eggs: eggID } },
+        { $addToSet: { eggs: egg._id} },
         {
           new: true,
           useFindAndModify: false,
         }
       );
-      if (!egg) throw new UserInputError('egg update returned null');
-      return egg;
+      return mutation;
     },
   },
 };

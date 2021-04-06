@@ -5,25 +5,25 @@ const { ApiResponse } = require('./ApiResponses');
 
 const QUERY_EGG = async args => {
   const eggQuery = gql`
-    query($guildID: String!, $eggID: String, $imageurl: String, $code: String, $description: String, $hint: String) {
-      easterEggOne(filter: {
-        guildID: $guildID, 
-        eggID: $eggID, 
-        imageUrl: $imageUrl, 
-        code: $code,  
-        description: $description, 
-        hint: $hint
-      }) {
-        guildID
-        eggID
-        imageUrl
-        code
-        hint
-        description
-        hint
-      }
-    }`
-  ;
+  query($guildID: String!, $eggID: String, $imageUrl: String,
+  $code: String, $description: String, $hint: String) {
+    easterEggMany(filter: {
+      guildID: $guildID, 
+      eggID: $eggID, 
+      imageUrl: $imageUrl, 
+      code: $code,  
+      description: $description, 
+      hint: $hint
+    }) {
+      guildID
+      eggID
+      imageUrl
+      code
+      hint
+      description
+      hint
+    }
+  }`  ;
   const response = new ApiResponse();
 
   try {
@@ -32,7 +32,7 @@ const QUERY_EGG = async args => {
       eggQuery,
       args,
     );
-    response.responseData = data.easterEggOne;
+    response.responseData = data.easterEggMany;
   } catch (e) {
     response.error = true;
   }
@@ -41,7 +41,7 @@ const QUERY_EGG = async args => {
 };
 const ADD_EGG_TO_BASKET = async args => {
   const eggMutation = gql `
-  mutation($guildID: guildID, $userID: String!, $eggID: String!) {
+  mutation($guildID: String!, $userID: String!, $eggID: String!) {
     easterBasketAddEgg(
       guildID: $guildID
       userID: $userID
@@ -69,7 +69,8 @@ const ADD_EGG_TO_BASKET = async args => {
 };
 const CREATE_EGG = async args => {
   const createEggMutation = gql `
-  mutation($guildID: String!, $eggID: String!, $imageUrl: String, $code: String, $description: String, $hint: String) {
+  mutation($guildID: String!, $eggID: String!, $imageUrl: String,
+  $code: String, $description: String, $hint: String) {
     easterEggCreate(
       guildID: $guildID, 
       eggID: $eggID, 
@@ -86,7 +87,7 @@ const CREATE_EGG = async args => {
       description
       hint
     }
-}`;
+  }`;
   const response = new ApiResponse();
   try {
     const data = await request(
@@ -100,10 +101,10 @@ const CREATE_EGG = async args => {
   }
 
   return response;
-}
+};
 const DELETE_EGG = async args => {
   const eggMutation = gql `
-  mutation($guildID: String!, $eggID: String!, $imageUrl: String, $code: String, $description: String, $hint: String) {
+  mutation($guildID: String!, $eggID: String!) {
     easterEggDeleteOne(
       guildID: $guildID, 
       eggID: $eggID, 
@@ -128,13 +129,13 @@ const DELETE_EGG = async args => {
       eggMutation,
       args
     );
-    response.responseData = data.createEggMutation;
+    response.responseData = data.easterEggDeleteOne;
   } catch (e) {
     response.error = true;
   }
 
   return response;
-}
+};
 module.exports = {
   QUERY_EGG,
   ADD_EGG_TO_BASKET,
