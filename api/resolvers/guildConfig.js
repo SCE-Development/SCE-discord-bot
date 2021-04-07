@@ -75,7 +75,7 @@ const GuildConfigMutation = {
       return guildConfig;
     },
   },
-  guildConfigRemoveEasterEggChannel: {
+  guildConfigEasterEggChannelRemoveOne: {
     type: GuildConfigTC,
     args: {
       guildID: 'String!',

@@ -10,7 +10,6 @@ const EasterBasketQuery = {
 
 const EasterBasketMutation = {
   easterBasketCreateOne: EasterBasketTC.mongooseResolvers.createOne(),
-  easterBasketUpdateOne: EasterBasketTC.mongooseResolvers.updateOne(),
   easterBasketRemoveOne: EasterBasketTC.mongooseResolvers.removeOne(),
   easterBasketRemoveMany: EasterBasketTC.mongooseResolvers.removeMany(),
   easterBasketAddEgg: {
@@ -21,24 +20,46 @@ const EasterBasketMutation = {
       eggID: 'String!',
     },
     resolve: async (source, args) => {
-      const {guildID, userID, eggID } = args;
-      const egg = await EasterEgg.findOne({guildID: guildID, eggID: eggID});
-      const basket = await EasterBasket.findOne({guildID, userID});
-      if(!basket) {
-        await EasterBasket.create({
-          guildID,
-          userID,
-        });
-      }
-      const mutation = await EasterBasket.findOneAndUpdate(
-        {guildID, userID},
-        { $addToSet: { eggs: egg._id} },
-        {
-          new: true,
-          useFindAndModify: false,
-        }
+      const { guildID, userID, eggID } = args;
+
+      const egg = await EasterEgg.findOne({ guildID, eggID });
+      if (!egg) return new UserInputError('Failed to find EasterEgg');
+
+      let basket = await EasterBasket.findOneAndUpdate(
+        { guildID, userID },
+        { $addToSet: { eggs: egg } },
+        { new: true, upsert: true, useFindAndModify: false }
       );
-      return mutation;
+      if (!basket)
+        return new SystemError(
+          'Failed to find and update or create EasterBasket'
+        );
+
+      return basket;
+    },
+  },
+  easterBasketRemoveEgg: {
+    type: EasterBasketTC,
+    args: {
+      guildID: 'String!',
+      userID: 'String!',
+      eggID: 'String!',
+    },
+    resolve: async (source, args) => {
+      const { guildID, userID, eggID } = args;
+
+      const egg = await EasterEgg.findOne({ guildID, eggID });
+      if (!egg) return new UserInputError('Failed to find EasterEgg');
+
+      const basket = await EasterBasket.findOneAndUpdate(
+        { guildID, userID },
+        { $pull: { eggs: egg._id } },
+        { new: true, useFindAndModify: false }
+      );
+      if (!basket)
+        return new SystemError('Failed to find and update EasterBasket');
+
+      return basket;
     },
   },
 };
