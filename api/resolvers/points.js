@@ -29,7 +29,7 @@ const PointMutation = {
             yearPoints: args.yearPoints,
             totalPoints: args.totalPoints,
             lastTalked: args.lastTalked
-          }
+          },
         },
         { new: true, useFindAndModify: false, upsert: true },
       );
