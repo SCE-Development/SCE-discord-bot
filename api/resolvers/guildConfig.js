@@ -13,6 +13,7 @@ const GuildConfigQuery = {
 };
 
 const GuildConfigMutation = {
+  guildConfigCreateOne: GuildConfigTC.mongooseResolvers.createOne(),
   guildConfigRemoveOne: GuildConfigTC.mongooseResolvers.removeOne(),
   guildConfigRemoveMany: GuildConfigTC.mongooseResolvers.removeMany(),
   guildConfigSet: {
@@ -27,7 +28,6 @@ const GuildConfigMutation = {
         input,
         {
           new: true,
-          upsert: true,
           omitUndefined: true,
           useFindAndModify: false,
         }

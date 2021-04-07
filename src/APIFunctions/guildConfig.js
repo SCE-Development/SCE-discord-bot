@@ -26,6 +26,30 @@ const GUILD_CONFIG_QUERY = async args => {
   return response;
 };
 
+const GUILD_CONFIG_CREATE = async args => {
+  const guildConfigMutation = gql`
+    mutation($guildID: String!) {
+      guildConfigCreateOne(record: { guildID: $guildID }) {
+        guildID
+      }
+    }
+  `;
+  const response = new ApiResponse();
+
+  try {
+    const data = await request(
+      `${DISCORD_API_URL}/graphql`,
+      guildConfigMutation,
+      { input: args }
+    );
+    response.responseData = data.guildConfigCreateOne;
+  } catch (e) {
+    response.error = true;
+  }
+
+  return response;
+};
+
 const GUILD_CONFIG_SET = async args => {
   const guildConfigMutation = gql`
     mutation($input: GuildConfigInput) {
@@ -206,6 +230,7 @@ const REMOVE_EASTER_EGG_CHANNEL = async args => {
 
 module.exports = {
   GUILD_CONFIG_QUERY,
+  GUILD_CONFIG_CREATE,
   GUILD_CONFIG_SET,
   GUILD_CONFIG_DELETE,
   GUILD_CONFIG_QUERY_EASTER,
