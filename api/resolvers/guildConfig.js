@@ -28,7 +28,6 @@ const GuildConfigMutation = {
         input,
         {
           new: true,
-          omitUndefined: true,
           useFindAndModify: false,
         }
       );
