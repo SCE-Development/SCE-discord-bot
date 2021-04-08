@@ -3,7 +3,7 @@ const {
   startEgghunt,
   stopEgghunt,
   displayEggs,
-  CreateEgg,
+  createEgg,
 } = require('../../util/eggHunt');
 
 module.exports = new Command({
@@ -19,20 +19,21 @@ module.exports = new Command({
       case 'admin':
         switch (args[1]) {
           case 'start':
-            if (!args[2]) {
-              message.channel.send('type in a channel name');
-              return;
-            }
-            startEgghunt(args[2], message.guild);
+            startEgghunt(message);
             break;
+
           case 'stop':
-            stopEgghunt(message.guild, args[2]);
+            stopEgghunt(message);
             break;
+
           case 'add':
-            CreateEgg(message.channel, message.author.id);
+            createEgg(message);
             break;
+
           default:
-            console.log('Type valid');
+            message.channel
+              .send('Valid options are: `start`, `stop`, `add`')
+              .then(msg => msg.delete(20000).catch(() => {}));
             break;
         }
         break; // args[0] === 'admin'
@@ -41,18 +42,12 @@ module.exports = new Command({
       case 'leaderboard':
       case 'eggs':
       case 'basket':
-        displayEggs(
-          message.author.id,
-          message.guild.id,
-          message.channel,
-          args[1]
-        );
-        break; // args[0] === 'leaderboard' || 'eggs || 'basket'
+        displayEggs(message, args[1]);
+        break;
 
-      // args[0]
       default:
         // todo: display help
-        break; // args[0] default
+        break;
     }
   },
 });

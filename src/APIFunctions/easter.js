@@ -4,7 +4,7 @@ const { ApiResponse } = require('./ApiResponses');
 
 const EASTER_EGG_QUERY = async args => {
   const eggQuery = gql`
-    query($guildID: String!, $eggID:, String, $code) {
+    query($guildID: String!, $eggID: String, $code: String) {
       easterEggMany(filter: { guildID: $guildID, eggID: $eggID, code: $code }) {
         guildID
         eggID

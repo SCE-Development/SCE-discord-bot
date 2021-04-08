@@ -1,6 +1,8 @@
 const Discord = require('discord.js');
 const { EASTER_BASKET_ADD_EGG } = require('../APIFunctions/easter');
 
+const ONE_MINUTE = 60000;
+
 const eggPics = [
   'https://cdn.discordapp.com/attachments/308817739999608832/828026817964539954/eggac.png',
   'https://cdn.discordapp.com/attachments/308817739999608832/828025305456312411/eggdiluc.png',
@@ -8,49 +10,44 @@ const eggPics = [
 ];
 
 class EasterEgg {
-  constructor(delayTime, channel, guild, eggID) {
-    this.delayRange = [delayTime * 0.68, delayTime * 1.4];
+  constructor(egg, channel, period) {
+    this.period = period;
     this.channel = channel;
-    this.guild = guild;
-    this.timeout = undefined;
-    this.eggID = eggID;
+    this.egg = egg;
+    this.timeout = null;
   }
 
-  async start(delayTime) {
-    if (this.channel === undefined) return;
-    if (delayTime != undefined)
-      this.delayRange = [delayTime * 0.4, delayTime * 1.4];
-    let randomDelay = Math.floor(
-      Math.random() * (this.delayRange[1] - this.delayRange[0]) +
-        this.delayRange[0]
-    );
+  async start() {
+    if (this.timeout) return; // already running
 
-    let choice = Math.floor(Math.random() * 3);
+    // within 20% of this.period
+    const randomDelay = this.period + Math.random() * 0.2 * this.period;
+
     const eggEmbed = new Discord.RichEmbed()
       .setTitle('Egg!Egg!')
       .setDescription('Hey look an egg!')
-      .setThumbnail(this.eggPics[choice]);
+      .setThumbnail(this.egg.imageUrl);
 
-    let sentMessage = await this.channel.send(eggEmbed);
+    const sentMessage = await this.channel.send(eggEmbed);
     await sentMessage.react('🐰');
 
     const filter = (reaction, user) => {
       return ['🐰'].includes(reaction.emoji.name) && !user.bot;
     };
-    let collector = await sentMessage.createReactionCollector(filter, {
+    const collector = await sentMessage.createReactionCollector(filter, {
       max: 1,
-      time: randomDelay * 1.4,
+      time: ONE_MINUTE,
       errors: ['time'],
     });
 
     const collectReaction = async reaction => {
-      let user = reaction.users.last();
-      let guildID = reaction.message.guild.id;
-      let userID = user.id;
+      const user = reaction.users.last();
+      const guildID = reaction.message.guild.id;
+      const userID = user.id;
       const response = EASTER_BASKET_ADD_EGG({
         guildID,
         userID,
-        eggID: this.eggID,
+        eggID: this.egg.eggID,
       });
       if (response.error) {
         this.channel.send('Internal error taking egg');
@@ -59,13 +56,14 @@ class EasterEgg {
       }
     };
     collector.once('collect', collectReaction);
-    this.timeout = setTimeout(this.start.bind(this), randomDelay);
+    this.timeout = setTimeout(this.start.bind(this), randomDelay * ONE_MINUTE);
   }
 
   stop() {
-    if (this.timeout === undefined) return;
+    if (!this.timeout) return; // not running
+
     clearTimeout(this.timeout);
-    this.timeout = undefined;
+    this.timeout = null;
   }
 }
 
