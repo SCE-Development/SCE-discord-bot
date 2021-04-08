@@ -21,7 +21,8 @@ class NonPrefixHandler {
    * @member {CooldownManager} cooldownManager An instance of the
    * CooldownManager class to avoid spam from users.
    */
-  constructor() {
+  constructor(args) {
+    this.sceBot = args.sceBot;
     this.commandArr = [];
     this.cooldownManager = new CooldownManager();
   }
@@ -64,6 +65,8 @@ class NonPrefixHandler {
         }
 
         try {
+          // Add an sceBot field to reference the calling bot
+          message.client.sceBot = this.sceBot;
           command.execute(message);
         } catch (Exception) { }
 

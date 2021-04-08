@@ -1,10 +1,10 @@
 const Discord = require('discord.js');
-const { Egg } = require('../../util/eggUtils');
-const { pagination } = require('../../util/dataDisplay');
+const { EasterEgg } = require('./easterEgg');
+const { pagination } = require('./dataDisplay');
 const {
   EASTER_BASKET_QUERY,
   EASTER_EGG_QUERY,
-} = require('../../APIFunctions/easter');
+} = require('../APIFunctions/easter');
 const runningIntervals = {};
 
 function startEgghunt(channelName, guild) {
@@ -12,7 +12,7 @@ function startEgghunt(channelName, guild) {
   if (!guild.available) return;
   let channel = guild.channels.find(channel => channel.name === channelName);
   if (!channel) return;
-  runningIntervals[channelName] = new Egg(20000, channel, guild);
+  runningIntervals[channelName] = new EasterEgg(20000, channel, guild);
   runningIntervals[channelName].start();
 }
 
@@ -156,7 +156,7 @@ async function CreateEgg(channel, userID) {
             infoEmbed
               .setDescription(
                 'Make sure it is a url that starts with ' +
-                  '`https://cdn.discordapp.com/attachments/`' +
+                  '`https://cdn.discordapp.com/attachments/`\n' +
                   'To get this URL, you upload a pic to discord then right ' +
                   'click on the picture.'
               )
@@ -209,6 +209,7 @@ async function CreateEgg(channel, userID) {
   };
   messageCollector.once('collect', eggIDMessage);
 }
+
 module.exports = {
   startEgghunt,
   stopEgghunt,

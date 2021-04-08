@@ -7,7 +7,7 @@ const eggPics = [
   'https://cdn.discordapp.com/attachments/308817739999608832/828028933088870440/eggme.png',
 ];
 
-class Egg {
+class EasterEgg {
   constructor(delayTime, channel, guild, eggID) {
     this.delayRange = [delayTime * 0.68, delayTime * 1.4];
     this.channel = channel;
@@ -70,5 +70,5 @@ class Egg {
 }
 
 module.exports = {
-  Egg,
+  EasterEgg,
 };

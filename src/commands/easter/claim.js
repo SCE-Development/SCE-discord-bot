@@ -12,6 +12,7 @@ module.exports = new Command({
   examples: 's!claim <code>',
   permissions: 'general',
   category: 'easter',
+  disabled: false,
   execute: async (message, args) => {
     const eggResponse = await EASTER_EGG_QUERY({
       guildID: message.guild.id,

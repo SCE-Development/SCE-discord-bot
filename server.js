@@ -1,4 +1,3 @@
-const Discord = require('discord.js');
 const {
   prefix,
   API_TOKEN,
@@ -6,47 +5,17 @@ const {
   DATABASE_USER,
   DATABASE_PASSWORD,
 } = require('./config.json');
-const { MessageHandler } = require('./src/handlers/MessageHandler');
-const {
-  VoiceChannelChangeHandler,
-} = require('./src/handlers/VoiceChannelChangeHandler');
 const mongoose = require('mongoose');
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 const { schema } = require('./api/resolvers/index.js');
 const bodyParser = require('body-parser');
-const { NewMemberAddHandler } = require('./src/handlers/NewMemberAddHandler');
+const { SceBot } = require('./src/SceBot');
 const port = 5000;
 
 const startBot = async () => {
-  const client = new Discord.Client();
-  const messageHandler = new MessageHandler(prefix);
-  const vcChangeHandler = new VoiceChannelChangeHandler();
-  const newMemberHandler = new NewMemberAddHandler();
-  client.once('ready', () => {
-    messageHandler.initialize();
-    client.user.setPresence({
-      game: {
-        name: `${prefix}help`,
-        type: 'LISTENING',
-      },
-    });
-    console.log('Discord bot live');
-  });
-
-  client.on('message', message => {
-    messageHandler.handleMessage(message);
-  });
-
-  client.on('voiceStateUpdate', (oldMember, newMember) => {
-    vcChangeHandler.handleChangeMemberInVoiceChannel(oldMember, newMember);
-  });
-
-  client.on('guildMemberAdd', newMember => {
-    newMemberHandler.handleNewMember(newMember);
-  });
-
-  client.login(API_TOKEN);
+  const sceBot = new SceBot({ API_TOKEN, prefix });
+  sceBot.initialize();
 };
 
 // Connect to mongoose

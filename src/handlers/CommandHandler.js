@@ -22,7 +22,9 @@ class CommandHandler {
    * @member {CooldownManager} cooldownManager An instance of the
    * CooldownManager class to avoid spam from users.
    */
-  constructor() {
+  constructor(args) {
+    this.sceBot = args.sceBot;
+    this.prefix = args.prefix;
     this.commandMap = new Discord.Collection();
     this.cooldownManager = new CooldownManager();
   }
@@ -51,8 +53,8 @@ class CommandHandler {
    * @requires message author is not a bot
    * Informs user if the command is on cooldown.
    */
-  handleCommand(prefix, message) {
-    let args = message.content.slice(prefix.length).split(/ +/);
+  handleCommand(message) {
+    let args = message.content.slice(this.prefix.length).split(/ +/);
     const commandName = args.shift().toLowerCase();
     args = parseCommandParameters(args.join(' '));
 
@@ -70,6 +72,8 @@ class CommandHandler {
         // Add a commands field to message.client to 
         // reference all available commands
         message.client.commands = this.commandMap;
+        // Add an sceBot field to reference the calling bot
+        message.client.sceBot = this.sceBot;
         this.executeCommand(commandName, message, args);
       } catch (Exception) { }
     }
