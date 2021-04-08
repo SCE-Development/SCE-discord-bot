@@ -4,7 +4,7 @@ const {
   VoiceChannelChangeHandler,
 } = require('./handlers/VoiceChannelChangeHandler');
 const { NewMemberAddHandler } = require('./handlers/NewMemberAddHandler');
-const { EggHuntClient } = require('./util/eggHuntClient');
+const { EggHuntClient } = require('./util/EggHuntClient');
 
 class SceBot {
   constructor(args) {
