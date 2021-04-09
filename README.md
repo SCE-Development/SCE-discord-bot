@@ -40,8 +40,17 @@ the Discord server with custom commands.
    4. Copy and paste `db.createUser({ user: 'sce-discord-bot', pwd: passwordPrompt(), roles: [{ role: 'readWrite', db: 'Discord' }] })` to create a user for the bot
    5. Set the password to whatever you have for `DATABASE_PASSWORD` from `config.json`
    6. Type `exit`
-3. In your terminal (in the root directory of the project) run `npm start`
+3. In your terminal (in the root directory of the project)
+   1. run `npm install`
+   2. run `npm start`
 4. Test out the bot in the discord channel!
+
+### How to use with Docker
+
+1. Additionally create a `.env` file with the same format as `.env.example`
+2. `MONGO_ROOT_PASSWORD` is the password for the root user on Docker's MongoDB database, username: `admin`
+3. `MONGO_BOT_PASSWORD` is the password for the bot to use with MongoDB. Should be the same as `DATABASE_PASSWORD` in `config.json`
+4. Change `DATABASE_URL` in `config.json` to use `mongo` instead of `localhost`
 
 ## How to set up Calendar Event API
 
