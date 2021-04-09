@@ -13,8 +13,8 @@ module.exports = new Command({
   aliases: [],
   permissions: 'member',
   execute: async (message) => {
-    pointsArray = await POINTS_QUERY({ guildID: message.guild.id });
-    data = pointsArray.responseData;
+    const pointsArray = await POINTS_QUERY({ guildID: message.guild.id });
+    const data = pointsArray.responseData;
     data.sort(checkPoints);
     let length = data.length;
     if (length > 10) {
@@ -23,7 +23,7 @@ module.exports = new Command({
         .setTitle('Points Leaderboard')
         .setTimestamp();
       for (let i = 0; i < 10; i++) {
-        topEmbedCapped.addField('Number' + i, `<@${data[i].userID}> `
+        topEmbedCapped.addField('Number ' + (i + 1), `<@${data[i].userID}> `
         + data[i].totalPoints);
       }
       message.channel.send(topEmbedCapped);

@@ -4,7 +4,7 @@ const utilPath = '../util';
 const { CommandHandler } = require(handlersPath + '/CommandHandler');
 const { NonPrefixHandler } = require(handlersPath + '/NonPrefixHandler');
 const { createNonPrefixRegex } = require(utilPath + '/NonPrefixRegexCreator');
-const { increment } = require('../util/Points');
+const { updatePoints } = require('../util/Points');
 
 /**
  * Class which handles interpreting an input message and invoking the correct

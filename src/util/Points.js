@@ -28,16 +28,32 @@ function resetPoints(points) {
   }
 }
 
-async function increment(message) {
+function addPointsToUser(points) {
   // Random point value to add
   let p = Math.floor(Math.random() * (50 - 25) + 25);
+  if (!points) {
+    points = {
+      weekPoints: p,
+      monthPoints: p,
+      yearPoints: p,
+      totalPoints: p,
+      lastTalked: new Date()
+    };
+  }
+  points.weekPoints += p;
+  points.monthPoints += p;
+  points.yearPoints += p;
+  points.totalPoints += p;
+}
+
+async function updatePoints(message) {
   // Cooldown time in ms
   let c = 180000;
   const author = message.author;
   const guild = message.guild;
   // When a message is sent, query the user points
   const response = await POINTS_QUERY({
-    guildID: message.guild.id,
+    guildID: guild.id,
     userID: author.id
   });
   if (response.error)
@@ -48,14 +64,9 @@ async function increment(message) {
     points = {
       guildID: guild.id,
       userID: author.id,
-      weekPoints: p,
-      monthPoints: p,
-      yearPoints: p,
-      totalPoints: p,
-      lastTalked: new Date()
     };
+    points = addPointsToUser(points);
     points = await UPDATE_POINTS(points);
-    console.log('created object', points);
     return points.responseData;
   }
 
@@ -66,14 +77,11 @@ async function increment(message) {
   // If last message passed cooldown, add points
   if (createdAt - lastTalked > c) {
     resetPoints(points);
-    points.weekPoints += p;
-    points.monthPoints += p;
-    points.yearPoints += p;
-    points.totalPoints += p;
+    addPointsToUser(points);
     points.lastTalked = message.createdAt;
     points = await UPDATE_POINTS(points);
   }
   return points.responseData;
 }
 
-module.exports = { increment, resetPoints };
+module.exports = { updatePoints, resetPoints };
