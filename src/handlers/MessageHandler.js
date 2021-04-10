@@ -17,10 +17,11 @@ class MessageHandler {
    * @member {NonPrefixHandler} nonPrefixHandler The handler
    * for non-prefix commands.
    */
-  constructor(prefix) {
-    this.prefix = prefix;
-    this.commandHandler = new CommandHandler();
-    this.nonPrefixHandler = new NonPrefixHandler();
+  constructor(args) {
+    this.sceBot = args.sceBot;
+    this.prefix = args.sceBot.prefix;
+    this.commandHandler = new CommandHandler(args);
+    this.nonPrefixHandler = new NonPrefixHandler(args);
   }
 
   /**
@@ -42,7 +43,7 @@ class MessageHandler {
       return;
     }
     if (message.content.startsWith(this.prefix)) {
-      this.commandHandler.handleCommand(this.prefix, message);
+      this.commandHandler.handleCommand(message);
     } else if (this.nonPrefixRegex.test(message.content)) {
       this.nonPrefixHandler.handleCommand(message);
     }
