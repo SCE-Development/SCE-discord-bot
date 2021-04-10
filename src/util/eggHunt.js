@@ -3,16 +3,17 @@ const { pagination } = require('./dataDisplay');
 const {
   EASTER_BASKET_QUERY,
   EASTER_EGG_QUERY,
+  EASTER_EGG_CREATE,
 } = require('../APIFunctions/easter');
 
-const startEgghunt = async message => {
+const startEgghunt = async (eggname, message) => {
   // todo: interactive creation wizard
   // these value need to be set from the user
-  const eggID = 'egg id here',
+  const eggID = eggname,
     channel = message.channel,
     period = 30;
 
-  const status = message.client.sceBot.eggHuntClient.addEgg(
+  const status = await message.client.sceBot.easterEggHunt.addEgg(
     eggID,
     channel,
     period
@@ -48,13 +49,13 @@ const startEgghunt = async message => {
   }
 };
 
-const stopEgghunt = async message => {
+const stopEgghunt = async (eggname, message) => {
   // todo: interactive creation wizard
   // these value need to be set from the user
-  const eggID = 'egg id here',
+  const eggID = eggname,
     channel = message.channel;
 
-  const status = message.client.sceBot.eggHuntClient.stopEgg(eggID, channel);
+  const status = await message.client.sceBot.easterEggHunt.stopEgg(eggID, channel);
 
   switch (status) {
     case 'ok':
@@ -88,7 +89,7 @@ async function displayEggs(message, type) {
   let response;
 
   switch (type) {
-    case 'caught':
+    case 'basket':
       displayEmbed
         .setTitle('How many eggs do you have?')
         .setDescription(
@@ -99,13 +100,13 @@ async function displayEggs(message, type) {
         userID: message.member.id,
       });
       break;
-    case 'hidden':
+    case 'eggs':
       displayEmbed
         .setTitle('Eggs where!?')
         .setDescription('egg there egg here egg in the grassy pear ');
       response = await EASTER_EGG_QUERY({ guildID: message.guild.id });
       break;
-    case 'leader':
+    case 'leaderboard':
       displayEmbed.setTitle('Eggs kingdom').setDescription('eggy mceggster ');
       response = await EASTER_BASKET_QUERY({ guildID: message.guild.id });
       break;
@@ -116,14 +117,39 @@ async function displayEggs(message, type) {
       .then(msg => msg.delete(10000).catch(() => {}));
   }
 
+  response = type === 'basket' ? response.responseData.egg : response.responseData;
   const items = [];
-  for (let i = 0; i < 10; i++) {
-    const testInput = {};
-    testInput['title'] = 'egg ' + i;
-    testInput['field'] = 'EGG!!!!!!!!!!!!!!!';
-    items.push(testInput);
+  if(type === 'leaderboard')
+  {
+    for(let i = 0; i < response.length; i++)
+    {
+      let inputs = {};
+      //initialize all the variables
+      let userID =  i+1 + ". " + response[i]["userID"];
+      let description = "He has " + response.egg.length + " eggs.";
+      //sorry its messy but initialization done.
+  
+      inputs['title'] = userID;
+      inputs['field'] = description;
+      items.push(inputs);
+    }
   }
-
+  else
+  {
+    for(let i = 0; i < response.length; i++)
+    {
+      let inputs = {};
+      //initialize all the variables
+      let eggID = response[i]["eggID"];
+      let description = response[i]["description"] === null ? 
+        "Dude its an egg." : response[i]["description"];
+      //sorry its messy but initialization done.
+  
+      inputs['title'] = `The eggID is \`${eggID}\``;
+      inputs['field'] = description;
+      items.push(inputs);
+    }
+  }
   pagination(displayEmbed, message.channel, message.member.id, items);
 }
 
@@ -246,7 +272,14 @@ async function createEgg(message) {
               Set to \`${value}\``
             )
             .setThumbnail(egg.URL);
-          message.channel.send(infoEmbed);
+            await EASTER_EGG_CREATE({
+              guildID: message.guild.id,
+              eggID: egg.EggID,
+              imageUrl: egg.URL,
+              code: egg.Code,
+              description: egg.Description,
+              hint: egg.Hint
+            })
           messageCollector.stop();
           break;
         case 'stop':
@@ -264,9 +297,75 @@ async function createEgg(message) {
   messageCollector.once('collect', eggIDMessage);
 }
 
+async function gatherEggID(message)
+{
+  const filter = m => {
+    return m.member.id === message.member.id;
+  };
+  const messageCollector = message.channel.createMessageCollector(filter, {
+    time: 60000,
+    errors: ['time'],
+  });
+
+  message.channel.send("What egg are you trying to add? (type in eggID)");
+  Query_eggs = await EASTER_EGG_QUERY({
+    guildID: message.guild.id,
+  });
+  //Show admin what eggs he can add.
+  Query_eggs = Query_eggs.responseData;
+  if(!Query_eggs)
+  {
+    message.channel.send("Make an egg first!");
+    return;
+  }
+  let items = [];
+  for(let i = 0; i < Query_eggs.length; i++)
+  {
+    let inputs = {};
+    //initialize all the variables
+    let eggID = Query_eggs[i]["eggID"];
+    let imageURL = Query_eggs[i]["imageUrl"] === null ? 
+      "there is no image" : "There is an image!";
+    let code = Query_eggs[i]["code"] === null?
+      "no code" : Query_eggs[i]["code"];
+    let description = Query_eggs[i]["description"] === null?
+    "no description" : Query_eggs[i]["description"];
+    let hint = Query_eggs[i]["hint"] === null?
+    "no hint" : Query_eggs[i]["hint"];
+    //sorry its messy but initialization done.
+
+    inputs['title'] = `The eggID is \`${eggID}\``;
+    inputs['field'] = `imageURL: ${imageURL}
+    code: ${code}
+    description: ${description}
+    hint: ${hint}`
+    items.push(inputs);
+  }
+  const displayEmbed = new Discord.RichEmbed()
+    .setTitle("All eggs to choose from")
+    .setDescription("");
+  pagination(displayEmbed, message.channel, message.author.id, items, 3);
+  //make message collector
+  const getEggID = async messageIn => {
+    let queryCheck = await EASTER_EGG_QUERY({
+      guildID: message.guild.id,
+      eggID: messageIn.content
+    });
+    if(queryCheck.responseData.length)
+    {
+      startEgghunt(messageIn.content, message)
+    }
+    else
+    {
+      message.channel.send("No such egg.");
+    }
+  }
+  messageCollector.once('collect', getEggID);
+}
 module.exports = {
   startEgghunt,
   stopEgghunt,
   displayEggs,
   createEgg,
+  gatherEggID,
 };

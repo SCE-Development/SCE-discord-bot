@@ -1,10 +1,11 @@
 const Command = require('../Command');
 const {
-  startEgghunt,
+  gatherEggID,
   stopEgghunt,
   displayEggs,
   createEgg,
 } = require('../../util/eggHunt');
+const { isOfficer } = require('../../util/Permission')
 
 module.exports = new Command({
   name: 'egghunt',
@@ -17,9 +18,14 @@ module.exports = new Command({
   execute: (message, args) => {
     switch (args[0]) {
       case 'admin':
+        // if(!isOfficer(message.author)) 
+        // {
+        //   message.channel("Not high enough rank sir.");
+        //   return;
+        // }
         switch (args[1]) {
           case 'start':
-            startEgghunt(message);
+            gatherEggID(message);
             break;
 
           case 'stop':

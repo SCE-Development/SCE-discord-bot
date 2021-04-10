@@ -24,7 +24,7 @@ class CommandHandler {
    */
   constructor(args) {
     this.sceBot = args.sceBot;
-    this.prefix = args.prefix;
+    this.prefix = args.sceBot.prefix;
     this.commandMap = new Discord.Collection();
     this.cooldownManager = new CooldownManager();
   }
