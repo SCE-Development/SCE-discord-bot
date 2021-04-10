@@ -65,6 +65,7 @@ const GuildConfigMutation = {
         {
           new: true,
           useFindAndModify: false,
+          upsert: true
         }
       );
       if (!guildConfig) {
