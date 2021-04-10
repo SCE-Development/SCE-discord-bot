@@ -49,7 +49,7 @@ const startEgghunt = async (eggname, message) => {
   }
 };
 
-const stopEgghunt = async (eggname, message) => {
+const stopEgghunt = async (message) => {
   // todo: interactive creation wizard
   // these value need to be set from the user
   const eggID = eggname,
