@@ -191,7 +191,8 @@ async function createEgg(message) {
         '6. If there is a code add hint by typing "Hint:" then your hint\n' +
         'When finished, type "done"\n'
     );
-  message.channel.send(instructionEmbed);
+  message.channel.send(instructionEmbed)
+    .then(msg => msg.delete(20000).catch(() => {}));;
   /**
    * @param {Discord.Message} m 
    * message collected.
@@ -223,7 +224,8 @@ async function createEgg(message) {
     infoEmbed = new Discord.RichEmbed().setTitle('EggID!')
       .setDescription(`The egg name is \`${egg.EggID}\`. 
             If this is not what you want type 'Stop' and restart.`);
-    message.channel.send(infoEmbed);
+    message.channel.send(infoEmbed)
+      .then(msg => msg.delete(20000).catch(() => {}));;
     /** @param {Discord.Message} messageIn */
     const eggSetters = async messageIn => {
       /* first check if message has overriding status's */
@@ -315,12 +317,14 @@ async function createEgg(message) {
           break;
         case 'stop':
           messageCollector.stop();
-          message.channel.send('Process stopped.');
+          message.channel.send('Process stopped.')
+            .then(msg => msg.delete(20000).catch(() => {}));
           return;
         default:
           infoEmbed.setTitle('Error').setDescription('not a valid field');
       }
-      message.channel.send(infoEmbed);
+      message.channel.send(infoEmbed)
+        .then(msg => msg.delete(20000).catch(() => {}));
       infoEmbed.setThumbnail(undefined);
     };
     /* turn on collector after grabbing eggID */
@@ -357,7 +361,8 @@ async function gatherEggID(message, type)
   /** Get the eggID to start/stop,
    * send all eggs so admins can view eggs
   */
-  message.channel.send('What egg? (type in eggID)');
+  message.channel.send('What egg? (type in eggID)')
+    .then(msg => msg.delete(20000).catch(() => {}));;
   const temp = await EASTER_EGG_QUERY({
     guildID: message.guild.id,
   });
@@ -365,7 +370,8 @@ async function gatherEggID(message, type)
   /** if not eggs from query, admin needs to make an egg */
   if(!response)
   {
-    message.channel.send('Make an egg first!');
+    message.channel.send('Make an egg first!')
+      .then(msg => msg.delete(20000).catch(() => {}));;
     return;
   }
   let items = [];
@@ -412,11 +418,14 @@ async function gatherEggID(message, type)
     }
     else
     {
-      message.channel.send('No such egg.');
+      message.channel
+        .send('No such egg.')
+        .then(msg => msg.delete(20000).catch(() => {}));;
     }
   };
   messageCollector.once('collect', getEggID);
 }
+
 module.exports = {
   startEgghunt,
   stopEgghunt,
