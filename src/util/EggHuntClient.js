@@ -26,7 +26,6 @@ class EggHuntClient {
 
     // check if egg is already in channel
     if (eggMap.has(eggID)) return 'dup';
-
     const response = await ADD_EASTER_EGG_CHANNEL({
       guildID: channel.guild.id,
       channelID: channel.id,
@@ -42,7 +41,7 @@ class EggHuntClient {
     const easterEgg = new EasterEgg(egg, channel, period);
     easterEgg.start();
     eggMap.set(egg.eggID, easterEgg);
-
+    
     return 'ok';
   }
 

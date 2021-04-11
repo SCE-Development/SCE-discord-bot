@@ -1,11 +1,10 @@
 const Command = require('../Command');
 const {
   gatherEggID,
-  stopEgghunt,
   displayEggs,
   createEgg,
 } = require('../../util/eggHunt');
-const { isOfficer } = require('../../util/Permission')
+// const { isOfficer } = require('../../util/Permission');
 
 module.exports = new Command({
   name: 'egghunt',
@@ -25,11 +24,8 @@ module.exports = new Command({
         // }
         switch (args[1]) {
           case 'start':
-            gatherEggID(message);
-            break;
-
           case 'stop':
-            stopEgghunt(message);
+            gatherEggID(message, args[1]);
             break;
 
           case 'add':
