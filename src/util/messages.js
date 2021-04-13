@@ -1,6 +1,4 @@
-const Discord = require('discord.js');
-
-const { XSHORT_WAIT, MED_WAIT, LONG_WAIT } = require('./constants');
+const { XSHORT_WAIT, MED_WAIT } = require('./constants');
 
 /**
  * Sends and deletes a message.
