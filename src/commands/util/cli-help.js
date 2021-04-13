@@ -57,8 +57,7 @@ module.exports = new Command({
         author: {
           name: 'Welcome to SCEs CLI Helper',
           // eslint-disable-next-line
-          icon_url:
-            'https://pngriver.com/wp-content/uploads/2018/04/Download-Cool-PNG-Photos.png',
+          icon_url: 'https://pngriver.com/wp-content/uploads/2018/04/Download-Cool-PNG-Photos.png',
         },
         description:
           'Enter any of the following for information on CLI commands',
