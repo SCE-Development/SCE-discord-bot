@@ -63,7 +63,7 @@ class GithubMessageGenerator {
           this.defaultEmbed.url =
             `https://github.com/SCE-Development/${repo}/graphs/contributors`;
           this.defaultEmbed.description = `Top ${len} contributors this month`;
-          this.defaultEmbed.thumbnail = { url: leaderboard[0].avatarUrl };
+          this.defaultEmbed.thumbnail = { url: leaderboard[0].avatarUrl() };
           this.defaultEmbed.fields = leaderboard
             .slice(0, len)
             .map(({ user, commits }, index) => {

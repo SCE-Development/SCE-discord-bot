@@ -31,7 +31,7 @@ module.exports = new Command({
 
             let pageIndex = 0;
 
-            const prEmbed = new Discord.RichEmbed()
+            const prEmbed = new Discord.MessageEmbed()
               .setColor('28C7E6')
               .setThumbnail('https://github.githubassets.com' +
               '/images/modules/logos_page/Octocat.png')
@@ -67,7 +67,7 @@ module.exports = new Command({
                       pageIndex++;
                     }
                 }
-                const newPrEmbed = new Discord.RichEmbed()
+                const newPrEmbed = new Discord.MessageEmbed()
                   .setColor('28C7E6')
                   .setThumbnail('https://github.githubassets.com' +
                   '/images/modules/logos_page/Octocat.png')
@@ -122,7 +122,7 @@ module.exports = new Command({
       default:
         // Help
         message.channel.send(
-          new Discord.RichEmbed()
+          new Discord.MessageEmbed()
             .setDescription('Unrecognized parameter try using:')
             .addField(`\`${prefix}git pr <repo>\``, 'View pull requests')
             .addField(

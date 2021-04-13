@@ -38,13 +38,17 @@ class MessageHandler {
    * Ignores message if the author is a bot
    */
   handleMessage(message) {
-    if (message.author.bot) {
-      return;
-    }
-    if (message.content.startsWith(this.prefix)) {
-      this.commandHandler.handleCommand(this.prefix, message);
-    } else if (this.nonPrefixRegex.test(message.content)) {
-      this.nonPrefixHandler.handleCommand(message);
+    try {
+      if (message.author.bot) {
+        return;
+      }
+      if (message.content.startsWith(this.prefix)) {
+        this.commandHandler.handleCommand(this.prefix, message);
+      } else if (this.nonPrefixRegex.test(message.content)) {
+        this.nonPrefixHandler.handleCommand(message);
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
 }

@@ -38,8 +38,8 @@ const startBot = async () => {
     messageHandler.handleMessage(message);
   });
 
-  client.on('voiceStateUpdate', (oldMember, newMember) => {
-    vcChangeHandler.handleChangeMemberInVoiceChannel(oldMember, newMember);
+  client.on('voiceStateUpdate', (oldState, newState) => {
+    vcChangeHandler.handleChangeMemberInVoiceChannel(oldState, newState);
   });
 
   client.on('guildMemberAdd', newMember => {

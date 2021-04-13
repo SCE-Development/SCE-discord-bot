@@ -8,7 +8,7 @@ module.exports = new Command({
   example: 's!ban @user <message>',
   permissions: 'admin',
   category: 'Server management',
-  execute: (message, args) => {
+  execute: async (message, args) => {
     if (args.join(' ') == '') {
       message.channel.send('You need to give a user to ban');
       return;
@@ -19,30 +19,34 @@ module.exports = new Command({
     if (isOfficer(author)) {
       // Don't ban officers
       if (isOfficer(user)) {
-        message.channel.send('Not enough permissions to ban. '
-          + user + ' not banned.');
+        message.channel.send(
+          `Not enough permissions to ban. ${user} not banned.`
+        );
         return;
       }
-      user.ban(reason)
+
+      if (reason) {
+        await user.send(
+          `You have been banned from ${message.guild} because ${reason}`
+        );
+      } else {
+        await user.send(`You have been banned from ${message.guild}`);
+      }
+      user
+        .ban({ reason })
         .then(() => {
           if (reason) {
-            user.send('You have been banned from ' + message.guild
-              + ' because ' + reason);
-            message.channel.send(user + ' has been banned because '
-              + reason);
-
+            message.channel.send(`${user} has been banned because ${reason}`);
           } else {
-            user.send('You have been banned from ' + message.guild);
-            message.channel.send(user + ' has been banned');
+            message.channel.send(`${user} has been banned`);
           }
         })
         .catch(() => {
-          message.channel.send('Not enough permissions to ban. '
-            + user + ' not banned.');
+          message.channel.send(`SCE Bot cannot ban ${user}`);
+          user.send(`Actually, you were not banned from ${message.guild}`);
         });
     } else {
-      message.channel.send(author
-        + ', you do not have permissions to ban!');
+      message.channel.send(`${author}, you do not have permissions to ban!`);
     }
-  }
+  },
 });

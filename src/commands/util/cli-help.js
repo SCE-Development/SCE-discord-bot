@@ -68,7 +68,7 @@ module.exports = new Command({
       // Needs pagination, niche case
       if (commandType === 'npm' || commandType === 'node') {
         let pageIndex = 0;
-        const npmCommandEmbed = new Discord.RichEmbed()
+        const npmCommandEmbed = new Discord.MessageEmbed()
           .setColor(getEmbedColor(commandType))
           .setAuthor(getTitleName(commandType), getImageUrl(commandType))
           .addField(npmCommands[pageIndex].name, npmCommands[pageIndex].value)
@@ -99,7 +99,7 @@ module.exports = new Command({
                   pageIndex++;
                 }
             }
-            const newEmbed = new Discord.RichEmbed()
+            const newEmbed = new Discord.MessageEmbed()
               .setColor(getEmbedColor(commandType))
               .setAuthor(getTitleName(commandType), getImageUrl(commandType))
               .addField(

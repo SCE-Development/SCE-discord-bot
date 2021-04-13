@@ -9,73 +9,68 @@ module.exports = new Command({
   category: 'member services',
   execute: async (message, args) => {
     const author = message.member;
-    const { roles } = message.guild;
+    const { guild } = message;
+    const { channels } = guild;
 
     // Incorrect arguments
-    if (args.length != 1) {
+    if (args.length === 0) {
       message.channel.send('You need to give the name of the class!');
       return;
     }
-    const targetClass = args[0].toLowerCase();
+    const targetClass = args.join('').toLowerCase();
 
     // Get role to be assigned
-    let classRole = roles.array().filter(
-      (x) => x.name == targetClass
-    );
-    let targetRole;
+    const roles = await guild.roles.fetch();
+    let classRole = roles.cache.find(x => x.name === targetClass);
 
     // Make sure the role is a STUDY CHANNEL Role
-    const { channels } = message.guild;
-    const studyCategory = channels.array().filter(
-      (channel) => channel.type == 'category' && channel.name == 'study'
+    const studyCategory = channels.cache.find(
+      channel => channel.type === 'category' && channel.name === 'study'
     );
-    if (studyCategory.length == 0) {
+    if (!studyCategory) {
       message.channel.send('There are no study categories!');
       return;
     }
-    if (studyCategory.length > 1) {
-      message.channel.send('Study categories incorrectly set up. ' +
-        'Contact an officer.');
-      return;
-    }
-    let studyChannel = studyCategory[0];
-    let textChannels = channels.array().filter(
-      (channel) => (
-        channel.type == 'text'
-        && channel.parentID == studyChannel.id
-        && channel.name == String(targetClass).replace(/\s/g, '-')
-      )
+
+    const textChannel = channels.cache.find(
+      channel =>
+        channel.type === 'text' &&
+        channel.parentID === studyCategory.id &&
+        channel.name === targetClass
     );
-    if (textChannels.length == 0) {
-      message.channel.send(`The class ${targetClass} has not been set up yet. `
-        + 'Message an officer to create the channel!');
+    if (!textChannel) {
+      message.channel.send(
+        `The class ${targetClass} has not been set up yet. ` +
+          'Message an officer to create the channel!'
+      );
       return;
     }
 
     // If role exists - change its permissions
-    if (classRole.length > 0) {
-      targetRole = classRole[0];
-
+    if (classRole) {
       // Assign the role to the user
-      if (author.roles.array().map((x) => x.name).includes(targetClass)) {
+      if (author.roles.cache.find(x => x.name === targetClass)) {
         // If user has the role, remove them from the class
-        await author.removeRole(targetRole)
+        await author.roles
+          .remove(classRole)
           .then(() =>
-            message.channel.send(author + ` has left the ${targetClass} `
-              + 'channel')
+            message.channel.send(
+              `${author} has left the ${targetClass} ` + 'channel'
+            )
           );
-      }
-      else {
+      } else {
         // Subscribe user to a class
-        await author.addRole(targetRole)
+        await author.roles
+          .add(classRole)
           .then(() =>
-            message.channel.send(author + ` has joined ${targetClass}`)
+            message.channel.send(`${author} has joined ${targetClass}`)
           );
       }
-
     } else {
-      message.channel.send(`The class ${targetClass} has not been set up yet. `
-        + 'Message an officer to create the channel!');
+      message.channel.send(
+        `The class ${targetClass} has not been set up yet. ` +
+          'Message an officer to create the channel!'
+      );
     }
   },
 });

@@ -10,23 +10,20 @@ module.exports = new Command({
   category: 'member services',
   // eslint-disable-next-line
   execute: async (message, args) => {
-    const { channels } = message.guild;
+    const { guild } = message;
+    const { channels } = guild;
 
-    const studyCategory = channels.array().filter(
-      (channel) => channel.type == 'category' && channel.name == 'study'
+    const studyCategory = channels.cache.find(
+      channel => channel.type === 'category' && channel.name === 'study'
     );
-    if (studyCategory.length == 0) {
+    if (!studyCategory) {
       message.channel.send('Create a study category first!');
       return;
     }
-    if (studyCategory.length > 1) {
-      message.channel.send('Ambiguous command. Delete a study category first');
-      return;
-    }
-    let studyChannel = studyCategory[0];
-    let textChannels = channels.array().filter(
-      (channel) => (
-        channel.type == 'text' && channel.parentID == studyChannel.id
+
+    let textChannels = channels.cache.array().filter(
+      channel => (
+        channel.type === 'text' && channel.parentID === studyCategory.id
       )
     );
     textChannels = textChannels.map((channel) => '`' + channel.name + '`');
@@ -44,7 +41,7 @@ module.exports = new Command({
         else return 1;
       }
     });
-    const listEmbed = new Discord.RichEmbed()
+    const listEmbed = new Discord.MessageEmbed()
       .setTitle('List all the study channels')
       .setColor('#ccffff')
       .setDescription(textChannels.join('\n'));

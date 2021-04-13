@@ -29,7 +29,7 @@ module.exports = new Command({
     let dict = {};
 
     if (!args.length) {
-      const helpEmbed = new Discord.RichEmbed()
+      const helpEmbed = new Discord.MessageEmbed()
         .setColor('#ccffff')
         .setAuthor('All commands',
           'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1');
@@ -82,7 +82,7 @@ module.exports = new Command({
         return;
       }
 
-      const helpEmbed = new Discord.RichEmbed()
+      const helpEmbed = new Discord.MessageEmbed()
         .setColor('#ccffff');
       let noAlias = true;
 

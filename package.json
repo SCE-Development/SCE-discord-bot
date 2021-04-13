@@ -11,7 +11,7 @@
   "dependencies": {
     "apollo-server": "^2.18.2",
     "apollo-server-express": "^2.18.2",
-    "discord.js": "^11.6.4",
+    "discord.js": "^12.5.3",
     "express": "^4.16.4",
     "express-graphql": "^0.11.0",
     "graphql": "^15.3.0",

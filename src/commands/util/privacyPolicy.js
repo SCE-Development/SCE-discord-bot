@@ -9,7 +9,7 @@ module.exports = new Command ({
   permission: 'general',
   category: 'information',
   execute: async (message) => {
-    const privacyEmbed = new Discord.RichEmbed()
+    const privacyEmbed = new Discord.MessageEmbed()
       .setColor('#ccffff')
       .setTitle('Privacy Policy')
       .setURL(
@@ -19,7 +19,7 @@ module.exports = new Command ({
     message.channel.send(privacyEmbed)
       .then((msg) => {
         message.delete().catch(() => null);
-        msg.delete(300000).catch(() => null);
+        msg.delete({ timeout: 300000 }).catch(() => null);
       });
   }
 });

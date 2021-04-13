@@ -29,8 +29,8 @@ module.exports = new Command({
       const response = await THREAD_QUERY({ guildID: message.guild.id });
       if (response.error) {
         message.channel.send('Oops! Could not query threads').then(msg => {
-          msg.delete(10000).catch(() => null);
-          message.delete(10000).catch(() => null);
+          msg.delete({ timeout: 10000 }).catch(() => null);
+          message.delete({ timeout: 10000 }).catch(() => null);
         });
         return;
       }
@@ -48,8 +48,8 @@ module.exports = new Command({
         let lastMessage = null;
         while (lastMessage === null && j-- > 0) {
           const threadMessage = thread.threadMessages[j];
-          lastMessage = await message.channel
-            .fetchMessage(threadMessage.messageID)
+          lastMessage = await message.channel.messages
+            .fetch(threadMessage.messageID)
             .catch(error => {
               if (error.message === 'Unknown Message') {
                 DELETE_THREADMESSAGE({
@@ -85,7 +85,7 @@ module.exports = new Command({
       }
 
       const makeEmbed = (page, numPages) => {
-        const embed = new Discord.RichEmbed().setDescription(
+        const embed = new Discord.MessageEmbed().setDescription(
           'Use `[thread id]` to view the full thread or ' +
             '`[thread id] message` to add to the thread.\n' +
             'Type at least 4 digits of the thread id.'
@@ -152,8 +152,8 @@ module.exports = new Command({
             }
             sentEmbed.edit(newEmbed);
           });
-          sentEmbed.delete(KEEP_ALIVE).catch(() => null);
-          message.delete(10000).catch(() => null);
+          sentEmbed.delete({ timeout: KEEP_ALIVE }).catch(() => null);
+          message.delete({ timeout: 10000 }).catch(() => null);
         });
       } else {
         // no pagination
@@ -162,8 +162,8 @@ module.exports = new Command({
           embed.addField(field[0], field[1]);
         });
         message.channel.send(embed).then(msg => {
-          msg.delete(KEEP_ALIVE).catch(() => null);
-          message.delete(10000).catch(() => null);
+          msg.delete({ timeout: KEEP_ALIVE }).catch(() => null);
+          message.delete({ timeout: 10000 }).catch(() => null);
         });
       }
     } else if (param.length > 0) {
@@ -171,7 +171,7 @@ module.exports = new Command({
       // Confirm action
       const confirmAction = async topic => {
         const confirmMessage = await message.channel.send(
-          new Discord.RichEmbed()
+          new Discord.MessageEmbed()
             .setTitle('Start new thread?')
             .addField('Topic', topic, true)
         );
@@ -198,14 +198,14 @@ module.exports = new Command({
             } else {
               message.channel
                 .send('New thread canceled')
-                .then(msg => msg.delete(10000).catch(() => null));
+                .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
             }
           })
           .catch(() => {
             confirmMessage.delete().catch(() => null);
             message.channel
               .send('New thread canceled')
-              .then(msg => msg.delete(10000).catch(() => null));
+              .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
           });
 
         return confirmed;
@@ -235,7 +235,7 @@ module.exports = new Command({
         message.channel
           .send('Oops! Could not create thread ' + param)
           .then(msg => {
-            msg.delete(20000).catch(() => null);
+            msg.delete({ timeout: 20000 }).catch(() => null);
           });
         return;
       }
@@ -243,7 +243,7 @@ module.exports = new Command({
         response.responseData.topic = 'none';
       }
       message.channel.send(
-        new Discord.RichEmbed()
+        new Discord.MessageEmbed()
           .setTitle('New Thread')
           .setDescription(
             'Use `[thread id]` to view the full thread or ' +
@@ -257,7 +257,7 @@ module.exports = new Command({
       // Help
       message.delete().catch(() => null);
       message.channel.send(
-        new Discord.RichEmbed()
+        new Discord.MessageEmbed()
           .setColor('#ccffff')
           .setTitle('Thread')
           .setDescription(
