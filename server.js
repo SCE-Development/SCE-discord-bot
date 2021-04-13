@@ -26,7 +26,7 @@ const startBot = async () => {
   client.once('ready', () => {
     messageHandler.initialize();
     client.user.setPresence({
-      game: {
+      activity: {
         name: `${prefix}help`,
         type: 'LISTENING',
       },
@@ -38,8 +38,8 @@ const startBot = async () => {
     messageHandler.handleMessage(message);
   });
 
-  client.on('voiceStateUpdate', (oldMember, newMember) => {
-    vcChangeHandler.handleChangeMemberInVoiceChannel(oldMember, newMember);
+  client.on('voiceStateUpdate', (oldState, newState) => {
+    vcChangeHandler.handleChangeMemberInVoiceChannel(oldState, newState);
   });
 
   client.on('guildMemberAdd', newMember => {

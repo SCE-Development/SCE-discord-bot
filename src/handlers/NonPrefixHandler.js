@@ -13,7 +13,6 @@ const requireDir = require('require-dir');
  * for the command.
  */
 class NonPrefixHandler {
-
   /**
    * Create a NonPrefixHandler.
    * @member {string} commandArr An array containing all
@@ -55,23 +54,22 @@ class NonPrefixHandler {
       const command = this.commandArr[index];
       if (command.regex.test(message.content)) {
         const cooldownStatus = this.cooldownManager.needsToCoolDown(
-          message.author.id, command
+          message.author.id,
+          command
         );
         if (cooldownStatus !== INVALID_TIME) {
-          message.channel.send(`please wait ${cooldownStatus.toFixed(1)} `
-            + `more second(s) before reusing the \`${command.name}\` command.`);
+          message.channel.send(
+            `please wait ${cooldownStatus.toFixed(1)} ` +
+              `more second(s) before reusing the \`${command.name}\` command.`
+          );
           return;
         }
 
-        try {
-          command.execute(message);
-        } catch (Exception) { }
-
-        break;
+        command.execute(message);
+        return;
       }
     }
   }
-
 }
 
 module.exports = { NonPrefixHandler };

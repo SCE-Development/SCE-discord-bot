@@ -4,7 +4,7 @@ const { isOfficer } = require('../../util/Permission');
 module.exports = new Command({
   name: 'warn',
   description: 'Warn someone',
-  aliases: [],  
+  aliases: [],
   example: 's!warn @user <message>',
   permissions: 'admin',
   category: 'Server management',
@@ -15,8 +15,8 @@ module.exports = new Command({
     }
     const author = message.member;
     const user = message.guild.member(
-      args[0].match(/(\d+)/)
-      && args[0].match(/(\d+)/)[0]);
+      args[0].match(/(\d+)/) && args[0].match(/(\d+)/)[0]
+    );
     let reason = args.slice(1).join(' ');
     // Check if author can warn
     if (isOfficer(author)) {
@@ -27,14 +27,13 @@ module.exports = new Command({
       }
       if (reason) {
         user.send(`You were **warned**, *${reason}*`);
-        message.channel.send(user + ` was **warned**, *${reason}*`);
+        message.channel.send(`${user} was **warned**, *${reason}*`);
       } else {
         user.send('You have been **warned**. No reason was given.');
-        message.channel.send(user + ' has been **warned**.');
+        message.channel.send(`${user} has been **warned**.`);
       }
     } else {
-      message.channel.send(author
-        + ', you do not have permissions to warn!');
+      message.channel.send(`${author}, you do not have permissions to warn!`);
     }
-  }
+  },
 });

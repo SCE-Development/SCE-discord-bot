@@ -11,7 +11,8 @@ const { GithubMessageGenerator } = require('../../util/GithubMessageGenerator');
  */
 module.exports = new Command({
   name: 'github',
-  description: 'Displays following information from SCE github repos:\
+  description:
+    'Displays following information from SCE github repos:\
   Contributor leaderboard, Pull requests, merged commits',
   aliases: ['git'],
   example: `${prefix}git <pr | leaderboard | commits> <repo>`,
@@ -22,7 +23,8 @@ module.exports = new Command({
 
     switch (args[0]) {
       case 'pr':
-        messageGenerator.generatePullRequestMessage(args[1])
+        messageGenerator
+          .generatePullRequestMessage(args[1])
           .then(prMessage => {
             if (prMessage.length === 0) {
               message.channel.send(`${args[1]} has no pull requests.`);
@@ -31,52 +33,58 @@ module.exports = new Command({
 
             let pageIndex = 0;
 
-            const prEmbed = new Discord.RichEmbed()
+            const prEmbed = new Discord.MessageEmbed()
               .setColor('28C7E6')
-              .setThumbnail('https://github.githubassets.com' +
-              '/images/modules/logos_page/Octocat.png')
+              .setThumbnail(
+                'https://github.githubassets.com' +
+                  '/images/modules/logos_page/Octocat.png'
+              )
               .setFooter(`Page ${pageIndex + 1} of ${prMessage.length}`);
 
-            prMessage[pageIndex].forEach((pr) => {
+            prMessage[pageIndex].forEach(pr => {
               prEmbed.addField(pr.name, pr.value);
             });
 
             message.channel.send(prEmbed).then(async sentEmbed => {
               await sentEmbed.react('⬅️');
               await sentEmbed.react('➡️');
-            
+
               const filter = (reaction, user) => {
-                return ['⬅️', '➡️'].includes(reaction.emoji.name) 
-                  && user.id === message.author.id;
+                return (
+                  ['⬅️', '➡️'].includes(reaction.emoji.name) &&
+                  user.id === message.member.id
+                );
               };
 
               // Listens to reactions for 1 minute
-              const collector =
-                sentEmbed.createReactionCollector(filter, { time: 60000 });
+              const collector = sentEmbed.createReactionCollector(filter, {
+                time: 60000,
+              });
               collector.on('collect', reaction => {
-                reaction.remove(reaction.users.last().id);
-                switch(reaction.emoji.name) {
+                switch (reaction.emoji.name) {
                   case '⬅️':
-                    if (pageIndex === 0) return;
-                    pageIndex--;
+                    if (pageIndex === 0) pageIndex = prMessage.length - 1;
+                    else pageIndex--;
                     break;
                   case '➡️':
-                    if (pageIndex === prMessage.length - 1) {
-                      pageIndex = 0;
-                    } else {
-                      pageIndex++;
-                    }
+                    if (pageIndex === prMessage.length - 1) pageIndex = 0;
+                    else pageIndex++;
+                    break;
                 }
-                const newPrEmbed = new Discord.RichEmbed()
+                reaction.users.remove(reaction.users.cache.last());
+
+                const newPrEmbed = new Discord.MessageEmbed()
                   .setColor('28C7E6')
-                  .setThumbnail('https://github.githubassets.com' +
-                  '/images/modules/logos_page/Octocat.png')
+                  .setThumbnail(
+                    'https://github.githubassets.com' +
+                      '/images/modules/logos_page/Octocat.png'
+                  )
                   .setFooter(`Page ${pageIndex + 1} of ${prMessage.length}`);
 
-                prMessage[pageIndex].forEach((pr) => {
+                prMessage[pageIndex].forEach(pr => {
                   newPrEmbed.addField(pr.name, pr.value);
                 });
-                
+
                 sentEmbed.edit(newPrEmbed);
               });
             });
@@ -89,7 +97,8 @@ module.exports = new Command({
         break;
 
       case 'leaderboard':
-        messageGenerator.generateLeaderboardMessage(args[1])
+        messageGenerator
+          .generateLeaderboardMessage(args[1])
           .then(leaderboardMessage => {
             message.channel.send(leaderboardMessage);
           })
@@ -108,7 +117,8 @@ module.exports = new Command({
           );
           break;
         }
-        messageGenerator.generateCommitMessage(args[1], args[2])
+        messageGenerator
+          .generateCommitMessage(args[1], args[2])
           .then(commitMessage => {
             message.channel.send(commitMessage);
           })
@@ -122,7 +132,7 @@ module.exports = new Command({
       default:
         // Help
         message.channel.send(
-          new Discord.RichEmbed()
+          new Discord.MessageEmbed()
             .setDescription('Unrecognized parameter try using:')
             .addField(`\`${prefix}git pr <repo>\``, 'View pull requests')
             .addField(
@@ -137,4 +147,3 @@ module.exports = new Command({
     }
   },
 });
-

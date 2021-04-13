@@ -2,23 +2,24 @@
  * Class Which handles change in voicechannel
  */
 class VoiceChannelChangeHandler {
-  /** 
+  /**
    * Function that rename the channel back when the channel is empty
-   * @param {GuildMember} oldMember The old member in the voice chat
-   *  before the change
-  */
-  handleChangeMemberInVoiceChannel(oldMember) {
-    const ovcID = oldMember.voiceChannelID;
-    if (ovcID) {
-      const ovc = oldMember.guild.channels.get(ovcID);
-      if (ovc.members.size === 0) {
+   *
+   * @param {VoiceState} oldState The old voice channel state.
+   * @param {VoiceState} newSTate the new voice channel state.
+   */
+  handleChangeMemberInVoiceChannel(oldState) {
+    try {
+      const vc = oldState.channel;
+      if (vc && vc.members.size === 0) {
         const re = /(?<=: : \().+(?=\))/;
-        if (re.test(ovc.name)) {
-          const oriname = ovc.name.match(re)[0];
-          ovc.edit({name: oriname})
-            .catch(console.error);
+        if (re.test(vc.name)) {
+          const oriname = vc.name.match(re)[0];
+          vc.edit({ name: oriname }).catch(console.error);
         }
       }
+    } catch (e) {
+      console.error(e);
     }
   }
 }

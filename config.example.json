@@ -5,7 +5,6 @@
     "DATABASE_PASSWORD": "password from .env goes here",
     "EVENTS_CAL": "",
     "DISCORD_API_URL": "http://localhost:5000",
-    "OfficerRole": "XXXXXXXXXXXXXXXXXX",
     "prefix": "s!",
     "SCE_API_URL": "http://sce.engr.sjsu.edu"
 }

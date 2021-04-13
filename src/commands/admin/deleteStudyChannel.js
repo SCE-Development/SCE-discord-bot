@@ -10,7 +10,8 @@ module.exports = new Command({
   category: 'mod',
   execute: async (message, args) => {
     const author = message.member;
-    const { channels, roles } = message.guild;
+    const { guild } = message;
+    const { channels } = guild;
     // Check for author permissions
     if (!isOfficer(author)) {
       message.channel.send('You do not have sufficient permissions!');
@@ -25,54 +26,44 @@ module.exports = new Command({
     const targetChannel = args[0].toLowerCase();
 
     // Study category does not exist
-    let studyChannel = channels.array().filter(
-      (x) => x.type == 'category' && x.name == 'study'
+    const studyChannel = channels.cache.find(
+      x => x.type === 'category' && x.name === 'study'
     );
-    if (studyChannel.length == 0) {
+    if (!studyChannel) {
       message.channel.send('Create a study category first!');
-      return;
-    }
-    if (studyChannel.length > 1) {
-      message.channel.send('Ambiguous command. Delete a study category first');
       return;
     }
 
     // Delete the role
-    let classRole = roles.array().filter(
-      (x) => x.name == targetChannel
-    );
-    let targetRole;
+    const roles = await guild.roles.fetch();
+    const classRole = roles.cache.find(x => x.name === targetChannel);
     // If role exists - change its permissions
-    if (classRole.length > 0) {
-      targetRole = classRole[0];
+    if (classRole) {
       // Delete role
-      await targetRole.delete()
-        .then(
-          message.channel.send(`Deleted role ${targetRole.name}`));
+      await classRole
+        .delete()
+        .then(message.channel.send(`Deleted role ${classRole.name}`));
     } else {
       message.channel.send('No role to delete!');
     }
 
-    // Set study category
-    studyChannel = studyChannel[0];
-
-    // Find targetted channel
-    let textChannels = channels.array().filter(
-      (x) => (
-        x.type == 'text'
-        && x.parentID == studyChannel.id
-        && x.name == String(targetChannel).replace(/\s/g, '-')
-      )
+    // Find targeted channel
+    const textChannel = channels.cache.find(
+      x =>
+        x.type === 'text' &&
+        x.parentID === studyChannel.id &&
+        x.name === String(targetChannel).replace(/\s/g, '-')
     );
 
     // Delete channel
-    if (textChannels.length == 0) {
+    if (!textChannel) {
       message.channel.send('No channel to delete!');
     } else {
-      let targetChannel = textChannels[0];
-      await targetChannel.delete()
+      await textChannel
+        .delete()
         .then(
-          await message.channel.send(`Deleted channel ${targetChannel.name}`)
+          await message.channel
+            .send(`Deleted channel ${textChannel.name}`)
             .catch()
         )
         .catch();

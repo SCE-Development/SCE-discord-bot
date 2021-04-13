@@ -8,7 +8,7 @@ class GithubMessageGenerator {
   constructor() {
     this.fetcher = new GithubFetcher();
     this.defaultEmbed = {
-      color: '2672614',
+      color: '28C7E6',
       thumbnail: {
         url:
           'https://github.githubassets.com' +

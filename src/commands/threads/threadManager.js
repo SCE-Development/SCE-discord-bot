@@ -31,7 +31,7 @@ module.exports = new Command({
 
     // Confirm action
     const confirmAction = async (create, info) => {
-      const confirmEmbed = new Discord.RichEmbed();
+      const confirmEmbed = new Discord.MessageEmbed();
       if (create) {
         confirmEmbed
           .setTitle('Start new thread?')
@@ -70,7 +70,7 @@ module.exports = new Command({
           } else {
             message.channel
               .send(cancelMessage)
-              .then(msg => msg.delete(10000).catch(() => null));
+              .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
             return false;
           }
         })
@@ -78,7 +78,7 @@ module.exports = new Command({
           confirmMessage.delete().catch(() => null);
           message.channel
             .send(cancelMessage)
-            .then(msg => msg.delete(10000).catch(() => null));
+            .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
           return false;
         });
     };
@@ -116,12 +116,12 @@ module.exports = new Command({
           message.channel
             .send(`Oops! Could not create thread ${topic}`)
             .then(msg => {
-              msg.delete(20000).catch(() => null);
+              msg.delete({ timeout: 20000 }).catch(() => null);
             });
           return;
         }
         message.channel.send(
-          new Discord.RichEmbed()
+          new Discord.MessageEmbed()
             .setTitle('New Thread')
             .setDescription(
               'Use `[thread id]` to view the full thread or ' +
@@ -139,7 +139,7 @@ module.exports = new Command({
         if (args.length < 2) {
           // Help
           message.channel.send(
-            new Discord.RichEmbed()
+            new Discord.MessageEmbed()
               .setColor('#ccffff')
               .setTitle('Remove Thread')
               .addField(
@@ -158,7 +158,7 @@ module.exports = new Command({
               `Could not remove thread ${decorateId(threadID)}. ` +
                 'ID should be a number up to 13 digits.'
             )
-            .then(msg => msg.delete(10000).catch(() => null));
+            .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
           return;
         }
 
@@ -173,7 +173,7 @@ module.exports = new Command({
             .send(
               `Oops! Could not remove thread with id ${decorateId(threadID)}.`
             )
-            .then(msg => msg.delete(10000).catch(() => null));
+            .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
           return;
         }
         const threads = query.responseData;
@@ -181,14 +181,14 @@ module.exports = new Command({
           // No threads
           message.channel
             .send(`Oops! Found no threads with id ${decorateId(threadID)}.`)
-            .then(msg => msg.delete(10000).catch(() => null));
+            .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
           return;
         }
         if (threads.length !== 1) {
           // Too many threads
           message.channel
             .send(`Oops! Multiple threads matched id ${decorateId(threadID)}.`)
-            .then(msg => msg.delete(10000).catch(() => null));
+            .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
           return;
         }
         threadID = threads[0].threadID;
@@ -209,7 +209,7 @@ module.exports = new Command({
             .send(
               `Oops! Could not remove thread with id ${decorateId(threadID)}.`
             )
-            .then(msg => msg.delete(10000).catch(() => null));
+            .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
           return;
         }
         const removalMessage =
@@ -226,7 +226,7 @@ module.exports = new Command({
       default: {
         // Help
         message.channel.send(
-          new Discord.RichEmbed()
+          new Discord.MessageEmbed()
             .setColor('#ccffff')
             .setTitle('Thread Manager')
             .setDescription('Unrecognized paramter, try using:')

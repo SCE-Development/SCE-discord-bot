@@ -39,7 +39,7 @@ const { createIdByTime, decorateId } = require('./ThreadIDFormatter');
 async function createNewThread(threadID, topic, message) {
   topic = topic.substring(0, 130);
   const confirmAction = async topic => {
-    const confirmEmbed = new Discord.RichEmbed()
+    const confirmEmbed = new Discord.MessageEmbed()
       .setTitle('Start new thread?')
       .addField('Topic', topic);
     const confirmMessage = await message.channel.send(confirmEmbed);
@@ -65,7 +65,7 @@ async function createNewThread(threadID, topic, message) {
         confirmMessage.delete().catch(() => null);
         message.channel
           .send('Not created')
-          .then(msg => msg.delete(10000).catch(() => null));
+          .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
         return false;
       });
   };
@@ -74,7 +74,7 @@ async function createNewThread(threadID, topic, message) {
   if (!confirmed) {
     message.channel
       .send('Not created')
-      .then(msg => msg.delete(10000).catch(() => null));
+      .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
     return;
   }
   //  flips the time stamp
@@ -92,10 +92,10 @@ async function createNewThread(threadID, topic, message) {
   if (createThread.error) {
     message.channel
       .send('Internal error creating the thread.')
-      .then(msg => msg.delete(10000).catch(() => null));
+      .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
     return;
   }
-  const threadCreateEmbed = new Discord.RichEmbed()
+  const threadCreateEmbed = new Discord.MessageEmbed()
     .setColor('#301934')
     .setTitle('New Thread')
     .setDescription(
@@ -125,10 +125,10 @@ async function addMessageToThread(message, thread, content = message.content) {
   if (addMsg.error) {
     message.channel
       .send('Internal error adding message')
-      .then(msg => msg.delete(10000).catch(() => null));
+      .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
     return;
   }
-  const addedEmbed = new Discord.RichEmbed()
+  const addedEmbed = new Discord.MessageEmbed()
     .setColor('#301934')
     .setTitle('New Message')
     .setDescription(
@@ -141,7 +141,7 @@ async function addMessageToThread(message, thread, content = message.content) {
     .addField('Added Message', content);
   await message.channel
     .send(addedEmbed)
-    .then(msg => msg.delete(300000).catch(() => null));
+    .then(msg => msg.delete({ timeout: 300000 }).catch(() => null));
 }
 
 /**
@@ -154,7 +154,7 @@ async function addMessageToThread(message, thread, content = message.content) {
  * message.
  **/
 async function multipleThreadResults(threadID, message, threads, createMode) {
-  const templateEmbed = new Discord.RichEmbed()
+  const templateEmbed = new Discord.MessageEmbed()
     .setColor('#301934')
     .setTitle(`All threads that start with ID: ${decorateId(threadID)}`)
     .setDescription('Choose one! Example: type `1`');
@@ -229,7 +229,7 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
 /**
  * Sends a message displaying an array of threads with pages.
  *
- * @param {Discord.RichEmbed} templateEmbed Template containing Title,
+ * @param {Discord.MessageEmbed} templateEmbed Template containing Title,
  * Description, and color that the pages will follow
  * @param {Discord.Message} message The invoking message.
  * @param {Thread} threads An array containing all the threads to display.
@@ -256,7 +256,7 @@ async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
 
   /**
    * @description An array of embeds for each page.
-   * @type {Discord.RichEmbed[]}
+   * @type {Discord.MessageEmbed[]}
    */
   let threadListEmbeds = new Array(page.maxPage + 1);
 
@@ -293,7 +293,7 @@ async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
 
   // do not add listeners for single page
   if (page.maxPage <= 0) {
-    currentMsg.delete(300000).catch(() => null);
+    currentMsg.delete({ timeout: 300000 }).catch(() => null);
     return { type: 'message', message: currentMsg };
   }
 
@@ -319,6 +319,7 @@ async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
         else page.currentPage = page.maxPage;
         break;
     }
+    reaction.users.remove(reaction.users.cache.last());
 
     page.lowerBound = page.currentPage * itemsPerPage;
     page.upperBound = (page.currentPage + 1) * itemsPerPage;
@@ -341,15 +342,15 @@ async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
       }
     }
     currentMsg.edit(threadListEmbeds[page.currentPage]).catch(() => null);
-    reaction.remove(reaction.users.last().id).catch(() => null);
   };
 
   reactionCollector.on('collect', handlePageTurn);
-  await currentMsg.react('⬅️');
-  await currentMsg.react('➡️');
   reactionCollector.on('end', () => {
     currentMsg.delete().catch(() => null);
   });
+  await currentMsg.react('⬅️');
+  await currentMsg.react('➡️');
+
   return { type: 'collector', collector: reactionCollector };
 }
 
@@ -358,15 +359,15 @@ async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
  *
  * @param {Thread[]} threads An array containing the IDs of the messages to
  * display
- * @param {Discord.RichEmbed} templateEmbed template containing Title,
+ * @param {Discord.MessageEmbed} templateEmbed template containing Title,
  * Description, and color that the pages will follow
  * @param {Page} page Information on the page of the embed.
  * @param {Discord.TextChannel} channel Channel to fetch messages from.
  *
- * @return {Promise<Discord.RichEmbed>} The embed to display.
+ * @return {Promise<Discord.MessageEmbed>} The embed to display.
  */
 async function createThreadEmbed(threads, templateEmbed, page, channel) {
-  const outputEmbed = new Discord.RichEmbed()
+  const outputEmbed = new Discord.MessageEmbed()
     .setTitle(templateEmbed.title)
     .setColor(templateEmbed.color)
     .setDescription(templateEmbed.description);
@@ -377,8 +378,8 @@ async function createThreadEmbed(threads, templateEmbed, page, channel) {
     let lastMessage = null;
     while (lastMessage === null && j-- > 0) {
       const threadMessage = thread.threadMessages[j];
-      lastMessage = await channel
-        .fetchMessage(threadMessage.messageID)
+      lastMessage = await channel.messages
+        .fetch(threadMessage.messageID)
         .catch(error => {
           if (error.message === 'Unknown Message') {
             DELETE_THREADMESSAGE({
@@ -415,13 +416,13 @@ async function createThreadEmbed(threads, templateEmbed, page, channel) {
  *
  * @param {String[]} messageIDs An array containing the IDs of the messages to
  * display
- * @param {Discord.RichEmbed} templateEmbed template containing Title,
+ * @param {Discord.MessageEmbed} templateEmbed template containing Title,
  * Description, and color that the pages will follow
  * @param {Page} page Information on the page of the embed.
  * @param {Discord.TextChannel} channel Channel to fetch messages from.
  * @param {Thread} thread Thread being displayed.
  *
- * @return {Promise<Discord.RichEmbed>} The embed to display.
+ * @return {Promise<Discord.MessageEmbed>} The embed to display.
  */
 async function createMessageEmbed(
   messageIDs,
@@ -430,7 +431,7 @@ async function createMessageEmbed(
   channel,
   thread
 ) {
-  const outputEmbed = new Discord.RichEmbed()
+  const outputEmbed = new Discord.MessageEmbed()
     .setTitle(templateEmbed.title)
     .setColor(templateEmbed.color)
     .setDescription(templateEmbed.description);
@@ -438,8 +439,8 @@ async function createMessageEmbed(
     outputEmbed.addField(field.name, field.value, field.inline);
   for (const message of messageIDs.slice(page.lowerBound, page.upperBound)) {
     // Get the message and trim the command off
-    await channel
-      .fetchMessage(message.messageID)
+    await channel.messages
+      .fetch(message.messageID)
       .then(async content => {
         const text = /^\[[\d\s-]{4,20}\]\s*(.+)/.exec(content.content);
         let trimmedMessage = content.content;

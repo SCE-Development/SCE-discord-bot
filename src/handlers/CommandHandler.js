@@ -60,18 +60,20 @@ class CommandHandler {
       return;
     } else {
       const cooldownStatus = this.cooldownManager.needsToCoolDown(
-        message.author.id, this.commandMap.get(commandName));
+        message.author.id,
+        this.commandMap.get(commandName)
+      );
       if (cooldownStatus !== INVALID_TIME) {
-        message.channel.send(`please wait ${cooldownStatus.toFixed(1)} `
-          + `more second(s) before reusing the \`${commandName}\` command.`);
+        message.channel.send(
+          `please wait ${cooldownStatus.toFixed(1)} ` +
+            `more second(s) before reusing the \`${commandName}\` command.`
+        );
         return;
       }
-      try {
-        // Add a commands field to message.client to 
-        // reference all available commands
-        message.client.commands = this.commandMap;
-        this.executeCommand(commandName, message, args);
-      } catch (Exception) { }
+      // Add a commands field to message.client to
+      // reference all available commands
+      message.client.commands = this.commandMap;
+      this.executeCommand(commandName, message, args);
     }
   }
 
@@ -88,7 +90,7 @@ class CommandHandler {
 
     try {
       command.execute(message, args);
-    } catch (Exception) { }
+    } catch (Exception) {}
   }
 }
 

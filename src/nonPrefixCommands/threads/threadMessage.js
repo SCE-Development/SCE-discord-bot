@@ -26,7 +26,7 @@ module.exports = new Command({
       // thread ID too short
       message.channel
         .send(`Error: ID ${decorateId(threadID)} must be at least 4 digits.`)
-        .then(msg => msg.delete(10000).catch(() => null));
+        .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
       return;
     }
 
@@ -39,7 +39,7 @@ module.exports = new Command({
     if (threadQuery.error) {
       message.channel
         .send(`Internal error searching for thread ${decorateId(threadID)}`)
-        .then(msg => msg.delete(10000).catch(() => null));
+        .then(msg => msg.delete({ timeout: 10000 }).catch(() => null));
       return;
     }
 
@@ -49,7 +49,7 @@ module.exports = new Command({
         if (body) {
           createNewThread(threadID, body, message);
         } else {
-          const noResultEmbed = new Discord.RichEmbed()
+          const noResultEmbed = new Discord.MessageEmbed()
             .setTitle('No results')
             .setDescription(
               'There may have been a typo, you can use ' +
@@ -58,7 +58,7 @@ module.exports = new Command({
             );
           message.channel
             .send(noResultEmbed)
-            .then(msg => msg.delete(30000).catch(() => null));
+            .then(msg => msg.delete({ timeout: 30000 }).catch(() => null));
         }
         break;
       case 1:
@@ -66,7 +66,7 @@ module.exports = new Command({
           addMessageToThread(message, threadQuery.responseData[0], body);
         } else {
           const topic = threadQuery.responseData[0].topic;
-          const templateEmbed = new Discord.RichEmbed()
+          const templateEmbed = new Discord.MessageEmbed()
             .setTitle('Thread')
             .setDescription('')
             .addField(

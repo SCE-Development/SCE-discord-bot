@@ -4,17 +4,21 @@ const { gitCommands, npmCommands } = require('../../util/cli-commands');
 
 function getEmbedColor(commandType) {
   switch (commandType) {
-    case 'git': return 0xF1502F;
+    case 'git':
+      return 0xf1502f;
     case 'node':
-    case 'npm': return 0xCB3837;
+    case 'npm':
+      return 0xcb3837;
   }
 }
 
 function getTitleName(commandType) {
   switch (commandType) {
-    case 'git': return 'git commands';
+    case 'git':
+      return 'git commands';
     case 'node':
-    case 'npm': return 'npm commands';
+    case 'npm':
+      return 'npm commands';
   }
 }
 
@@ -31,9 +35,11 @@ function getImageUrl(commandType) {
 
 function getCommandList(commandType) {
   switch (commandType) {
-    case 'git': return gitCommands;
+    case 'git':
+      return gitCommands;
     case 'node':
-    case 'npm': return npmCommands;
+    case 'npm':
+      return npmCommands;
   }
 }
 
@@ -47,59 +53,60 @@ module.exports = new Command({
   execute: (message, args) => {
     if (!args.length) {
       const generalCliHelpEmbed = {
-        color: 0xECB22E,
+        color: 0xecb22e,
         author: {
           name: 'Welcome to SCEs CLI Helper',
           // eslint-disable-next-line
           icon_url: 'https://pngriver.com/wp-content/uploads/2018/04/Download-Cool-PNG-Photos.png',
         },
-        description: 
+        description:
           'Enter any of the following for information on CLI commands',
         fields: [
           { name: 'git', value: '`s!clihelp git`', inline: true },
           { name: 'npm', value: '`s!clihelp npm`', inline: true },
-        ]
+        ],
       };
 
       message.channel.send({ embed: generalCliHelpEmbed });
-    } 
-    else {
+    } else {
       const commandType = args[0].toLowerCase();
       // Needs pagination, niche case
       if (commandType === 'npm' || commandType === 'node') {
         let pageIndex = 0;
-        const npmCommandEmbed = new Discord.RichEmbed()
+        const npmCommandEmbed = new Discord.MessageEmbed()
           .setColor(getEmbedColor(commandType))
           .setAuthor(getTitleName(commandType), getImageUrl(commandType))
           .addField(npmCommands[pageIndex].name, npmCommands[pageIndex].value)
           .setFooter(`Page ${pageIndex + 1} of ${npmCommands.length}`);
-        
+
         message.channel.send(npmCommandEmbed).then(async sentEmbed => {
           await sentEmbed.react('⬅️');
           await sentEmbed.react('➡️');
 
           const filter = (reaction, user) => {
-            return ['⬅️', '➡️'].includes(reaction.emoji.name) 
-              && user.id === message.author.id;
+            return (
+              ['⬅️', '➡️'].includes(reaction.emoji.name) &&
+              user.id === message.member.id
+            );
           };
           // Listens to reactions for 1 minute
-          const collector =
-            sentEmbed.createReactionCollector(filter, { time: 60000 });
+          const collector = sentEmbed.createReactionCollector(filter, {
+            time: 60000,
+          });
           collector.on('collect', reaction => {
-            reaction.remove(reaction.users.last().id);
-            switch(reaction.emoji.name) {
+            switch (reaction.emoji.name) {
               case '⬅️':
-                if (pageIndex === 0) return;
-                pageIndex--;
+                if (pageIndex === 0) pageIndex = npmCommands.length - 1;
+                else pageIndex--;
                 break;
               case '➡️':
-                if (pageIndex === npmCommands.length - 1) {
-                  pageIndex = 0;
-                } else {
-                  pageIndex++;
-                }
+                if (pageIndex === npmCommands.length - 1) pageIndex = 0;
+                else pageIndex++;
+                break;
             }
-            const newEmbed = new Discord.RichEmbed()
+            reaction.users.remove(reaction.users.cache.last());
+
+            const newEmbed = new Discord.MessageEmbed()
               .setColor(getEmbedColor(commandType))
               .setAuthor(getTitleName(commandType), getImageUrl(commandType))
               .addField(
@@ -121,11 +128,11 @@ module.exports = new Command({
             // eslint-disable-next-line
             icon_url: getImageUrl(commandType),
           },
-          fields: getCommandList(commandType)
+          fields: getCommandList(commandType),
         };
 
         message.channel.send({ embed: cliHelpEmbed });
-      }     
+      }
     }
-  }
+  },
 });
