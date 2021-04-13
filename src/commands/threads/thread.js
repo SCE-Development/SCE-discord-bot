@@ -126,7 +126,6 @@ module.exports = new Command({
             time: KEEP_ALIVE,
           });
           collector.on('collect', reaction => {
-            reaction.remove(reaction.users.last().id);
             switch (reaction.emoji.name) {
               case '⬅️':
                 if (page === 0) {
@@ -142,6 +141,8 @@ module.exports = new Command({
                   page++;
                 }
             }
+            reaction.users.remove(reaction.users.cache.last());
+
             const newEmbed = makeEmbed(page, numPages);
             const indexLimit = Math.min(
               (page + 1) * THREADS_PER_PAGE,

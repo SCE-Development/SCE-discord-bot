@@ -319,6 +319,7 @@ async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
         else page.currentPage = page.maxPage;
         break;
     }
+    reaction.users.remove(reaction.users.cache.last());
 
     page.lowerBound = page.currentPage * itemsPerPage;
     page.upperBound = (page.currentPage + 1) * itemsPerPage;
@@ -341,15 +342,15 @@ async function pagination(templateEmbed, message, threads, itemsPerPage = 5) {
       }
     }
     currentMsg.edit(threadListEmbeds[page.currentPage]).catch(() => null);
-    reaction.remove(reaction.users.last().id).catch(() => null);
   };
 
   reactionCollector.on('collect', handlePageTurn);
-  await currentMsg.react('⬅️');
-  await currentMsg.react('➡️');
   reactionCollector.on('end', () => {
     currentMsg.delete().catch(() => null);
   });
+  await currentMsg.react('⬅️');
+  await currentMsg.react('➡️');
+
   return { type: 'collector', collector: reactionCollector };
 }
 
