@@ -1,17 +1,83 @@
 const Discord = require('discord.js');
-const { pagination } = require('./dataDisplay');
+const { sendMessageAndDelete, deleteMessage, getInput } = require('./messages');
+const PaginatedMessage = require('../components/PaginatedMessage');
 const {
   EASTER_BASKET_QUERY,
   EASTER_EGG_QUERY,
   EASTER_EGG_CREATE,
 } = require('../APIFunctions/easter');
+const { MED_WAIT, LONG_WAIT } = require('./constants');
 
-const startEgghunt = async (eggname, message) => {
-  // todo: interactive creation wizard
-  // these value need to be set from the user
-  const eggID = eggname,
-    channel = message.channel,
+const startEgghunt = async message => {
+  const display = new Discord.RichEmbed().setTitle(
+    'Egg Hunt: Start an egg channel'
+  );
+  let prompt, response;
+
+  const cancel = () => {
+    deleteMessage(prompt);
+    sendMessageAndDelete(message.channel, 'Canceled starting egg channel');
+  };
+
+  // eggID
+  display.setDescription('Enter an Egg ID');
+  prompt = await message.channel.send(display);
+
+  try {
+    response = await getInput(message.channel, message.member);
+  } catch (e) {
+    cancel();
+    return;
+  }
+
+  const eggID = response.content.trim().toLowerCase();
+  deleteMessage(response);
+  deleteMessage(prompt);
+
+  // channel
+  display.setDescription(
+    `Tag the target channel like this: ${message.channel}`
+  );
+  prompt = await message.channel.send(display);
+
+  try {
+    response = await getInput(message.channel, message.member);
+  } catch (e) {
+    cancel();
+    return;
+  }
+
+  if (response.mentions.channels.size !== 1) {
+    cancel();
+    return;
+  }
+
+  const channel = response.mentions.channels.array()[0];
+  deleteMessage(response);
+  deleteMessage(prompt);
+
+  // period
+  display.setDescription(
+    'Enter the average time between egg spawns in minutes ' +
+      '(or anything to default to 30 minutes)'
+  );
+  prompt = await message.channel.send(display);
+
+  try {
+    response = await getInput(message.channel, message.member);
+  } catch (e) {
+    cancel();
+    return;
+  }
+
+  let period = response.content.trim();
+  if (isNaN(period)) {
     period = 30;
+  } else {
+    period = parseInt(period);
+  }
+  deleteMessage(response);
+  deleteMessage(prompt);
 
   const status = await message.client.sceBot.easterEggHunt.addEgg(
     eggID,
@@ -21,39 +87,83 @@ const startEgghunt = async (eggname, message) => {
 
   switch (status) {
     case 'ok':
-      channel
-        .send(`Successfully started hunt for ${eggID} in ${channel.name}`)
-        .then(msg => msg.delete(10000).catch(() => {}));
+      sendMessageAndDelete(
+        message.channel,
+        `Successfully started hunt for ${eggID} in ${channel}`
+      );
       break;
 
     case 'dup':
-      channel
-        .send(`Hunt for ${eggID} in ${channel.name} was already started`)
-        .then(msg => msg.delete(10000).catch(() => {}));
+      sendMessageAndDelete(
+        message.channel,
+        `Hunt for ${eggID} in ${channel} was already started`
+      );
       break;
 
     case 'error':
-      channel
-        .send(
-          `Internal error starting ${eggID} in ${channel.name} ` +
-            '(make sure you typed the egg\'s name correctly)'
-        )
-        .then(msg => msg.delete(10000).catch(() => {}));
+      sendMessageAndDelete(
+        message.channel,
+        `Internal error starting ${eggID} in ${channel} ` +
+          '(make sure you typed the egg name correctly)'
+      );
       break;
 
     default:
-      channel
-        .send(`Unknown error starting ${eggID} in ${channel.name}`)
-        .then(msg => msg.delete(10000).catch(() => {}));
+      sendMessageAndDelete(
+        message.channel,
+        `Unknown error starting ${eggID} in ${channel}`
+      );
       break;
   }
 };
 
 const stopEgghunt = async message => {
-  // todo: interactive creation wizard
-  // these value need to be set from the user
-  const eggID = 'eggname';
-  const channel = message.channel;
+  const display = new Discord.RichEmbed().setTitle(
+    'Egg Hunt: Stop an egg channel'
+  );
+  let prompt, response;
+
+  const cancel = () => {
+    deleteMessage(prompt);
+    sendMessageAndDelete(message.channel, 'Canceled stopping egg channel');
+  };
+
+  // eggID
+  display.setDescription('Enter an Egg ID');
+  prompt = await message.channel.send(display);
+
+  try {
+    response = await getInput(message.channel, message.member);
+  } catch (e) {
+    cancel();
+    return;
+  }
+
+  const eggID = response.content.trim().toLowerCase();
+  deleteMessage(response);
+  deleteMessage(prompt);
+
+  // channel
+  display.setDescription(
+    `Tag the target channel like this: ${message.channel}`
+  );
+  prompt = await message.channel.send(display);
+
+  try {
+    response = await getInput(message.channel, message.member);
+  } catch (e) {
+    cancel();
+    return;
+  }
+
+  if (response.mentions.channels.size !== 1) {
+    cancel();
+    return;
+  }
+
+  const channel = response.mentions.channels.array()[0];
+  deleteMessage(response);
+  deleteMessage(prompt);
 
   const status = await message.client.sceBot.easterEggHunt.stopEgg(
     eggID,
@@ -62,36 +172,40 @@ const stopEgghunt = async message => {
 
   switch (status) {
     case 'ok':
-      channel
-        .send(`Successfully stopped hunt for ${eggID} in ${channel.name}`)
-        .then(msg => msg.delete(10000).catch(() => {}));
+      sendMessageAndDelete(
+        message.channel,
+        `Successfully stopped hunt for ${eggID} in ${channel}`
+      );
       break;
 
     case 'dne':
-      channel
-        .send(`There's no hunt for ${eggID} in ${channel.name}`)
-        .then(msg => msg.delete(10000).catch(() => {}));
+      sendMessageAndDelete(
+        message.channel,
+        `There's no hunt for ${eggID} in ${channel}`
+      );
       break;
 
     case 'error':
-      channel
-        .send(`Internal error stopping ${eggID} in ${channel.name}`)
-        .then(msg => msg.delete(10000).catch(() => {}));
+      sendMessageAndDelete(
+        message.channel,
+        `Internal error stopping ${eggID} in ${channel}`
+      );
       break;
 
     default:
-      channel
-        .send(`Unknown error stopping ${eggID} in ${channel.name}`)
-        .then(msg => msg.delete(10000).catch(() => {}));
+      sendMessageAndDelete(
+        message.channel,
+        `Unknown error stopping ${eggID} in ${channel}`
+      );
       break;
   }
 };
 
-async function displayEggs(message, type) {
+async function displayEggs(message, mode) {
   const displayEmbed = new Discord.RichEmbed();
   let response;
 
-  switch (type) {
+  switch (mode) {
     case 'basket':
       displayEmbed
         .setTitle('How many eggs do you have?')
@@ -114,16 +228,18 @@ async function displayEggs(message, type) {
       response = await EASTER_BASKET_QUERY({ guildID: message.guild.id });
       break;
   }
+
   if (response.error) {
-    message.channel
-      .send('Internal error displaying easter eggs')
-      .then(msg => msg.delete(10000).catch(() => {}));
+    sendMessageAndDelete(
+      message.channel,
+      'Internal error displaying easter eggs'
+    );
   }
 
   response =
-    type === 'basket' ? response.responseData.egg : response.responseData;
+    mode === 'basket' ? response.responseData.egg : response.responseData;
   const items = [];
-  if (type === 'leaderboard') {
+  if (mode === 'leaderboard') {
     for (let i = 0; i < response.length; i++) {
       const inputs = {};
       // initialize all the variables
@@ -151,7 +267,12 @@ async function displayEggs(message, type) {
       items.push(inputs);
     }
   }
-  pagination(displayEmbed, message.channel, message.member.id, items);
+
+  const pages = new PaginatedMessage(message.channel, message.member, items, {
+    templateEmbed: displayEmbed,
+    keepAlive: MED_WAIT,
+  });
+  pages.send();
 }
 
 async function createEgg(message) {
@@ -162,13 +283,11 @@ async function createEgg(message) {
         'Each step needs to be entered in separate messages.\n' +
         '1. Type in your egg name\n' +
         'OPTIONAL\n' +
-        '2. Type "Delay: " then a number for delay between egg spawn. ' +
-        '(In milliseconds)\n' +
-        '3. Type "URL: " then a discord image URL for egg pic.\n' +
-        '4. Type "Code: " then a code so a user can "grab" the egg ' +
+        '2. Type "URL: " then a discord image URL for egg pic.\n' +
+        '3. Type "Code: " then a code so a user can "grab" the egg ' +
         '(Has to be Code or a Delay not both)\n' +
-        '5. Type "Description: " then your description.\n' +
-        '6. If there is a code add hint by typing "Hint:" then your hint\n' +
+        '4. Type "Description: " then your description.\n' +
+        '5. If there is a code add hint by typing "Hint:" then your hint\n' +
         'When finished, type "done"\n'
     );
   message.channel.send(instructionEmbed);
@@ -177,7 +296,7 @@ async function createEgg(message) {
     return m.member.id === message.member.id;
   };
   const messageCollector = message.channel.createMessageCollector(filter, {
-    time: 60000,
+    time: MED_WAIT,
     errors: ['time'],
   });
   const egg = {
@@ -191,10 +310,11 @@ async function createEgg(message) {
 
   const eggIDMessage = async messageIn => {
     egg.EggID = messageIn.content;
-    const infoEmbed = new Discord.RichEmbed().setTitle('EggID!')
+    const infoEmbed = new Discord.RichEmbed()
+      .setTitle('EggID!')
       .setDescription(
         `The egg name is \`${egg.EggID}\`. ` +
-        'If this is not what you want type "Stop" and restart.'
+          'If this is not what you want type "Stop" and restart.'
       );
     message.channel.send(infoEmbed);
 
@@ -211,16 +331,6 @@ async function createEgg(message) {
       }
 
       switch (setType) {
-        case 'delay':
-          value = isNaN(parseInt(value)) ? 30000 : parseInt(value);
-          egg.Delay = value;
-          infoEmbed.setTitle('Delay Set!');
-          if (isNaN(parseInt(messageSeparated[2]))) {
-            infoEmbed.setDescription('Error so default delay set to 30000 ms');
-          } else {
-            infoEmbed.setDescription(`Set to \`${value}\``);
-          }
-          break;
         case 'url':
           if (
             /^https:[/][/]cdn.discordapp.com[/]attachments[/](.+)/.test(value)
@@ -234,9 +344,9 @@ async function createEgg(message) {
             infoEmbed
               .setDescription(
                 'Make sure it is a url that starts with ' +
-                '`https://cdn.discordapp.com/attachments/`\n' +
-                'To get this URL, you upload a pic to discord then right ' +
-                'click on the picture.'
+                  '`https://cdn.discordapp.com/attachments/`\n' +
+                  'To get this URL, you upload a pic to discord then right ' +
+                  'click on the picture.'
               )
               .setTitle('Error!');
           }
@@ -300,23 +410,26 @@ async function gatherEggID(message) {
     return m.member.id === message.member.id;
   };
   const messageCollector = message.channel.createMessageCollector(filter, {
-    time: 60000,
+    time: LONG_WAIT,
     errors: ['time'],
   });
 
-  message.channel.send('What egg are you trying to add? (type in eggID)');
+  const prompt = await message.channel.send(
+    'What egg are you trying to add? (type in eggID)'
+  );
+
   const response = await EASTER_EGG_QUERY({
     guildID: message.guild.id,
   });
   if (response.error) {
-    message.channel.send('Internal error querying eggs')
-      .then(msg => msg.delete(10000).catch(() => {}));
+    sendMessageAndDelete(message.channel, 'Internal error querying eggs');
+    return null;
   }
 
   // Show admin what eggs he can add.
   const eggs = response.responseData;
   if (!eggs) {
-    message.channel.send('Make an egg first!');
+    sendMessageAndDelete(message.channel, 'Make an egg first!');
     return;
   }
   const items = [];
@@ -325,17 +438,13 @@ async function gatherEggID(message) {
     // initialize all the variables
     const eggID = eggs[i]['eggID'];
     const imageURL =
-      eggs[i]['imageUrl'] === null
-        ? 'there is no image'
-        : 'There is an image!';
-    const code =
-      eggs[i]['code'] === null ? 'no code' : eggs[i]['code'];
+      eggs[i]['imageUrl'] === null ? 'there is no image' : 'There is an image!';
+    const code = eggs[i]['code'] === null ? 'no code' : eggs[i]['code'];
     const description =
       eggs[i]['description'] === null
         ? 'no description'
         : eggs[i]['description'];
-    const hint =
-      eggs[i]['hint'] === null ? 'no hint' : eggs[i]['hint'];
+    const hint = eggs[i]['hint'] === null ? 'no hint' : eggs[i]['hint'];
     // sorry its messy but initialization done.
 
     inputs['title'] = `The eggID is \`${eggID}\``;
@@ -348,7 +457,11 @@ async function gatherEggID(message) {
   const displayEmbed = new Discord.RichEmbed()
     .setTitle('All eggs to choose from')
     .setDescription('');
-  pagination(displayEmbed, message.channel, message.author.id, items, 3);
+  const pages = new PaginatedMessage(message.channel, message.member, items, {
+    templateEmbed: displayEmbed,
+    itemsPerPage: 3,
+  });
+  pages.send();
   // make message collector
   const getEggID = async messageIn => {
     const queryCheck = await EASTER_EGG_QUERY({
@@ -358,7 +471,7 @@ async function gatherEggID(message) {
     if (queryCheck.responseData.length) {
       startEgghunt(messageIn.content, message);
     } else {
-      message.channel.send('No such egg.');
+      sendMessageAndDelete(message.channel, 'No such egg');
     }
   };
   messageCollector.once('collect', getEggID);
@@ -368,5 +481,4 @@ module.exports = {
   stopEgghunt,
   displayEggs,
   createEgg,
-  gatherEggID,
 };

@@ -1,8 +1,6 @@
 const Discord = require('discord.js');
 const { EASTER_BASKET_ADD_EGG } = require('../APIFunctions/easter');
-
-const ONE_MINUTE = 60000;
-
+const { ONE_MINUTE } = require('./constants');
 class EasterEgg {
   constructor(egg, channel, period) {
     this.period = period;

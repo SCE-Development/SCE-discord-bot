@@ -173,7 +173,7 @@ async function multipleThreadResults(threadID, message, threads, createMode) {
    * @see filter
    **/
   const messageCollector = message.channel.createMessageCollector(filter, {
-    max: 1,
+    maxMatches: 1,
     time: 60000,
     errors: ['time'],
   });

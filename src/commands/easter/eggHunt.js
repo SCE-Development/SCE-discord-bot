@@ -1,10 +1,13 @@
 const Command = require('../Command');
 const {
-  gatherEggID,
+  startEgghunt,
   stopEgghunt,
   displayEggs,
   createEgg,
 } = require('../../util/eggHunt');
+const { isOfficer } = require('../../util/Permission');
+const { sendMessageAndDelete } = require('../../util/messages');
+const { SHORT_WAIT } = require('../../util/constants');
 
 module.exports = new Command({
   name: 'egghunt',
@@ -17,14 +20,13 @@ module.exports = new Command({
   execute: (message, args) => {
     switch (args[0]) {
       case 'admin':
-        // if(!isOfficer(message.author)) 
-        // {
-        //   message.channel("Not high enough rank sir.");
-        //   return;
-        // }
+        if (!isOfficer(message.member)) {
+          sendMessageAndDelete(message.channel, 'Not high enough rank sir.');
+          return;
+        }
         switch (args[1]) {
           case 'start':
-            gatherEggID(message);
+            startEgghunt(message);
             break;
 
           case 'stop':
@@ -36,9 +38,11 @@ module.exports = new Command({
             break;
 
           default:
-            message.channel
-              .send('Valid options are: `start`, `stop`, `add`')
-              .then(msg => msg.delete(20000).catch(() => {}));
+            sendMessageAndDelete(
+              message.channel,
+              'Valid options are: `start`, `stop`, `add`',
+              SHORT_WAIT
+            );
             break;
         }
         break; // args[0] === 'admin'
@@ -47,7 +51,7 @@ module.exports = new Command({
       case 'leaderboard':
       case 'eggs':
       case 'basket':
-        displayEggs(message, args[1]);
+        displayEggs(message, args[0]);
         break;
 
       default:
