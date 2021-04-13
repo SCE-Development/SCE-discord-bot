@@ -26,7 +26,7 @@ const startBot = async () => {
   client.once('ready', () => {
     messageHandler.initialize();
     client.user.setPresence({
-      game: {
+      activity: {
         name: `${prefix}help`,
         type: 'LISTENING',
       },
