@@ -49,13 +49,16 @@ const startEgghunt = async (eggname, message) => {
   }
 };
 
-const stopEgghunt = async (message) => {
+const stopEgghunt = async message => {
   // todo: interactive creation wizard
   // these value need to be set from the user
-  const eggID = eggname,
-    channel = message.channel;
+  const eggID = 'eggname';
+  const channel = message.channel;
 
-  const status = await message.client.sceBot.easterEggHunt.stopEgg(eggID, channel);
+  const status = await message.client.sceBot.easterEggHunt.stopEgg(
+    eggID,
+    channel
+  );
 
   switch (status) {
     case 'ok':
@@ -117,34 +120,32 @@ async function displayEggs(message, type) {
       .then(msg => msg.delete(10000).catch(() => {}));
   }
 
-  response = type === 'basket' ? response.responseData.egg : response.responseData;
+  response =
+    type === 'basket' ? response.responseData.egg : response.responseData;
   const items = [];
-  if(type === 'leaderboard')
-  {
-    for(let i = 0; i < response.length; i++)
-    {
-      let inputs = {};
-      //initialize all the variables
-      let userID =  i+1 + ". " + response[i]["userID"];
-      let description = "He has " + response.egg.length + " eggs.";
-      //sorry its messy but initialization done.
-  
+  if (type === 'leaderboard') {
+    for (let i = 0; i < response.length; i++) {
+      const inputs = {};
+      // initialize all the variables
+      const userID = i + 1 + '. ' + response[i]['userID'];
+      const description = 'He has ' + response.egg.length + ' eggs.';
+      // sorry its messy but initialization done.
+
       inputs['title'] = userID;
       inputs['field'] = description;
       items.push(inputs);
     }
-  }
-  else
-  {
-    for(let i = 0; i < response.length; i++)
-    {
-      let inputs = {};
-      //initialize all the variables
-      let eggID = response[i]["eggID"];
-      let description = response[i]["description"] === null ? 
-        "Dude its an egg." : response[i]["description"];
-      //sorry its messy but initialization done.
-  
+  } else {
+    for (let i = 0; i < response.length; i++) {
+      const inputs = {};
+      // initialize all the variables
+      const eggID = response[i]['eggID'];
+      const description =
+        response[i]['description'] === null
+          ? 'Dude its an egg.'
+          : response[i]['description'];
+      // sorry its messy but initialization done.
+
       inputs['title'] = `The eggID is \`${eggID}\``;
       inputs['field'] = description;
       items.push(inputs);
@@ -187,21 +188,20 @@ async function createEgg(message) {
     Description: undefined,
     Hint: undefined,
   };
-  let infoEmbed;
+
   const eggIDMessage = async messageIn => {
-    console.log(messageIn.content);
     egg.EggID = messageIn.content;
-    infoEmbed = new Discord.RichEmbed().setTitle('EggID!')
-      .setDescription(`The egg name is \`${egg.EggID}\`. 
-            If this is not what you want type 'Stop' and restart.`);
+    const infoEmbed = new Discord.RichEmbed().setTitle('EggID!')
+      .setDescription(
+        `The egg name is \`${egg.EggID}\`. ` +
+        'If this is not what you want type "Stop" and restart.'
+      );
     message.channel.send(infoEmbed);
 
     const eggSetters = async messageIn => {
-      let checker =
+      const checker =
         (messageIn.content === 'stop') | (messageIn.content === 'done');
-      let messageSeparated;
-      let setType;
-      let value;
+      let messageSeparated, setType, value;
       if (!checker) {
         messageSeparated = /^([a-zA-Z]+)[:](.+)/.exec(messageIn.content);
         setType = messageSeparated[1].toLowerCase();
@@ -209,9 +209,7 @@ async function createEgg(message) {
       } else {
         setType = messageIn.content.toLowerCase();
       }
-      console.log(messageSeparated);
-      console.log(setType);
-      console.log(value);
+
       switch (setType) {
         case 'delay':
           value = isNaN(parseInt(value)) ? 30000 : parseInt(value);
@@ -236,9 +234,9 @@ async function createEgg(message) {
             infoEmbed
               .setDescription(
                 'Make sure it is a url that starts with ' +
-                  '`https://cdn.discordapp.com/attachments/`\n' +
-                  'To get this URL, you upload a pic to discord then right ' +
-                  'click on the picture.'
+                '`https://cdn.discordapp.com/attachments/`\n' +
+                'To get this URL, you upload a pic to discord then right ' +
+                'click on the picture.'
               )
               .setTitle('Error!');
           }
@@ -272,14 +270,14 @@ async function createEgg(message) {
               Set to \`${value}\``
             )
             .setThumbnail(egg.URL);
-            await EASTER_EGG_CREATE({
-              guildID: message.guild.id,
-              eggID: egg.EggID,
-              imageUrl: egg.URL,
-              code: egg.Code,
-              description: egg.Description,
-              hint: egg.Hint
-            })
+          await EASTER_EGG_CREATE({
+            guildID: message.guild.id,
+            eggID: egg.EggID,
+            imageUrl: egg.URL,
+            code: egg.Code,
+            description: egg.Description,
+            hint: egg.Hint,
+          });
           messageCollector.stop();
           break;
         case 'stop':
@@ -297,8 +295,7 @@ async function createEgg(message) {
   messageCollector.once('collect', eggIDMessage);
 }
 
-async function gatherEggID(message)
-{
+async function gatherEggID(message) {
   const filter = m => {
     return m.member.id === message.member.id;
   };
@@ -307,59 +304,63 @@ async function gatherEggID(message)
     errors: ['time'],
   });
 
-  message.channel.send("What egg are you trying to add? (type in eggID)");
-  Query_eggs = await EASTER_EGG_QUERY({
+  message.channel.send('What egg are you trying to add? (type in eggID)');
+  const response = await EASTER_EGG_QUERY({
     guildID: message.guild.id,
   });
-  //Show admin what eggs he can add.
-  Query_eggs = Query_eggs.responseData;
-  if(!Query_eggs)
-  {
-    message.channel.send("Make an egg first!");
+  if (response.error) {
+    message.channel.send('Internal error querying eggs')
+      .then(msg => msg.delete(10000).catch(() => {}));
+  }
+
+  // Show admin what eggs he can add.
+  const eggs = response.responseData;
+  if (!eggs) {
+    message.channel.send('Make an egg first!');
     return;
   }
-  let items = [];
-  for(let i = 0; i < Query_eggs.length; i++)
-  {
-    let inputs = {};
-    //initialize all the variables
-    let eggID = Query_eggs[i]["eggID"];
-    let imageURL = Query_eggs[i]["imageUrl"] === null ? 
-      "there is no image" : "There is an image!";
-    let code = Query_eggs[i]["code"] === null?
-      "no code" : Query_eggs[i]["code"];
-    let description = Query_eggs[i]["description"] === null?
-    "no description" : Query_eggs[i]["description"];
-    let hint = Query_eggs[i]["hint"] === null?
-    "no hint" : Query_eggs[i]["hint"];
-    //sorry its messy but initialization done.
+  const items = [];
+  for (let i = 0; i < eggs.length; i++) {
+    const inputs = {};
+    // initialize all the variables
+    const eggID = eggs[i]['eggID'];
+    const imageURL =
+      eggs[i]['imageUrl'] === null
+        ? 'there is no image'
+        : 'There is an image!';
+    const code =
+      eggs[i]['code'] === null ? 'no code' : eggs[i]['code'];
+    const description =
+      eggs[i]['description'] === null
+        ? 'no description'
+        : eggs[i]['description'];
+    const hint =
+      eggs[i]['hint'] === null ? 'no hint' : eggs[i]['hint'];
+    // sorry its messy but initialization done.
 
     inputs['title'] = `The eggID is \`${eggID}\``;
     inputs['field'] = `imageURL: ${imageURL}
     code: ${code}
     description: ${description}
-    hint: ${hint}`
+    hint: ${hint}`;
     items.push(inputs);
   }
   const displayEmbed = new Discord.RichEmbed()
-    .setTitle("All eggs to choose from")
-    .setDescription("");
+    .setTitle('All eggs to choose from')
+    .setDescription('');
   pagination(displayEmbed, message.channel, message.author.id, items, 3);
-  //make message collector
+  // make message collector
   const getEggID = async messageIn => {
-    let queryCheck = await EASTER_EGG_QUERY({
+    const queryCheck = await EASTER_EGG_QUERY({
       guildID: message.guild.id,
-      eggID: messageIn.content
+      eggID: messageIn.content,
     });
-    if(queryCheck.responseData.length)
-    {
-      startEgghunt(messageIn.content, message)
+    if (queryCheck.responseData.length) {
+      startEgghunt(messageIn.content, message);
+    } else {
+      message.channel.send('No such egg.');
     }
-    else
-    {
-      message.channel.send("No such egg.");
-    }
-  }
+  };
   messageCollector.once('collect', getEggID);
 }
 module.exports = {

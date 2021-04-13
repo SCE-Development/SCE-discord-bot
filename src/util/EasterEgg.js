@@ -3,12 +3,6 @@ const { EASTER_BASKET_ADD_EGG } = require('../APIFunctions/easter');
 
 const ONE_MINUTE = 60000;
 
-const eggPics = [
-  'https://cdn.discordapp.com/attachments/308817739999608832/828026817964539954/eggac.png',
-  'https://cdn.discordapp.com/attachments/308817739999608832/828025305456312411/eggdiluc.png',
-  'https://cdn.discordapp.com/attachments/308817739999608832/828028933088870440/eggme.png',
-];
-
 class EasterEgg {
   constructor(egg, channel, period) {
     this.period = period;

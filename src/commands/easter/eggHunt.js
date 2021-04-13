@@ -5,7 +5,6 @@ const {
   displayEggs,
   createEgg,
 } = require('../../util/eggHunt');
-const { isOfficer } = require('../../util/Permission')
 
 module.exports = new Command({
   name: 'egghunt',
