@@ -17,10 +17,10 @@ module.exports = new Command({
         userID: author.id
       })
         .then((points) => {
-          const pointsEmbedNoMention = new Discord.RichEmbed()
+          const pointsEmbedNoMention = new Discord.MessageEmbed()
             .setColor('#03dffc')
             .setTitle('Point Breakdown')
-            .setThumbnail(author.user.avatarURL)
+            .setThumbnail(author.user.avatarURL())
             .addField('Total Points', points.responseData[0].totalPoints)
             .addField('Gained This Week', points.responseData[0].weekPoints)
             .addField('Gained This Month', points.responseData[0].monthPoints)
@@ -46,10 +46,10 @@ module.exports = new Command({
           message.channel.send('User has no points.');
         }
         else {
-          const pointsEmbedMention = new Discord.RichEmbed()
+          const pointsEmbedMention = new Discord.MessageEmbed()
             .setColor('#03dffc')
             .setTitle('Point Breakdown')
-            .setThumbnail(user.user.avatarURL)
+            .setThumbnail(user.user.avatarURL())
             .addField('User', user)
             .addField('Total Points', points.responseData[0].totalPoints)
             .addField('Gained This Week', points.responseData[0].weekPoints)

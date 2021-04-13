@@ -1,4 +1,7 @@
-const { POINTS_QUERY, UPDATE_POINTS } = require('../APIFunctions/points.js');
+const { POINTS_QUERY, UPDATE_POINTS,
+  POINTS_COOLDOWN_TIME } = require('../APIFunctions/points.js');
+
+let pointsToAdd = Math.floor(Math.random() * (50 - 25) + 25);
 
 function getWeek() {
   const d = new Date();
@@ -29,26 +32,22 @@ function resetPoints(points) {
 }
 
 function addPointsToUser(points) {
-  // Random point value to add
-  let p = Math.floor(Math.random() * (50 - 25) + 25);
   if (!points) {
     points = {
-      weekPoints: p,
-      monthPoints: p,
-      yearPoints: p,
-      totalPoints: p,
+      weekPoints: pointsToAdd,
+      monthPoints: pointsToAdd,
+      yearPoints: pointsToAdd,
+      totalPoints: pointsToAdd,
       lastTalked: new Date()
     };
   }
-  points.weekPoints += p;
-  points.monthPoints += p;
-  points.yearPoints += p;
-  points.totalPoints += p;
+  points.weekPoints += pointsToAdd;
+  points.monthPoints += pointsToAdd;
+  points.yearPoints += pointsToAdd;
+  points.totalPoints += pointsToAdd;
 }
 
 async function updatePoints(message) {
-  // Cooldown time in ms
-  let c = 180000;
   const author = message.author;
   const guild = message.guild;
   // When a message is sent, query the user points
@@ -70,12 +69,12 @@ async function updatePoints(message) {
     return points.responseData;
   }
 
-  points.lastTalked = new Date(points.lastTalked);
   let lastTalked = points.lastTalked;
   let createdAt = message.createdAt;
+  points.lastTalked = new Date(points.lastTalked);
 
   // If last message passed cooldown, add points
-  if (createdAt - lastTalked > c) {
+  if (createdAt - lastTalked > POINTS_COOLDOWN_TIME) {
     resetPoints(points);
     addPointsToUser(points);
     points.lastTalked = message.createdAt;

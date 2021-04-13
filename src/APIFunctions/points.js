@@ -14,6 +14,7 @@ const { ApiResponse } = require('./ApiResponses');
  * @property {Date} lastTalked Date the user's last message was sent.
  */
 
+const POINTS_COOLDOWN_TIME = 1000; // Cooldown time in ms
 const POINTS_QUERY = async (args) => {
   const query = gql`
   query ($guildID: String!, $userID: String) {
@@ -76,6 +77,7 @@ const UPDATE_POINTS = async (point) => {
 };
 
 module.exports = {
+  POINTS_COOLDOWN_TIME,
   POINTS_QUERY,
   UPDATE_POINTS
 };

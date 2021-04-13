@@ -18,7 +18,7 @@ module.exports = new Command({
     data.sort(checkPoints);
     let length = data.length;
     if (length > 10) {
-      const topEmbedCapped = new Discord.RichEmbed()
+      const topEmbedCapped = new Discord.MessageEmbed()
         .setColor('#52ba32')
         .setTitle('Points Leaderboard')
         .setTimestamp();
@@ -29,7 +29,7 @@ module.exports = new Command({
       message.channel.send(topEmbedCapped);
     }
     else {
-      const topEmbedNoCap = new Discord.RichEmbed()
+      const topEmbedNoCap = new Discord.MessageEmbed()
         .setColor('#52ba32')
         .setTitle('Points Leaderboard')
         .setTimestamp();

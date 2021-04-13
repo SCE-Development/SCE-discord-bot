@@ -43,7 +43,7 @@ class MessageHandler {
       if (message.author.bot) {
         return;
       }
-      ADD_POINTS(message);
+      updatePoints(message);
       if (message.content.startsWith(this.prefix)) {
         this.commandHandler.handleCommand(this.prefix, message);
       } else if (this.nonPrefixRegex.test(message.content)) {

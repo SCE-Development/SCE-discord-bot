@@ -1,5 +1,3 @@
-// const { ApolloError } = require('apollo-server');
-// const { Aggregate } = require('mongoose');
 const {
   PointTC, Point
 } = require('../models/points');
