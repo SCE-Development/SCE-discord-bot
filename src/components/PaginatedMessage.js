@@ -2,6 +2,8 @@ const Discord = require('discord.js');
 const { deleteMessage } = require('../util/messages');
 const { LONG_WAIT } = require('../util/constants');
 
+const PAGE_LIMIT = 32;
+
 /**
  * Sends a message with emojis for a user to turn pages.
  */
@@ -32,6 +34,8 @@ class PaginatedMessage {
   /**
    * Sends this paginated message.
    *
+   * @throws If the number of pages exceeds PAGE_LIMIT
+   * 
    * @returns {Promise<boolean>} Whether the message was sent.
    */
   async send() {
@@ -103,6 +107,10 @@ class PaginatedMessage {
       return true;
     }
 
+    if (page.maxPage > PAGE_LIMIT) {
+      throw `Error: ${page.maxPage} exceeds the page limit of ${PAGE_LIMIT}`;
+    }
+
     const filter = (reaction, reactingUser) => {
       return (
         ['⬅️', '➡️'].includes(reaction.emoji.name) &&
@@ -153,8 +161,10 @@ class PaginatedMessage {
 
     if (toDelete instanceof Discord.Message) {
       deleteMessage(toDelete);
+      this.toDelete = undefined;
     } else if (toDelete instanceof Discord.Collector) {
       toDelete.stop(['Paginated Message stopped']);
+      this.toDelete = undefined;
     } else {
       throw `Error: could not delete ${toDelete}`;
     }
