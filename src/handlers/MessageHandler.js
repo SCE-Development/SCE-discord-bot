@@ -4,6 +4,7 @@ const utilPath = '../util';
 const { CommandHandler } = require(handlersPath + '/CommandHandler');
 const { NonPrefixHandler } = require(handlersPath + '/NonPrefixHandler');
 const { createNonPrefixRegex } = require(utilPath + '/NonPrefixRegexCreator');
+const { checkSentiment } = require(utilPath + '/sentimentAnalysis');
 
 /**
  * Class which handles interpreting an input message and invoking the correct
@@ -46,6 +47,9 @@ class MessageHandler {
         this.commandHandler.handleCommand(this.prefix, message);
       } else if (this.nonPrefixRegex.test(message.content)) {
         this.nonPrefixHandler.handleCommand(message);
+      } else {
+        // not a command
+        checkSentiment(message);
       }
     } catch (e) {
       console.error(e);
