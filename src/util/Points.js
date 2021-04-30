@@ -37,14 +37,14 @@ function addPointsToUser(points) {
       weekPoints: pointsToAdd,
       monthPoints: pointsToAdd,
       yearPoints: pointsToAdd,
-      totalPoints: pointsToAdd,
-      lastTalked: new Date()
+      totalPoints: pointsToAdd
     };
   }
   points.weekPoints += pointsToAdd;
   points.monthPoints += pointsToAdd;
   points.yearPoints += pointsToAdd;
   points.totalPoints += pointsToAdd;
+  return points;
 }
 
 async function updatePoints(message) {
@@ -65,6 +65,7 @@ async function updatePoints(message) {
       userID: author.id,
     };
     points = addPointsToUser(points);
+    points.lastTalked = new Date();
     points = await UPDATE_POINTS(points);
     return points.responseData;
   }

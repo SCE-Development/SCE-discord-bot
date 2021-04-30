@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { composeMongoose } = require('graphql-compose-mongoose');
-const defaultPoints = Math.floor(Math.random() * (50 - 25) + 25);
+let defaultPoints = Math.floor(Math.random() * (50 - 25) + 25);
 
 const PointSchema = mongoose.Schema(
   {

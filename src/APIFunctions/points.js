@@ -35,9 +35,11 @@ const POINTS_QUERY = async (args) => {
     userID: args.userID
   })
     .then((data) => {
+      console.log(response.responseData);
       response.responseData = data.pointMany;
     })
     .catch(() => {
+      console.log(response);
       response.error = true;
     });
   return response;
