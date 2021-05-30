@@ -21,11 +21,6 @@ const POINTS_QUERY = async (args) => {
     pointMany (filter: {guildID: $guildID, userID: $userID}) {
       guildID
       userID
-      totalPoints
-      weekPoints
-      monthPoints
-      yearPoints
-      lastTalked
     }
   }
     `;
@@ -35,11 +30,11 @@ const POINTS_QUERY = async (args) => {
     userID: args.userID
   })
     .then((data) => {
-      console.log(response.responseData);
+      console.log('works');
       response.responseData = data.pointMany;
     })
     .catch(() => {
-      console.log(response);
+      console.log(args.guildID, args.userID);
       response.error = true;
     });
   return response;
@@ -47,8 +42,8 @@ const POINTS_QUERY = async (args) => {
 
 const UPDATE_POINTS = async (point) => {
   const mutation = gql`
-  mutation ($guildID: String!, $userID: String!, $totalPoints: Int,
-    $weekPoints: Int, $monthPoints: Int, $yearPoints: Int, $lastTalked: Date) {
+  mutation ($guildID: String!, $userID: String!, $totalPoints: Float,
+    $weekPoints: Float, $monthPoints: Float, $yearPoints: Float, $lastTalked: Date!) {
     pointUpdateOne (
       guildID: $guildID,
       userID: $userID,
