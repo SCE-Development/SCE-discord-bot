@@ -21,6 +21,11 @@ const POINTS_QUERY = async (args) => {
     pointMany (filter: {guildID: $guildID, userID: $userID}) {
       guildID
       userID
+      totalPoints
+    	weekPoints
+    	monthPoints
+    	yearPoints
+    	lastTalked
     }
   }
     `;
@@ -43,7 +48,7 @@ const POINTS_QUERY = async (args) => {
 const UPDATE_POINTS = async (point) => {
   const mutation = gql`
   mutation ($guildID: String!, $userID: String!, $totalPoints: Float,
-    $weekPoints: Float, $monthPoints: Float, $yearPoints: Float, $lastTalked: Date!) {
+    $weekPoints: Float, $monthPoints: Float, $yearPoints: Float, $lastTalked: Date) {
     pointUpdateOne (
       guildID: $guildID,
       userID: $userID,
@@ -66,9 +71,11 @@ const UPDATE_POINTS = async (point) => {
   let response = new ApiResponse();
   try {
     const data = await request(`${DISCORD_API_URL}/graphql`, mutation, point);
+    console.log('mutation works')
     response.responseData = data.pointUpdateOne;
   } catch (e) {
     response.error = true;
+    console.log('nvm it does not')
   }
   return response;
 };

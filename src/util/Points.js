@@ -1,7 +1,8 @@
 const { POINTS_QUERY, UPDATE_POINTS,
   POINTS_COOLDOWN_TIME } = require('../APIFunctions/points.js');
 
-let pointsToAdd = Math.floor(Math.random() * (50 - 25) + 25);
+// Points to be added, between 25 and 50
+let p = Math.floor(Math.random() * (50 - 25) + 25);
 
 function getWeek() {
   const d = new Date();
@@ -34,16 +35,16 @@ function resetPoints(points) {
 function addPointsToUser(points) {
   if (!points) {
     points = {
-      weekPoints: pointsToAdd,
-      monthPoints: pointsToAdd,
-      yearPoints: pointsToAdd,
-      totalPoints: pointsToAdd
+      totalPoints: p,
+      weekPoints: p,
+      monthPoints: p,
+      yearPoints: p
     };
   }
-  points.weekPoints += pointsToAdd;
-  points.monthPoints += pointsToAdd;
-  points.yearPoints += pointsToAdd;
-  points.totalPoints += pointsToAdd;
+  points.totalPoints += p;
+  points.weekPoints += p;
+  points.monthPoints += p;
+  points.yearPoints += p;
   return points;
 }
 

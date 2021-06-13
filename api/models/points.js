@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { composeMongoose } = require('graphql-compose-mongoose');
-let defaultPoints = Math.floor(Math.random() * (50 - 25) + 25);
+let p = Math.floor(Math.random() * (50 - 25) + 25);
 
 const PointSchema = mongoose.Schema(
   {
@@ -15,30 +15,25 @@ const PointSchema = mongoose.Schema(
     totalPoints: {
       type: Number,
       min: 0,
-      required: true,
-      default: defaultPoints,
+      default: p,
     },
     weekPoints: {
       type: Number,
       min: 0,
-      required: true,
-      default: defaultPoints,
+      default: p,
     },
     monthPoints: {
       type: Number,
       min: 0,
-      required: true,
-      default: defaultPoints,
+      default: p,
     },
     yearPoints: {
       type: Number,
       min: 0,
-      required: true,
-      default: defaultPoints,
+      default: p,
     },
     lastTalked: {
       type: Date,
-      required: true
     },
   },
   { collection: 'Point' }
