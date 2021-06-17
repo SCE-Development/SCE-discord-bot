@@ -13,9 +13,9 @@ const PointMutation = {
   pointUpdateOne: {
     type: PointTC,
     args: {
-      guildID: 'String!', userID: 'String', points: 'Float',
-      weekPoints: 'Float', monthPoints: 'Float', yearPoints: 'Float',
-      totalPoints: 'Float', lastTalked: 'Date'
+      guildID: 'String!', userID: 'String!', points: 'Int',
+      weekPoints: 'Int', monthPoints: 'Int', yearPoints: 'Int',
+      totalPoints: 'Int', lastTalked: 'Date'
     },
     resolve: async (source, args) => {
       const points = await Point.findOneAndUpdate(
@@ -34,8 +34,8 @@ const PointMutation = {
       return points;
     }
   },
-  // for when a user leaves the server
   pointRemoveOne: PointTC.mongooseResolvers.removeOne(),
+  pointRemoveMany: PointTC.mongooseResolvers.removeMany(),
 };
 
 module.exports = { PointQuery, PointMutation };

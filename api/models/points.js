@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const { composeMongoose } = require('graphql-compose-mongoose');
-let p = Math.floor(Math.random() * (50 - 25) + 25);
 
 const PointSchema = mongoose.Schema(
   {
@@ -15,31 +14,31 @@ const PointSchema = mongoose.Schema(
     totalPoints: {
       type: Number,
       min: 0,
-      default: p,
+      default: 0,
     },
     weekPoints: {
       type: Number,
       min: 0,
-      default: p,
+      default: 0,
     },
     monthPoints: {
       type: Number,
       min: 0,
-      default: p,
+      default: 0,
     },
     yearPoints: {
       type: Number,
       min: 0,
-      default: p,
+      default: 0,
     },
     lastTalked: {
       type: Date,
     },
   },
-  { collection: 'Point' }
+  { collection: 'Points' }
 );
-PointSchema.index({ guildID: 1, userID: 1 }, { unique: true });
-const Point = mongoose.model('Points', PointSchema);
+
+const Point = mongoose.model('Point', PointSchema);
 const PointTC = composeMongoose(Point);
 
 module.exports = {
