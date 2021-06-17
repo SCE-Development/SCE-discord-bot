@@ -14,10 +14,11 @@ const { ApiResponse } = require('./ApiResponses');
  * @property {Date} lastTalked Date the user's last message was sent.
  */
 
+// Function to query the user's points based on server ID and Discord ID
 const POINT_QUERY = async args => {
   const query = gql`
-    query($guildID: String!, $userID: String) {
-      pointMany(filter: { guildID: $guildID, userID: $userID }) {
+    query ($guildID: String!, $userID: String) {
+      pointMany (filter: { guildID: $guildID, userID: $userID }) {
         guildID
         userID
         totalPoints
@@ -41,9 +42,11 @@ const POINT_QUERY = async args => {
   return response;
 };
 
+// Function to update user's points based off server ID and Discord ID
+// Total/weekly/monthly/yearly points are added and reset here
 const UPDATE_POINT = async point => {
   const mutation = gql`
-    mutation(
+    mutation (
       $guildID: String!
       $userID: String!
       $totalPoints: Int
@@ -52,7 +55,7 @@ const UPDATE_POINT = async point => {
       $yearPoints: Int
       $lastTalked: Date
     ) {
-      pointUpdateOne(
+      pointUpdateOne (
         guildID: $guildID
         userID: $userID
         totalPoints: $totalPoints

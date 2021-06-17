@@ -1,5 +1,5 @@
 const Command = require('../Command');
-const { POINTS_QUERY } = require('../../APIFunctions/points');
+const { POINT_QUERY } = require('../../APIFunctions/points');
 const Discord = require('discord.js');
 
 module.exports = new Command({
@@ -8,57 +8,56 @@ module.exports = new Command({
   category: 'Member services',
   aliases: ['pts'],
   permissions: 'member',
-  execute: (message) => {
+  execute: async (message) => {
     const author = message.member;
-    // Query author points
+    // Query and display author points
     if (!message.mentions.members.first()) {
-      POINTS_QUERY({
+      const authorQuery = await POINT_QUERY({
         guildID: message.guild.id,
         userID: author.id
-      })
-        .then((points) => {
-          const pointsEmbedNoMention = new Discord.MessageEmbed()
-            .setColor('#03dffc')
-            .setTitle('Point Breakdown')
-            .setThumbnail(author.user.avatarURL())
-            .addField('Total Points', points.responseData[0].totalPoints)
-            .addField('Gained This Week', points.responseData[0].weekPoints)
-            .addField('Gained This Month', points.responseData[0].monthPoints)
-            .addField('Gained This Year', points.responseData[0].yearPoints)
-            .setTimestamp();
-          if (points.responseData[0] == null) {
-            message.channel.send('User has no points.');
-          }
-          else {
-            message.channel.send(pointsEmbedNoMention);
-          }
-        });
+      });
+      const point = authorQuery.responseData[0];
+      if (point === undefined) {
+        message.channel.send('User has no points.');
+        return;
+      }
+      else {
+        const pointsEmbedNoMention = new Discord.MessageEmbed()
+          .setColor('#03dffc')
+          .setTitle('Point Breakdown')
+          .setThumbnail(author.user.avatarURL())
+          .addField('Total Points', point.totalPoints)
+          .addField('Gained This Week', point.weekPoints)
+          .addField('Gained This Month', point.monthPoints)
+          .addField('Gained This Year', point.yearPoints)
+          .setTimestamp();
+        message.channel.send(pointsEmbedNoMention);
+      }
       return;
     }
-    // If a user is mentioned, query their points
+    // If a user is mentioned, query and display user's points
     const user = message.mentions.members.first();
-    POINTS_QUERY({
+    const userQuery = await POINT_QUERY({
       guildID: message.guild.id,
       userID: user.id
-    })
-      .then((points) => {
-        if (points.responseData[0] == null) {
-          message.channel.send('User has no points.');
-        }
-        else {
-          const pointsEmbedMention = new Discord.MessageEmbed()
-            .setColor('#03dffc')
-            .setTitle('Point Breakdown')
-            .setThumbnail(user.user.avatarURL())
-            .addField('User', user)
-            .addField('Total Points', points.responseData[0].totalPoints)
-            .addField('Gained This Week', points.responseData[0].weekPoints)
-            .addField('Gained This Month', points.responseData[0].monthPoints)
-            .addField('Gained This Year', points.responseData[0].yearPoints)
-            .setTimestamp();
-          message.channel.send(pointsEmbedMention);
-        }
-      });
+    });
+    const point = userQuery.responseData[0];
+    if (point === undefined) {
+      message.channel.send('User has no points.');
+      return;
+    }
+    else {
+      const pointsEmbedMention = new Discord.MessageEmbed()
+        .setColor('#03dffc')
+        .setTitle('Point Breakdown')
+        .setThumbnail(user.user.avatarURL())
+        .addField('Total Points', point.totalPoints)
+        .addField('Gained This Week', point.weekPoints)
+        .addField('Gained This Month', point.monthPoints)
+        .addField('Gained This Year', point.yearPoints)
+        .setTimestamp();
+      message.channel.send(pointsEmbedMention);
+    }
     return;
   }
 });

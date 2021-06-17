@@ -1,5 +1,5 @@
 const Command = require('../Command');
-const { POINTS_QUERY } = require('../../APIFunctions/points');
+const { POINT_QUERY } = require('../../APIFunctions/points');
 const Discord = require('discord.js');
 
 function checkPoints(a, b) {
@@ -13,11 +13,15 @@ module.exports = new Command({
   aliases: [],
   permissions: 'member',
   execute: async (message) => {
-    const pointsArray = await POINTS_QUERY({ guildID: message.guild.id });
+    const pointsArray = await POINT_QUERY({ guildID: message.guild.id });
     const data = pointsArray.responseData;
     data.sort(checkPoints);
     let length = data.length;
-    if (length > 10) {
+    if (length === 0) {
+      message.channel.send('No one has points. Get some by talking!');
+      return;
+    }
+    else if (length > 10) {
       const topEmbedCapped = new Discord.MessageEmbed()
         .setColor('#52ba32')
         .setTitle('Points Leaderboard')

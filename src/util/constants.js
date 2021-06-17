@@ -4,7 +4,7 @@ module.exports = {
 
   /**
    * @type {Number} Amount of time to wait before a user can get more points,
-   * 600,000 ms (10 minutes)
+   * 180,000 ms (3 minutes)
    */
-  POINTS_COOLDOWN_TIME: 600000,
+  POINTS_COOLDOWN_TIME: 180000,
 };
