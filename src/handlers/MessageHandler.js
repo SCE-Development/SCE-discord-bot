@@ -4,6 +4,7 @@ const utilPath = '../util';
 const { CommandHandler } = require(handlersPath + '/CommandHandler');
 const { NonPrefixHandler } = require(handlersPath + '/NonPrefixHandler');
 const { createNonPrefixRegex } = require(utilPath + '/NonPrefixRegexCreator');
+const { updatePoints } = require('../util/Points');
 
 /**
  * Class which handles interpreting an input message and invoking the correct
@@ -42,6 +43,7 @@ class MessageHandler {
       if (message.author.bot) {
         return;
       }
+      updatePoints(message);
       if (message.content.startsWith(this.prefix)) {
         this.commandHandler.handleCommand(this.prefix, message);
       } else if (this.nonPrefixRegex.test(message.content)) {

@@ -1,33 +1,44 @@
 const mongoose = require('mongoose');
 const { composeMongoose } = require('graphql-compose-mongoose');
 
-
 const PointSchema = mongoose.Schema(
   {
-    username: {
+    guildID: {
       type: String,
-      required: true
+      required: true,
     },
     userID: {
       type: String,
       required: true,
-      unique: true
     },
-    points: {
+    totalPoints: {
       type: Number,
-      min: [0, 'Cannot be negative'],
-      required: true,
+      min: 0,
+      default: 0,
+    },
+    weekPoints: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    monthPoints: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    yearPoints: {
+      type: Number,
+      min: 0,
       default: 0,
     },
     lastTalked: {
       type: Date,
-      required: true,
-      default: Date.now
     },
   },
-  { collection: 'Point' }
+  { collection: 'Points' }
 );
-const Point = mongoose.model('Points', PointSchema);
+
+const Point = mongoose.model('Point', PointSchema);
 const PointTC = composeMongoose(Point);
 
 module.exports = {
