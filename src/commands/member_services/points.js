@@ -7,6 +7,7 @@ module.exports = new Command({
   description: 'Check how many points you have earned.',
   category: 'Member services',
   aliases: ['pts'],
+  example: 's!pts [@user]',
   permissions: 'member',
   execute: async (message) => {
     const author = message.member;
@@ -17,7 +18,7 @@ module.exports = new Command({
         userID: author.id
       });
       const point = authorQuery.responseData[0];
-      if (point === undefined) {
+      if (!point) {
         message.channel.send('User has no points.');
         return;
       }
@@ -42,7 +43,7 @@ module.exports = new Command({
       userID: user.id
     });
     const point = userQuery.responseData[0];
-    if (point === undefined) {
+    if (!point) {
       message.channel.send('User has no points.');
       return;
     }
@@ -58,6 +59,5 @@ module.exports = new Command({
         .setTimestamp();
       message.channel.send(pointsEmbedMention);
     }
-    return;
   }
 });

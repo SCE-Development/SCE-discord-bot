@@ -11,8 +11,6 @@ class CooldownManager {
    * @member {Discord.Collection} cooldownMap Maps command names to a
    * secondary Discord.Collection which maps user ID's to the timestamps a
    * command was last invoked.
-   * @member {Discord.Collection} pointsCooldown Maps user ID's to a
-   * secondary Discord.Collection to a timestamps a user last sent a message.
    */
   constructor() {
     this.cooldownMap = new Discord.Collection();

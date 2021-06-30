@@ -1,12 +1,21 @@
 const { POINT_QUERY, UPDATE_POINT } = require('../APIFunctions/points');
 const { POINTS_COOLDOWN_TIME } = require('./constants');
 
-// Random point value to add, between 25 and 50 inclusive
+/**
+ * Generates a number to be added to a user's points.
+ * 
+ * @returns {Number} A random integer between 25 and 50, inclusive. 
+ */
 function randPoints() {
-  return Math.floor(Math.random() * (50 - 25 + 1) + 25);
+  return Math.floor(Math.random() * 26 + 25);
 }
 
-// Gets the week of the month for point resets
+/**
+ * Calculates the number of the week of the month.
+ * 
+ * @returns {Number} A number between 1 and 5, dependent on the week of
+ * the month.
+ */
 function getWeek() {
   const d = new Date();
   const dayNum = d.getUTCDay() || 7;
@@ -20,6 +29,7 @@ function getWeek() {
  * If last message sent is more than one week ago, reset weekly points
  * If last message sent is before first of month, reset monthly points
  * If last message sent is before Jan 1 this year, reset yearly points
+ * Reset sets points to zero.
  * 
  * @param {Point} points The user's points.
  */
@@ -61,6 +71,7 @@ function addPointsToUser(points) {
 }
 
 /**
+ * Updates a user's points, either by adding or by resetting to zero.
  * 
  * @param {Discord.message} message The invoking message.
  * @returns {Point} The updated Point object for the invoking user.
