@@ -43,7 +43,6 @@ initialize();
       let channelID = message.channel.id;
       let msg = message.content;
       let args = message.content.substring(prefix.length).split(/ +/);
-      let command_name = commandMap.get(msg.substring(prefix.length));
       let discord_data;
       date = new Date(
         new Date().getFullYear(),
