@@ -44,14 +44,9 @@ initialize();
       let msg = message.content;
       let args = message.content.substring(prefix.length).split(/ +/);
       let discord_data;
-      date = new Date(
-        new Date().getFullYear(),
-        new Date().getMonth() ,
-        new Date().getDate()
-      )
-        .toISOString()
-        .split("T")[0];
-      
+
+      date = new Date( date.getFullYear(), date.getMonth(), date.getDate()).toISOString().split("T")[0]; //ISO Format YYYY-MM-DD
+
       
       discord_data = {
         'Command_Name' : args.shift(),
@@ -77,14 +72,10 @@ initialize();
       let msg = message.content;
       let args = message.content.substring(prefix.length).split(/ +/);
       let discord_data;
-      args.shift();
-      date = new Date(
-        date.getFullYear(),
-        date.getMonth() ,
-        date.getDate()
-      )
-        .toISOString()
-        .split("T")[0];
+      args.shift(); 
+
+      //ISO format YYYY-MM-DD
+      date = new Date( date.getFullYear(), date.getMonth(), date.getDate()).toISOString().split("T")[0]; 
   
       discord_data = {
         'Command_Name' : null,
