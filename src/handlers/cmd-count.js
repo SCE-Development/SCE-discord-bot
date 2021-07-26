@@ -38,7 +38,7 @@ initialize();
     function createJSON(message,successful){
 
       let date = new Date;
-      let time = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+      let time = checkTime(date.getHours()) + ':' + checkTime(date.getMinutes()) + ':' + checkTime(date.getSeconds());
       let userID = message.author.id;
       let channelID = message.channel.id;
       let msg = message.content;
@@ -56,7 +56,8 @@ initialize();
         'Date': date,
         'Time': time,
         'UserID': userID,
-        'Successful': successful
+        'Successful': successful,
+        'Source' : 'Discord'
     }
     console.log(discord_data);
     
@@ -66,7 +67,7 @@ initialize();
 
     function countInvalidCommands(message){
       let date = new Date;
-      let time = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+      let time = checkTime(date.getHours()) + ':' + checkTime(date.getMinutes()) + ':' + checkTime(date.getSeconds());
       let userID = message.author.id;
       let channelID = message.channel.id;
       let msg = message.content;
@@ -85,11 +86,20 @@ initialize();
         'Date': date,
         'Time': time,
         'UserID': userID,
-        'Successful': false
+        'Successful': false,
+        'Source' : 'Discord'
     }
     console.log(discord_data);
     }
 
+
+
+    function checkTime(i) {
+      if (i < 10) {
+        i = "0" + i;
+      }
+      return i;
+    }
 
 /*
 
