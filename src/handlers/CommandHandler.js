@@ -58,8 +58,6 @@ class CommandHandler {
     const commandName = args.shift().toLowerCase();
     args = parseCommandParameters(args.join(' '));
 
-    //cmdCount(message);
-
     if (!this.commandMap.has(commandName)) {
         countInvalidCommands(message);
         return;
