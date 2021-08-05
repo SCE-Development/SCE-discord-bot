@@ -1,11 +1,36 @@
+import {LambdaClient, InvokeCommand} from '@aws-sdk/client-lambda';
+const {Lambda} = require('@aws-sdk/client-lambda');
 const commandsPath = '../commands';
 const requireDir = require('require-dir');
 const Command = require(commandsPath + '/Command');
-
-const prefix = 's!';
-
 const Discord = require('discord.js') 
+
+async function sendData(data){
+  const lambdaClient = new Lambda({
+    region: 'us-west-1',
+    credentials: {
+      accessKeyId: 'xxxxxxx',
+      secretAccessKey: 'xxxxxxx'
+    }
+  });
+
+  const params = {
+    FunctionName: 'arn:aws:lambda:us-west-1:075245485931:function:DataShredder',
+    InvocationType: 'RequestResponse',
+    Payload: JSON.stringify(data)
+  };
+
+  const command = new InvokeCommand(params);
+  try {
+    const response = await lambdaClient.send(command);
+    console.log(JSON.stringify(response));
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 let commandMap = new Discord.Collection();
+const prefix = 's!';
 
 function initialize(){
   const commandFiles = requireDir(commandsPath, { recurse: true });
@@ -25,12 +50,11 @@ function initialize(){
 initialize();
 
 function countSuccessCommands(message){
-  createJSON(message,true);
-  //send data
+  sendData(createJSON(message,true));
 }
 
 function countUnsuccessCommands(message){
-  createJSON(message,false);
+  sendData(createJSON(message,false));
 }
 
 
@@ -48,15 +72,15 @@ function createJSON(message,successful){
 
   
   discord_data = {
-    'Command_Name' : args.shift(),
-    'Command_Args' : args,
-    'Channel_ID' : channelID, 
-    'Message' : msg,
-    'Date': date,
-    'Time': time,
-    'UserID': userID,
-    'Successful': successful,
-    'Source' : 'Discord'
+    Command_Name: args.shift(),
+    Command_Args: args,
+    Channel_ID: channelID, 
+    Message: msg,
+    Date: date,
+    Time: time,
+    UserID: userID,
+    Successful: successful,
+    Source : 'Discord'
   }
   console.log(discord_data);
 
@@ -74,7 +98,6 @@ function countInvalidCommands(message){
   let discord_data;
   args.shift(); 
 
-  //ISO format YYYY-MM-DD
   date = new Date( date.getFullYear(), date.getMonth(), date.getDate()).toISOString().split("T")[0]; 
 
   discord_data = {
@@ -92,27 +115,11 @@ function countInvalidCommands(message){
   console.log(discord_data);
 }
 
-
-
 function checkTime(i) {
   if (i < 10) {
     i = "0" + i;
   }
   return i;
 }
-
-/*
-
-discord_data = {
-            'Command_Name' : command_name,
-            'Command_Args' : args,
-            'Channel_ID' : channelID,
-            'Message' : msg,
-            'Date': date,
-            'Time': time,
-            'UserID': userID,
-            'Successful': false
-        }
-*/
 
 module.exports = {countUnsuccessCommands, countSuccessCommands, countInvalidCommands};
