@@ -4,18 +4,19 @@ const commandsPath = '../commands';
 const requireDir = require('require-dir');
 const Command = require(commandsPath + '/Command');
 const Discord = require('discord.js') 
+const credentials = require('../../config.json');
 
 async function sendData(data){
   const lambdaClient = new Lambda({
     region: 'us-west-1',
     credentials: {
-      accessKeyId: 'xxxxxxx',
-      secretAccessKey: 'xxxxxxx'
+      accessKeyId: credentials.aws_access_key_id,
+      secretAccessKey: credentials.aws_secret_access_key
     }
   });
 
   const params = {
-    FunctionName: 'arn:aws:lambda:us-west-1:075245485931:function:DataShredder',
+    FunctionName: credentials.aws_function_name,
     InvocationType: 'RequestResponse',
     Payload: JSON.stringify(data)
   };
