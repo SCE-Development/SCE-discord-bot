@@ -1,4 +1,4 @@
-import {LambdaClient, InvokeCommand} from '@aws-sdk/client-lambda';
+const {InvokeCommand} = require('@aws-sdk/client-lambda');
 const {Lambda} = require('@aws-sdk/client-lambda');
 const commandsPath = '../commands';
 const requireDir = require('require-dir');
@@ -24,7 +24,6 @@ async function sendData(data){
   const command = new InvokeCommand(params);
   try {
     const response = await lambdaClient.send(command);
-    console.log(JSON.stringify(response));
   } catch (err) {
     console.log(err);
   }
@@ -52,10 +51,12 @@ initialize();
 
 function countSuccessCommands(message){
   sendData(createJSON(message,true));
+  console.log(createJSON(message,true));
 }
 
 function countUnsuccessCommands(message){
   sendData(createJSON(message,false));
+  console.log(createJSON(message,false));
 }
 
 
@@ -83,8 +84,6 @@ function createJSON(message,successful){
     Successful: successful,
     Source : 'Discord'
   }
-  console.log(discord_data);
-
   return discord_data;
 }
 
@@ -112,8 +111,7 @@ function countInvalidCommands(message){
     'Successful': false,
     'Source' : 'Discord'
   }
-
-  console.log(discord_data);
+  return discord_data;
 }
 
 function checkTime(i) {
