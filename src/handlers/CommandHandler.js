@@ -1,7 +1,8 @@
 const commandsPath = '../commands';
 const utilPath = '../util';
-
-const {countSuccessCommands, countUnsuccessCommands, countInvalidCommands} = require('./cmd-count.js')
+const {countSuccessCommands,
+  countUnsuccessCommands,
+  countInvalidCommands} = require('./cmd-count.js');
 
 const Command = require(commandsPath + '/Command');
 const { CooldownManager } = require(utilPath + '/CooldownManager');
@@ -59,8 +60,8 @@ class CommandHandler {
     args = parseCommandParameters(args.join(' '));
 
     if (!this.commandMap.has(commandName)) {
-        countInvalidCommands(message);
-        return;
+      countInvalidCommands(message);
+      return;
     } else {
       const cooldownStatus = this.cooldownManager.needsToCoolDown(
         message.author.id,

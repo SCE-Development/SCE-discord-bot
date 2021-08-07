@@ -3,7 +3,7 @@ const {Lambda} = require('@aws-sdk/client-lambda');
 const commandsPath = '../commands';
 const requireDir = require('require-dir');
 const Command = require(commandsPath + '/Command');
-const Discord = require('discord.js') 
+const Discord = require('discord.js');
 const credentials = require('../../config.json');
 
 async function sendData(data){
@@ -24,6 +24,7 @@ async function sendData(data){
   const command = new InvokeCommand(params);
   try {
     const response = await lambdaClient.send(command);
+    console.log(JSON.stringify(response));
   } catch (err) {
     console.log(err);
   }
@@ -50,18 +51,18 @@ function initialize(){
 initialize();
 
 function countSuccessCommands(message){
-  sendData(createJSON(message,true));
-  console.log(createJSON(message,true));
+  sendData(createJSON(message, true));
+  console.log(createJSON(message, true));
 }
 
 function countUnsuccessCommands(message){
-  sendData(createJSON(message,false));
-  console.log(createJSON(message,false));
+  sendData(createJSON(message, false));
+  console.log(createJSON(message, false));
 }
 
 
-function createJSON(message,successful){
-
+function createJSON(message, successful){
+  /* eslint-disable */
   let date = new Date;
   let time = checkTime(date.getHours()) + ':' + checkTime(date.getMinutes()) + ':' + checkTime(date.getSeconds());
   let userID = message.author.id;
@@ -69,10 +70,7 @@ function createJSON(message,successful){
   let msg = message.content;
   let args = message.content.substring(prefix.length).split(/ +/);
   let discord_data;
-
   date = new Date( date.getFullYear(), date.getMonth(), date.getDate()).toISOString().split("T")[0]; //ISO Format YYYY-MM-DD
-
-  
   discord_data = {
     Command_Name: args.shift(),
     Command_Args: args,
@@ -85,11 +83,13 @@ function createJSON(message,successful){
     Source : 'Discord'
   }
   return discord_data;
+  /* eslint-enable */
 }
 
 
 function countInvalidCommands(message){
   let date = new Date;
+  /* eslint-disable */
   let time = checkTime(date.getHours()) + ':' + checkTime(date.getMinutes()) + ':' + checkTime(date.getSeconds());
   let userID = message.author.id;
   let channelID = message.channel.id;
@@ -97,21 +97,20 @@ function countInvalidCommands(message){
   let args = message.content.substring(prefix.length).split(/ +/);
   let discord_data;
   args.shift(); 
-
   date = new Date( date.getFullYear(), date.getMonth(), date.getDate()).toISOString().split("T")[0]; 
-
   discord_data = {
-    'Command_Name' : null,
-    'Command_Args' : args,
-    'Channel_ID' : channelID, 
-    'Message' : msg,
-    'Date': date,
-    'Time': time,
-    'UserID': userID,
-    'Successful': false,
-    'Source' : 'Discord'
+    Command_Name : null,
+    Command_Args : args,
+    Channel_ID : channelID, 
+    Message : msg,
+    Date: date,
+    Time: time,
+    UserID: userID,
+    Successful: false,
+    Source : 'Discord'
   }
   return discord_data;
+  /* eslint-enable */
 }
 
 function checkTime(i) {
@@ -121,4 +120,8 @@ function checkTime(i) {
   return i;
 }
 
-module.exports = {countUnsuccessCommands, countSuccessCommands, countInvalidCommands};
+module.exports =
+{countUnsuccessCommands,
+  countSuccessCommands,
+  countInvalidCommands
+};
