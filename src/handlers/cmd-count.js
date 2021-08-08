@@ -52,12 +52,10 @@ initialize();
 
 function countSuccessCommands(message){
   sendData(createJSON(message, true));
-  console.log(createJSON(message, true));
 }
 
 function countUnsuccessCommands(message){
   sendData(createJSON(message, false));
-  console.log(createJSON(message, false));
 }
 
 
