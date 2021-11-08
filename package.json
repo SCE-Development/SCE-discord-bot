@@ -9,7 +9,7 @@
     "fix": "./node_modules/.bin/eslint ./ --fix"
   },
   "dependencies": {
-    "apollo-server": "^2.18.2",
+    "apollo-server": "^2.25.3",
     "apollo-server-express": "^2.18.2",
     "discord.js": "^12.5.3",
     "express": "^4.16.4",
