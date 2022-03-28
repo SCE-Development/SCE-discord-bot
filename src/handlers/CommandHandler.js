@@ -54,7 +54,7 @@ class CommandHandler {
   handleCommand(prefix, message) {
     let args = message.content.slice(prefix.length).split(/ +/);
     const commandName = args.shift().toLowerCase();
-    args = parseCommandParameters(args.join(' '));
+    args = parseCommandParameters("runpy" == commandName ? message.content.slice(prefix.length+5) : args.join(' '));
 
     if (!this.commandMap.has(commandName)) {
       return;
