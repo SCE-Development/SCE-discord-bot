@@ -57,7 +57,6 @@ class CommandHandler {
     args = parseCommandParameters('runpy' == commandName 
       ? message.content.slice(prefix.length+5) 
       : args.join(' '));
-
     if (!this.commandMap.has(commandName)) {
       return;
     } else {
