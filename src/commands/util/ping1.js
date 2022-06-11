@@ -4,7 +4,7 @@ const snowboardEmoji = '🏂';
 const clockEmoji = '🕑';
 
 module.exports = new Command({
-  name: 'ping',
+  name: 'tacos',
   description: 'Check if the bot is up',
   aliases: [],
   example: 's!ping',

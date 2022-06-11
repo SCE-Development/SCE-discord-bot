@@ -51,18 +51,20 @@ const startBot = async () => {
 
 // Connect to mongoose
 const startDatabase = () => {
-  mongoose.connect(DATABASE_URL, {
-    autoIndex: true,
-    poolSize: 50,
-    bufferMaxEntries: 0,
-    keepAlive: 120,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    user: DATABASE_USER,
-    pass: DATABASE_PASSWORD,
-  });
-  mongoose.connection.once('open', () => console.log('Connected to Mongo'));
+    mongoose.connect(DATABASE_URL, {
+      autoIndex: true,
+      poolSize: 50,
+      bufferMaxEntries: 0,
+      keepAlive: 120,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      user: DATABASE_USER,
+      pass: DATABASE_PASSWORD,
+    }).catch(()=> console.log("Unable to connect to MongoDB", DATABASE_URL))
+    mongoose.connection.once('open', () => console.log('Connected to Mongo'));
+    
+  
 };
 
 const startServer = async () => {
