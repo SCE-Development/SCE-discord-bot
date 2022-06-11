@@ -1,7 +1,7 @@
 const Command = require('../Command');
 
 const snowboardEmoji = '🏂';
-const clockEmoji = '🕑';
+//const clockEmoji = '🕑';
 
 module.exports = new Command({
   name: 'ping',
@@ -14,8 +14,8 @@ module.exports = new Command({
   execute: async (message, args) => {
     const pingResponse = await message.channel.send(
       `Calculating latency... ${snowboardEmoji}`);
-    const messageLatency =
-      pingResponse.createdTimestamp - message.createdTimestamp;
-    pingResponse.edit(`Hi I'm Phu`);
+    // const messageLatency =
+    //   pingResponse.createdTimestamp - message.createdTimestamp;
+    pingResponse.edit('Hi Im Phu');
   },
 });
