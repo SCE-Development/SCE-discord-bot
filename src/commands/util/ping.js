@@ -16,6 +16,6 @@ module.exports = new Command({
       `Calculating latency... ${snowboardEmoji}`);
     const messageLatency =
       pingResponse.createdTimestamp - message.createdTimestamp;
-    pingResponse.edit('Hi Im Phu');
+    pingResponse.edit(`Hi I'm Phu`);
   },
 });
