@@ -1,21 +1,21 @@
-const Discord = require("discord.js");
+const Discord = require('discord.js');
 const {
   prefix,
   API_TOKEN,
   DATABASE_URL,
   DATABASE_USER,
   DATABASE_PASSWORD,
-} = require("./config.json");
-const { MessageHandler } = require("./src/handlers/MessageHandler");
+} = require('./config.json');
+const { MessageHandler } = require('./src/handlers/MessageHandler');
 const {
   VoiceChannelChangeHandler,
-} = require("./src/handlers/VoiceChannelChangeHandler");
-const mongoose = require("mongoose");
-const express = require("express");
-const { ApolloServer } = require("apollo-server-express");
-const { schema } = require("./api/resolvers/index.js");
-const bodyParser = require("body-parser");
-const { NewMemberAddHandler } = require("./src/handlers/NewMemberAddHandler");
+} = require('./src/handlers/VoiceChannelChangeHandler');
+const mongoose = require('mongoose');
+const express = require('express');
+const { ApolloServer } = require('apollo-server-express');
+const { schema } = require('./api/resolvers/index.js');
+const bodyParser = require('body-parser');
+const { NewMemberAddHandler } = require('./src/handlers/NewMemberAddHandler');
 const port = 5000;
 
 const startBot = async () => {
@@ -23,26 +23,26 @@ const startBot = async () => {
   const messageHandler = new MessageHandler(prefix);
   const vcChangeHandler = new VoiceChannelChangeHandler();
   const newMemberHandler = new NewMemberAddHandler();
-  client.once("ready", () => {
+  client.once('ready', () => {
     messageHandler.initialize();
     client.user.setPresence({
       activity: {
         name: `${prefix}help`,
-        type: "LISTENING",
+        type: 'LISTENING',
       },
     });
-    console.log("Discord bot live");
+    console.log('Discord bot live');
   });
 
-  client.on("message", (message) => {
+  client.on('message', (message) => {
     messageHandler.handleMessage(message);
   });
 
-  client.on("voiceStateUpdate", (oldState, newState) => {
+  client.on('voiceStateUpdate', (oldState, newState) => {
     vcChangeHandler.handleChangeMemberInVoiceChannel(oldState, newState);
   });
 
-  client.on("guildMemberAdd", (newMember) => {
+  client.on('guildMemberAdd', (newMember) => {
     newMemberHandler.handleNewMember(newMember);
   });
 
@@ -64,7 +64,7 @@ const startDatabase = () => {
       pass: DATABASE_PASSWORD,
     })
     .catch(() => console.log('Unable to connect to MongoDB', DATABASE_URL));
-  mongoose.connection.once("open", () => console.log("Connected to Mongo"));
+  mongoose.connection.once('open', () => console.log('Connected to Mongo'));
 };
 
 const startServer = async () => {
