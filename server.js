@@ -34,7 +34,7 @@ const startBot = async () => {
     console.log('Discord bot live');
   });
 
-  client.on('message', message => {
+  client.on('message', (message) => {
     messageHandler.handleMessage(message);
   });
 
@@ -42,7 +42,7 @@ const startBot = async () => {
     vcChangeHandler.handleChangeMemberInVoiceChannel(oldState, newState);
   });
 
-  client.on('guildMemberAdd', newMember => {
+  client.on('guildMemberAdd', (newMember) => {
     newMemberHandler.handleNewMember(newMember);
   });
 
@@ -51,17 +51,19 @@ const startBot = async () => {
 
 // Connect to mongoose
 const startDatabase = () => {
-  mongoose.connect(DATABASE_URL, {
-    autoIndex: true,
-    poolSize: 50,
-    bufferMaxEntries: 0,
-    keepAlive: 120,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    user: DATABASE_USER,
-    pass: DATABASE_PASSWORD,
-  });
+  mongoose
+    .connect(DATABASE_URL, {
+      autoIndex: true,
+      poolSize: 50,
+      bufferMaxEntries: 0,
+      keepAlive: 120,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      user: DATABASE_USER,
+      pass: DATABASE_PASSWORD,
+    })
+    .catch(() => console.log('Unable to connect to MongoDB at', DATABASE_URL));
   mongoose.connection.once('open', () => console.log('Connected to Mongo'));
 };
 
