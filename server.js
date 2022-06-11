@@ -61,7 +61,7 @@ const startDatabase = () => {
       useCreateIndex: true,
       user: DATABASE_USER,
       pass: DATABASE_PASSWORD,
-    }).catch(()=> console.log("Unable to connect to MongoDB", DATABASE_URL))
+    }).catch(()=> console.log("Unable to connect to MongoDB", DATABASE_URL));
     mongoose.connection.once('open', () => console.log('Connected to Mongo'));
     
   
