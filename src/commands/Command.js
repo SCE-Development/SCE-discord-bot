@@ -11,6 +11,7 @@ module.exports = class Command {
   }
 
   async execute(message, args) {
+    //delete this
     this.executeCommand(message, args);
   }
 };
