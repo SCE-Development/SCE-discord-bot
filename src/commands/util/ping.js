@@ -2,8 +2,8 @@ const Command = require('../Command');
 
 const snowboardEmoji = '🏂';
 const clockEmoji = '🕑';
-const TestHawk = require('../../APIFunctions/TestHawk');
-const PrinterTestHawk = require('../../APIFunctions/PrinerTestHawk');
+const CheckDiscordID = require('../../APIFunctions/CheckDiscordID');
+const SendFileURL = require('../../APIFunctions/SendFileURL');
 const {DISCORD_SECRET_KEY} = require('../../../config.json');
 
 module.exports = new Command({
@@ -31,10 +31,10 @@ module.exports = new Command({
     };
 
     const checkingInProcess = await message.channel.send('Checking user ID...');
-    const {mess}  = await TestHawk.checkID(checkUser);
+    const {mess}  = await CheckDiscordID.checkID(checkUser);
 
     if(mess === 'User exists'){
-      const response = await PrinterTestHawk.allowPrinting(checkURL);
+      const response = await SendFileURL.allowPrinting(checkURL);
       
       if(response !== 'OK'){
         checkingInProcess.edit('Invalid API Key! Unable to print!');
