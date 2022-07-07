@@ -6,6 +6,5 @@
     "EVENTS_CAL": "",
     "DISCORD_API_URL": "http://localhost:5000",
     "prefix": "s!",
-    "SCE_API_URL": "http://sce.engr.sjsu.edu",
-    "DISCORD_SECRET_KEY": "burrito"
+    "SCE_API_URL": "http://sce.engr.sjsu.edu"
 }
