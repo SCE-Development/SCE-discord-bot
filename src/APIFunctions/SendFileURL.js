@@ -16,4 +16,4 @@ async function allowPrinting(checkURl){
   return status;
 }
 
-module.exports = {allowPrinting};
+module.exports = allowPrinting;
