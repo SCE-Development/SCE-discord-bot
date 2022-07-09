@@ -1,5 +1,6 @@
 const Command = require('../Command');
 const CheckDiscordID = require('../../APIFunctions/CheckDiscordID');
+const {CORE_V4_API_KEY} = require('../../../config.json');
 const PrintRequestHandler = require('../../util/PrintRequestHandler');
 
 module.exports = new Command({
@@ -17,17 +18,18 @@ module.exports = new Command({
     const checkingInProcess = await message.channel.send('Checking user ID...');
     const checkUser = {
       discordID: userID,
+      apiKey: CORE_V4_API_KEY
     };
     
-    
-    const {exist, mess}  = await CheckDiscordID(checkUser);
+    const {exist, mess}  =
+     await CheckDiscordID.checkDiscordConnection(checkUser);
     if(exist){
       checkingInProcess.edit(mess);
       message.author.send('Submit 1 file at a time');
       PrintRequestHandler();
     } else{
       checkingInProcess.edit('Unauthorized' +
-        ' make sure sce web account connected');
+        ' make sure SCE web account connected');
     }
     
   },

@@ -1,10 +1,10 @@
 const axios = require('axios');
-const ApiResponse = require('./ApiResponses');
+const {ApiResponse} = require('./ApiResponses');
 
 let PERIPHERAL_API_URL = 'http://localhost:8081/peripheralapi';
 
-async function allowPrinting(checkURl){
-  let status = new ApiResponse.ApiResponse();
+async function sendPrintRequest(checkURl){
+  let status = new ApiResponse;
   await axios
     .post(PERIPHERAL_API_URL + '/Printer/validateDiscordReq', {...checkURl})
     .then(res => status.responseData = res.data)
@@ -16,4 +16,4 @@ async function allowPrinting(checkURl){
   return status;
 }
 
-module.exports = allowPrinting;
+module.exports = {sendPrintRequest};

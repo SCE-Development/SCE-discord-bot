@@ -19,9 +19,10 @@ async function PrintRequestHandler() {
         apiKey: CORE_V4_API_KEY
       };
       
-      const response = await SendFileURL(checkURL);
+      const response = await SendFileURL.sendPrintRequest(checkURL);
       
       if(response.error){
+        console.log(response);
         message.author.send('Invalid API Key! Unable to print!');
       } else{
         message.author.send('Printing...');
