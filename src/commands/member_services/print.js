@@ -33,14 +33,13 @@ module.exports = new Command({
     const filter = collected => collected.author.id === message.author.id;
     await message.channel.awaitMessages(filter, {
       max: 1,
-      time: 10000
+      time: 15000
     })
       .then(collected => {
-        console.log('here');
         url = collected.first().attachments.first().url;
       })
       .catch(() => {
-        message.author.send('Timeout');
+        return message.author.send('Timeout');
       });
 
     let isPrinterWorking  = printerHealthCheck();
@@ -54,5 +53,6 @@ module.exports = new Command({
     if(!isPushDiscordPDFToSqs){
       return reply.edit('Unable to print your file! Please try again!');
     }
+    return message.author.send('Printing...');
   }
 });
