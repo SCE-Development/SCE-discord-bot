@@ -8,7 +8,7 @@ const {
 
 module.exports = new Command({
   name: 'print',
-  description: 'Print PDF fileURL',
+  description: 'Print PDF file',
   aliases: ['print'],
   example: 's!print',
   permissions: 'member',
