@@ -73,8 +73,8 @@ function pushDiscordPDFToSqs(fileURL) {
  * @summary Calling updatePagesPrintedFromDiscord endpoint from 
  * Core-V4/main_endpoint/User.js to edit user's printed pages
  * @param {String} discordID
- * @param {Number} printedPages
- * @return {Promise} A promise that resolve true if printedPages 
+ * @param {Number} pagesPrinted
+ * @return {Promise} A promise that resolve true if pagesPrinted 
  * is successfully updated and vice versa.
  * 
  */

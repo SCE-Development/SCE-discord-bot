@@ -2,8 +2,8 @@ const {PDFDocument} = require('pdf-lib');
 const fetch = require('node-fetch');
 /**
  * Returns the number of pages in a PDF file.
- * @param {string} pdfPath - path to the pdf file
- * @returns {number} - number of pages in the pdf
+ * @param {string} url - url of the attachment
+ * @returns {number} pageCount - number of pages of the PDF
  */
 async function getPdfNumOfPages( url ) {
   const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
