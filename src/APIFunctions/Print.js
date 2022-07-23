@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { CORE_V4_API_KEY } = require('../../config.json');
 
+
 let MAINENDPOINTS_API_URL = 'http://localhost:8080/api/user';
 let PERIPHERAL_API_URL = 'http://localhost:8081/peripheralapi';
 
@@ -77,15 +78,15 @@ function pushDiscordPDFToSqs(fileURL) {
  * is successfully updated and vice versa.
  * 
  */
-function editUserPagesPrinted ( discordID, printedPages ) {
+function editUserPagesPrinted ( discordID, pagesPrinted ) {
   return new Promise(( resolve ) => {
     const body = {
       discordID: discordID,
       apiKey: CORE_V4_API_KEY,
-      printedPages: printedPages
+      pagesPrinted: pagesPrinted
     };
     // eslint-disable-next-line max-len
-    axios.post(`${MAINENDPOINTS_API_URL}/updatePagesPrintedFromDiscord`, {...body})
+    axios.post(`${MAINENDPOINTS_API_URL}/updatePagesPrintedFromDiscord`, body)
       .then(() => {
         resolve(true);
       })
