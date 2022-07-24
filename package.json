@@ -4,7 +4,7 @@
   "description": "SCE Discord bot to manage the server",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "nodemon --legacy-watch server.js",
     "lint": "./node_modules/.bin/eslint ./",
     "fix": "./node_modules/.bin/eslint ./ --fix"
   },

@@ -6,6 +6,9 @@ services:
       context: ./
       dockerfile: ./Dockerfile
     restart: 'on-failure'
+    volumes:
+      - ./api:/app/api
+      - ./src:/app/src
     ports:
       - '5000:5000'
     links:
