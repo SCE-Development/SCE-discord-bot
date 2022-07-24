@@ -25,7 +25,7 @@ module.exports = new Command({
 
     // Get the user's token
 
-    // Get the doorcode from MongoDB
+    // Get the doorcode from database
     // Post request w/ a JSON body using fetch
     fetch(
       `${SCE_API_URL}/api/DoorCode/getDoorCodeByDiscordID?discordID=${userID}`,
