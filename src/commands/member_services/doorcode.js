@@ -46,7 +46,6 @@ module.exports = new Command({
       });
 
     // Bot dms user with their doorcode
-    author.send("Your doorcode is : ");
-    author.send(doorCode);
+    author.send("Your doorcode is : " + doorCode);
   },
 });
