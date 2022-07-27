@@ -14,8 +14,10 @@ let PERIPHERAL_API_URL = 'http://localhost:8081/peripheralapi';
  */
 function validateDiscordID(discordID) {
   return new Promise(( resolve ) => {
-    // eslint-disable-next-line max-len
-    axios.post(`${MAINENDPOINTS_API_URL}/getUserFromDiscordId`, {discordID, apiKey: CORE_V4_API_KEY})
+    axios.post(
+        `${MAINENDPOINTS_API_URL}/getUserFromDiscordId`,
+        {discordID, apiKey: CORE_V4_API_KEY}
+    )
       .then((res) => {
         const {pagesPrinted} = res.data;
         const result = {
