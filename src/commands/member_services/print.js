@@ -32,10 +32,7 @@ module.exports = new Command({
     reply.edit('Check your DM');
     await message.author.send('Please submit one file at a time!');
     const filter = collected => collected.author.id === message.author.id;
-    await message.channel.awaitMessages(filter, {
-      max: 1,
-      time: 15000,
-    })
+    await message.channel.awaitMessages(filter, {max: 1, time: 15000})
       .then(collected => {
         url = collected.first().attachments.first().url;
       })
