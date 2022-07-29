@@ -16,6 +16,7 @@ module.exports = new Command({
   execute: (message, args) => {
     const author = message.member;
     const userID = author.id;
+    const testID = 129048192038102;
 
     // Bot replies to s!doorcode in channel
     message.channel.send("dming you a response!");
@@ -29,31 +30,36 @@ module.exports = new Command({
       })
       .then((data) => {
         const token = data.token;
-
-        // Get the doorcode from database
-        // Post request w/ a JSON body containing token using fetch
-        fetch(
-          `http://localhost:8080/api/DoorCode/getDoorCodeByDiscordID?discordID=${userID}`,
-          {
-            method: "POST",
-            headers: { "Content-type": "application/json" },
-            body: JSON.stringify({
-              token: token,
-            }),
-          }
-        )
-          .then((res) => {
-            return res.json();
-          })
-          .then((data) => {
-            author.send("Your doorcode is: " + data.code).catch(console.error);
-          })
-          .catch((err) => {
-            console.log(err);
-            author.send(
-              "Sorry, either your discord ID is not in the database, or you are not an officer or higher."
-            );
-          });
+        if (token == undefined) {
+          author.send("Sorry, your discord ID is not in the database.");
+        } else {
+          // Get the doorcode from database
+          // Post request w/ a JSON body containing token using fetch
+          fetch(
+            `http://localhost:8080/api/DoorCode/getDoorCodeByDiscordID?discordID=${userID}`,
+            {
+              method: "POST",
+              headers: { "Content-type": "application/json" },
+              body: JSON.stringify({
+                token: token,
+              }),
+            }
+          )
+            .then((res) => {
+              return res.json();
+            })
+            .then((data) => {
+              author
+                .send("Your doorcode is: " + data.code)
+                .catch(console.error);
+            })
+            .catch((err) => {
+              console.log(err);
+              author.send(
+                "Sorry, either your doorcode is not in the database, or you are not an officer or higher."
+              );
+            });
+        }
       });
   },
 });
