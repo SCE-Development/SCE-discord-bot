@@ -1,9 +1,8 @@
 const axios = require('axios');
 const { CORE_V4_API_KEY } = require('../../config.json');
 
-
-let MAINENDPOINTS_API_URL = 'http://localhost:8080/api/user';
-let PERIPHERAL_API_URL = 'http://localhost:8081/peripheralapi';
+let MAINENDPOINTS_API_URL = 'https://sce.engr.sjsu.edu/api/user';
+let PERIPHERAL_API_URL = 'https://sce.engr.sjsu.edu/peripheralapi';
 
 /**
  * @summary Calling getUserFromDiscordId endpoint from 
@@ -24,7 +23,7 @@ function validateDiscordID(discordID) {
           isValid: true, 
           pagesPrinted: pagesPrinted
         };
-        res.status === 200 && resolve(result);
+        resolve(result);
       })
       .catch(() => {
         resolve(false);
