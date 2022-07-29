@@ -1,7 +1,7 @@
 const Command = require("../Command");
 
 const fetch = require("node-fetch");
-const { SCE_API_URL } = require("../../config.json");
+const { SCE_API_URL } = require("../../../config.json");
 
 module.exports = new Command({
   name: "doorcode",
@@ -12,11 +12,8 @@ module.exports = new Command({
   example: "s!dcode",
   permissions: "admin",
   category: "information",
-  disabled: true,
-  execute: async (message, args) => {
-    let doorCode = "";
-    let token = "";
-
+  disabled: false,
+  execute: (message, args) => {
     const author = message.member;
     const userID = author.id;
 
@@ -24,28 +21,39 @@ module.exports = new Command({
     message.channel.send("dming you a response!");
 
     // Get the user's token
-
-    // Get the doorcode from database
-    // Post request w/ a JSON body using fetch
     fetch(
-      `${SCE_API_URL}/api/DoorCode/getDoorCodeByDiscordID?discordID=${userID}`,
-      {
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify(token),
-      }
+      `http://localhost:8080/api/Auth/getTokenFromDiscordID?discordID=${userID}`
     )
       .then((res) => {
         return res.json();
       })
       .then((data) => {
-        doorCode = data;
-      })
-      .catch((err) => {
-        reject(err);
-      });
+        const token = data.token;
 
-    // Bot dms user with their doorcode
-    author.send("Your doorcode is : " + doorCode);
+        // Get the doorcode from database
+        // Post request w/ a JSON body containing token using fetch
+        fetch(
+          `http://localhost:8080/api/DoorCode/getDoorCodeByDiscordID?discordID=${userID}`,
+          {
+            method: "POST",
+            headers: { "Content-type": "application/json" },
+            body: JSON.stringify({
+              token: token,
+            }),
+          }
+        )
+          .then((res) => {
+            return res.json();
+          })
+          .then((data) => {
+            author.send("Your doorcode is: " + data.code).catch(console.error);
+          })
+          .catch((err) => {
+            console.log(err);
+            author.send(
+              "Sorry, either your discord ID is not in the database, or you are not an officer or higher."
+            );
+          });
+      });
   },
 });
