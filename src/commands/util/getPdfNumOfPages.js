@@ -9,7 +9,7 @@ async function getPdfNumOfPages( url ) {
   const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
   const pdfDoc = await PDFDocument.load(existingPdfBytes);
   const pageCount = await pdfDoc.getPageCount();
-  console.log(pageCount);
   return pageCount;
 }
 module.exports = {getPdfNumOfPages};
+
