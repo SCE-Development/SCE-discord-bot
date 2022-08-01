@@ -16,15 +16,12 @@ module.exports = new Command({
   execute: (message, args) => {
     const author = message.member;
     const userID = author.id;
-    const testID = 129048192038102;
 
     // Bot replies to s!doorcode in channel
     message.channel.send("dming you a response!");
 
     // Get the user's token
-    fetch(
-      `http://localhost:8080/api/Auth/getTokenFromDiscordID?discordID=${userID}`
-    )
+    fetch(`${SCE_API_URL}/api/Auth/getTokenFromDiscordID?discordID=${userID}`)
       .then((res) => {
         return res.json();
       })
@@ -36,7 +33,7 @@ module.exports = new Command({
           // Get the doorcode from database
           // Post request w/ a JSON body containing token using fetch
           fetch(
-            `http://localhost:8080/api/DoorCode/getDoorCodeByDiscordID?discordID=${userID}`,
+            `${SCE_API_URL}/api/DoorCode/getDoorCodeByDiscordID?discordID=${userID}`,
             {
               method: "POST",
               headers: { "Content-type": "application/json" },
