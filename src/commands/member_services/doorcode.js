@@ -17,6 +17,13 @@ module.exports = new Command({
     const author = message.member;
     const userID = author.id;
 
+    let { isValid } = validateDiscordID(message.author);
+    if (!isValid) {
+      return message.channel.send(
+        "Connect your discord account with " + "SCE web then try again!"
+      );
+    }
+
     // Bot replies to s!doorcode in channel
     message.channel.send("dming you a response!");
 
@@ -57,6 +64,9 @@ module.exports = new Command({
               );
             });
         }
+      })
+      .catch((err) => {
+        author.send("Sorry, your discord ID is not in the database");
       });
   },
 });
