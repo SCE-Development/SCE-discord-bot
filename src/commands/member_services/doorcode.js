@@ -2,6 +2,7 @@ const Command = require("../Command");
 
 const fetch = require("node-fetch");
 const { SCE_API_URL } = require("../../../config.json");
+const { validateDiscordID } = require("../../APIFunctions/Print.js");
 
 module.exports = new Command({
   name: "doorcode",
@@ -13,22 +14,25 @@ module.exports = new Command({
   permissions: "admin",
   category: "information",
   disabled: false,
-  execute: (message, args) => {
+  execute: async (message, args) => {
     const author = message.member;
     const userID = author.id;
 
-    let { isValid } = validateDiscordID(message.author);
+    // Validate discord ID
+    let { isValid } = await validateDiscordID(userID);
     if (!isValid) {
-      return message.channel.send(
-        "Connect your discord account with " + "SCE web then try again!"
+      return await message.channel.send(
+        "Connect your discord account with SCE web then try again!"
       );
     }
 
     // Bot replies to s!doorcode in channel
-    message.channel.send("dming you a response!");
+    await message.channel.send("dming you a response!");
 
     // Get the user's token
-    fetch(`${SCE_API_URL}/api/Auth/getTokenFromDiscordID?discordID=${userID}`)
+    await fetch(
+      `${SCE_API_URL}/api/Auth/getTokenFromDiscordID?discordID=${userID}`
+    )
       .then((res) => {
         return res.json();
       })
@@ -58,7 +62,6 @@ module.exports = new Command({
                 .catch(console.error);
             })
             .catch((err) => {
-              console.log(err);
               author.send(
                 "Sorry, either your doorcode is not in the database, or you are not an officer or higher."
               );
@@ -66,7 +69,7 @@ module.exports = new Command({
         }
       })
       .catch((err) => {
-        author.send("Sorry, your discord ID is not in the database");
+        author.send("Sorry, your discord ID is not in the database.");
       });
   },
 });
