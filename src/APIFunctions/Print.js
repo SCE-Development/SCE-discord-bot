@@ -1,8 +1,8 @@
-const axios = require("axios");
-const { CORE_V4_API_KEY } = require("../../config.json");
+const axios = require('axios');
+const { CORE_V4_API_KEY } = require('../../config.json');
 
-let MAINENDPOINTS_API_URL = "https://sce.engr.sjsu.edu/api/user";
-let PERIPHERAL_API_URL = "https://sce.engr.sjsu.edu/peripheralapi";
+let MAINENDPOINTS_API_URL = 'https://sce.engr.sjsu.edu/api/user';
+let PERIPHERAL_API_URL = 'https://sce.engr.sjsu.edu/peripheralapi';
 
 /**
  * @summary Calling getUserFromDiscordId endpoint from
@@ -16,13 +16,13 @@ function validateDiscordID(discordID) {
     axios
       .post(`${MAINENDPOINTS_API_URL}/getUserFromDiscordId`, {
         discordID,
-        apiKey: CORE_V4_API_KEY,
+        apiKey: CORE_V4_API_KEY
       })
       .then((res) => {
         const { pagesPrinted } = res.data;
         const result = {
           isValid: true,
-          pagesPrinted: pagesPrinted,
+          pagesPrinted: pagesPrinted
         };
         resolve(result);
       })
@@ -64,7 +64,7 @@ function pushDiscordPDFToSqs(fileURL) {
     axios
       .post(`${PERIPHERAL_API_URL}/Printer/pushDiscordPDFToSqs`, {
         fileURL,
-        apiKey: CORE_V4_API_KEY,
+        apiKey: CORE_V4_API_KEY
       })
       .then(() => {
         resolve(true);
@@ -89,7 +89,7 @@ function editUserPagesPrinted(discordID, pagesPrinted) {
     const body = {
       discordID: discordID,
       apiKey: CORE_V4_API_KEY,
-      pagesPrinted: pagesPrinted,
+      pagesPrinted: pagesPrinted
     };
     // eslint-disable-next-line max-len
     axios
@@ -107,5 +107,5 @@ module.exports = {
   validateDiscordID,
   printerHealthCheck,
   pushDiscordPDFToSqs,
-  editUserPagesPrinted,
+  editUserPagesPrinted
 };

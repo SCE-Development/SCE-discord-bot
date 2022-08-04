@@ -1,56 +1,53 @@
-const Command = require("../Command");
+const Command = require('../Command');
 
-const fetch = require("node-fetch");
-const { SCE_API_URL } = require("../../../config.json");
-const { validateDiscordID } = require("../../APIFunctions/Print.js");
+const fetch = require('node-fetch');
+const { SCE_API_URL } = require('../../../config.json');
+const { validateDiscordID } = require('../../APIFunctions/Print.js');
 
 module.exports = new Command({
-  name: "doorcode",
+  name: 'doorcode',
   description:
-    "If someone has difficulty trying to open the door.\
-  they can ping the bot and it'll tell them their doorcode.",
-  aliases: ["dcode"],
-  example: "s!dcode",
-  permissions: "admin",
-  category: "information",
+    'If someone has difficulty trying to open the door.\
+  they can ping the bot and it will tell them their doorcode.',
+  aliases: ['dcode'],
+  example: 's!dcode',
+  permissions: 'admin',
+  category: 'information',
   disabled: false,
-  execute: async (message, args) => {
+  execute: async (message) => {
     const author = message.member;
-    const userID = author.id;
+    const id = author.id;
 
     // Validate discord ID
-    let { isValid } = await validateDiscordID(userID);
+    let { isValid } = await validateDiscordID(id);
     if (!isValid) {
       return await message.channel.send(
-        "Connect your discord account with SCE web then try again!"
+        'Connect your discord account with SCE web then try again!'
       );
     }
 
     // Bot replies to s!doorcode in channel
-    await message.channel.send("dming you a response!");
+    await message.channel.send('dming you a response!');
 
     // Get the user's token
-    await fetch(
-      `${SCE_API_URL}/api/Auth/getTokenFromDiscordID?discordID=${userID}`
-    )
+    await fetch(`${SCE_API_URL}/api/Auth/getTokenFromDiscordID?discordID=${id}`)
       .then((res) => {
         return res.json();
       })
       .then((data) => {
         const token = data.token;
         if (token == undefined) {
-          author.send("Sorry, your discord ID is not in the database.");
+          author.send('Sorry, your discord ID is not in the database.');
         } else {
           // Get the doorcode from database
-          // Post request w/ a JSON body containing token using fetch
           fetch(
-            `${SCE_API_URL}/api/DoorCode/getDoorCodeByDiscordID?discordID=${userID}`,
+            `${SCE_API_URL}/api/DoorCode/getDoorCodeByDiscord?discordID=${id}`,
             {
-              method: "POST",
-              headers: { "Content-type": "application/json" },
+              method: 'POST',
+              headers: { 'Content-type': 'application/json' },
               body: JSON.stringify({
-                token: token,
-              }),
+                token: token
+              })
             }
           )
             .then((res) => {
@@ -58,18 +55,16 @@ module.exports = new Command({
             })
             .then((data) => {
               author
-                .send("Your doorcode is: " + data.code)
+                .send('Your doorcode is: ' + data.code)
                 .catch(console.error);
             })
-            .catch((err) => {
-              author.send(
-                "Sorry, either your doorcode is not in the database, or you are not an officer or higher."
-              );
+            .catch(() => {
+              author.send('Sorry, your request failed.');
             });
         }
       })
-      .catch((err) => {
-        author.send("Sorry, your discord ID is not in the database.");
+      .catch(() => {
+        author.send('Sorry, your discord ID is not in the database.');
       });
-  },
+  }
 });
