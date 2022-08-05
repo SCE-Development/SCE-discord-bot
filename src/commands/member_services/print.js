@@ -22,6 +22,7 @@ module.exports = new Command({
     const reply = await message.channel.send('Authenticating Print Request.');
 
     let {isValid, pagesPrinted} = await validateDiscordID( id );
+
     if (!isValid) {
       return reply.edit('Connect your discord account with ' +
         'SCE web then try again!');
