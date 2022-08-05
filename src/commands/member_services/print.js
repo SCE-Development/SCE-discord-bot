@@ -15,8 +15,7 @@ module.exports = new Command({
   permissions: 'member',
   category: 'member services',
 
-  // eslint-disable-next-line no-unused-vars
-  execute: async (message, args) => {
+  execute: async (message) => {
     const { id } = message.author;
 
     const reply = await message.channel.send('Authenticating Print Request.');
