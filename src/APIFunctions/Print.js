@@ -5,8 +5,7 @@ let MAINENDPOINTS_API_URL = 'https://sce.engr.sjsu.edu/api/user';
 let PERIPHERAL_API_URL = 'https://sce.engr.sjsu.edu/peripheralapi';
 
 /**
- * @summary Calling getUserFromDiscordId endpoint from 
- * Core-V4/main_endpoints/User.js to check if user's Discord ID is in database.
+ * @summary Check if a given Discord ID exists in Core-v4's database.
  * @param {Number} discordID
  * @return {Promise} A promise that contains a boolean variable of 
  * user's discord id validation and number of printed pages
