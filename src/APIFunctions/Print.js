@@ -20,7 +20,7 @@ function validateDiscordID(discordID) {
         const {pagesPrinted} = res.data;
         const result = {
           isValid: true, 
-          pagesPrinted: pagesPrinted
+          pagesPrinted,
         };
         resolve(result);
       })
