@@ -1,9 +1,5 @@
 {
     "API_TOKEN": "token goes here",
-    "DATABASE_URL": "mongodb://mongo:27017/Discord",
-    "DATABASE_USER": "sce-discord-bot",
-    "DATABASE_PASSWORD": "password from .env goes here",
-    "EVENTS_CAL": "",
     "DISCORD_API_URL": "http://localhost:5000",
     "prefix": "s!",
     "SCE_API_URL": "http://sce.engr.sjsu.edu",
