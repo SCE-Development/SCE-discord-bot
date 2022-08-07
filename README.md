@@ -12,28 +12,17 @@ the Discord server with custom commands.
 2. [docker](https://www.docker.com)
 
 ### With Docker
-
-1. `API_TOKEN` is the Discord API token (ask a team member for this)
-2. In your terminal (in the root directory of the project) run `docker-compose up --build bot`
+1.  Create a `config.json` file with the same format as `config.example.json`
+2. `API_TOKEN` is the Discord API token (ask a team member for this)
+3. In your terminal (in the root directory of the project) run `docker-compose up --build bot`
    1. Make sure Docker is running first
    2. Omit the `--build` flag to reuse an old build
-3. Test out the bot in the discord channel!
+4. Test out the bot in the discord channel!
 
 ### Without Docker
 
 1. Create a `config.json` file with the same format as `config.example.json`
    1. `API_TOKEN` is the Discord API token (ask a team member for this)
-   2. `DATABASE_URL` needs `mongo` replaced with `localhost` (i.e. `mongodb://localhost:27017/Discord`)
-   3. `DATABASE_PASSWORD` can be whatever you want
-2. Create a user for the bot in MongoDB
-   1. Make sure MongoDB is running
-      1. Instructions will depend on your environment
-      2. Use `mongod` to start the MongoDB daemon on Linux
-   2. In your terminal, open the MongoDB shell with `mongo`
-   3. Type `use Discord` to create and switch to the `Discord` database
-   4. Copy and paste `db.createUser({ user: 'sce-discord-bot', pwd: passwordPrompt(), roles: [{ role: 'readWrite', db: 'Discord' }] })` to create a user for the bot
-   5. Set the password to whatever you have for `DATABASE_PASSWORD` from `config.json`
-   6. Type `exit`
 3. In your terminal (in the root directory of the project)
    1. run `npm install`
    2. run `npm start`
