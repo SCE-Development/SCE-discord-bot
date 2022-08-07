@@ -28,31 +28,6 @@ the Discord server with custom commands.
    2. run `npm start`
 4. Test out the bot in the discord channel!
 
-### How to use with Docker
-
-1. Additionally create a `.env` file with the same format as `.env.example`
-2. `MONGO_ROOT_PASSWORD` is the password for the root user on Docker's MongoDB database, username: `admin`
-3. `MONGO_BOT_PASSWORD` is the password for the bot to use with MongoDB. Should be the same as `DATABASE_PASSWORD` in `config.json`
-4. Change `DATABASE_URL` in `config.json` to use `mongo` instead of `localhost`
-
-## How to set up Calendar Event API
-
-1. Obtain API token from SCE slack
-1. Create a `config.json` file with similar format as `config.example.json`
-1. Locate your `Calendar ID` in you Google Calendar settings:
-
-![image](https://user-images.githubusercontent.com/47675634/87125869-0ec97280-c240-11ea-815b-ed13596cef6b.PNG)
-
-1. Select which calendar you want to access through the API
-2. Scroll down to `Integrate Calendar` and copy your `Calendar Id`:
-
-![image](https://user-images.githubusercontent.com/47675634/87126195-a3cc6b80-c240-11ea-96a3-24c5b91ad256.PNG)
-
-1. Add this into your `config.json` int the `EVENTS_CAL` section
-2. If you want to use your primary calendar, for `EVENTS_CAL` put `primary`
-3. In the terminal, run `npm start`
-4. Test out the bot in the discord channel!
-
 ## Purpose of this bot
 
 We are currently using Dyno/Tatsumaki/Reactionrole/Owobot to manage
