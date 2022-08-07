@@ -23,10 +23,10 @@ the Discord server with custom commands.
 
 1. Create a `config.json` file with the same format as `config.example.json`
    1. `API_TOKEN` is the Discord API token (ask a team member for this)
-3. In your terminal (in the root directory of the project)
+2. In your terminal (in the root directory of the project)
    1. run `npm install`
    2. run `npm start`
-4. Test out the bot in the discord channel!
+3. Test out the bot in the discord channel!
 
 ## Purpose of this bot
 
