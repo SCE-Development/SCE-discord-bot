@@ -9,21 +9,15 @@ the Discord server with custom commands.
 ### Prerequisites
 
 1. [npm](https://www.npmjs.com)
-2. [mongoDB](https://www.mongodb.com)
-3. [docker](https://www.docker.com)
+2. [docker](https://www.docker.com)
 
 ### With Docker
 
-1. Create a `.env` file with the same format as `.env.example`
-   1. `MONGO_ROOT_PASSWORD` is the password for the root user on the Docker build's MongoDB database (can be set to anything for first build)
-   2. `MONGO_BOT_PASSWORD` is the password for the bot to use with MongoDB (can be set to anything for first build)
-2. Create a `config.json` file with the same format as `config.example.json`
-   1. `API_TOKEN` is the Discord API token (ask a team member for this)
-   2. `DATABASE_PASSWORD` should be the same as `MONGO_BOT_PASSWORD` from `.env`
-3. In your terminal (in the root directory of the project) run `docker-compose up --build bot`
+1. `API_TOKEN` is the Discord API token (ask a team member for this)
+2. In your terminal (in the root directory of the project) run `docker-compose up --build bot`
    1. Make sure Docker is running first
    2. Omit the `--build` flag to reuse an old build
-4. Test out the bot in the discord channel!
+3. Test out the bot in the discord channel!
 
 ### Without Docker
 
