@@ -17,9 +17,6 @@
     "pdf-lib": "^1.17.1",
     "require-dir": "^1.2.0"
   },
-  "engines": {
-    "node": "14.x"
-  },
   "license": "MIT",
   "keywords": [
     "node",
