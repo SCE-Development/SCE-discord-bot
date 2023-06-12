@@ -10,7 +10,14 @@ const {
 const { NewMemberAddHandler } = require('./src/handlers/NewMemberAddHandler');
 
 const startBot = async () => {
-  const client = new Discord.Client();
+  const client = new Discord.Client({
+    intents: [
+      Discord.GatewayIntentBits.Guilds,
+      Discord.GatewayIntentBits.GuildMessages,
+      Discord.GatewayIntentBits.MessageContent,
+      Discord.GatewayIntentBits.GuildVoiceStates,
+    ]
+  });
   const messageHandler = new MessageHandler(prefix);
   const vcChangeHandler = new VoiceChannelChangeHandler();
   const newMemberHandler = new NewMemberAddHandler();
@@ -25,7 +32,7 @@ const startBot = async () => {
     console.log('Discord bot live');
   });
 
-  client.on('message', (message) => {
+  client.on('messageCreate', (message) => {
     messageHandler.handleMessage(message);
   });
 
