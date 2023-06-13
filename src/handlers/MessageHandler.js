@@ -43,6 +43,7 @@ class MessageHandler {
         return;
       }
       if (message.content.startsWith(this.prefix)) {
+        console.log('message', message)
         this.commandHandler.handleCommand(this.prefix, message);
       } else if (this.nonPrefixRegex.test(message.content)) {
         this.nonPrefixHandler.handleCommand(message);
