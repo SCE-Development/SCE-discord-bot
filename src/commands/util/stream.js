@@ -12,7 +12,8 @@ const {
   entersState,
   createAudioPlayer,
   createAudioResource,
-  AudioPlayerStatus
+  AudioPlayerStatus,
+  getVoiceConnection
 
 } = require('@discordjs/voice');
 const ytdl = require('ytdl-core-discord');
@@ -49,12 +50,15 @@ const getNextResource = async (url) => {
 let audio = {
   queue: [],
   player: createAudioPlayer(),
-
 }
 
+// handle Playing state
 audio.player.on(AudioPlayerStatus.Playing, async () => {
   console.log('The audio player has started playing!');
 })
+
+// hanlde Idle state
+// play the next song and pop the song being play from the queue
 audio.player.on(AudioPlayerStatus.Idle, async () => {
   if (audio.queue.length > 0) {
     audio.player.play(await getNextResource(audio.queue[0]))
@@ -62,6 +66,7 @@ audio.player.on(AudioPlayerStatus.Idle, async () => {
   }
 })
 
+// hanlde buffering state
 audio.player.on(AudioPlayerStatus.Buffering, async () => {
 
   console.log('buffering', audio.queue)
@@ -82,27 +87,53 @@ module.exports = new Command({
     const channelId = message.guild.voiceStates[cacheKey].channelID
     const guildId = message.guild.voiceStates.guild.id
     const voiceChannel = message.member.voice.channel;
-
     if (message.member.voice.channel) {
       if (!isBotOn) {
+        console.log('bot is not on')
         const connection = joinVoiceChannel({
           channelId: voiceChannel.id,
           guildId: voiceChannel.guild.id,
           adapterCreator: voiceChannel.guild.voiceAdapterCreator,
         }).subscribe(audio.player);
       }
+      // check if url is valid
+      // would be better if can check playable url
       if (isValidUrl(url)) {
         if (audio.player.state.status === AudioPlayerStatus.Idle) {
+          // if the bot is idle
+          // simply play the song
           audio.player.play(createAudioResource(await ytdl(url, { filter: 'audioonly' })))
-        } else {
+        } else if (audio.player.state.status === AudioPlayerStatus.Playing) {
+          // if the bot is playing another song, add this song to queue 
+          // then handle it on.('idle') on the above handlers
+          console.log('state', audio.player.state.status)
           audio.queue.push(url)
           message.reply("Added the song to queue")
+        } else if (audio.player.state.status === AudioPlayerStatus.AutoPaused) {
+          // handle when the bot disconnected (kick bot out of voice channel)
+          // skip song
+          audio.player.stop()
+          // clear queues
+          audio.queue = []
+          // play the song
+          audio.player.play(createAudioResource(await ytdl(url, { filter: 'audioonly' })))
+        } else {
+          // buffering
+          // idk if we should handle sthing here
+          console.log("buffering state")
         }
       }
       else {
+        console.log('bot is on')
         if (url === 'pause') audio.player.pause()
         else if (url === 'skip') audio.player.stop()
         else if (url === 'resume') audio.player.unpause()
+        else if (url === 'stop') {
+          audio.player.stop()
+          audio.queue = []
+          const connection = getVoiceConnection(guildId)
+          connection.destroy()
+        }
         else {
           message.reply("Invalid URL || Option")
         }
