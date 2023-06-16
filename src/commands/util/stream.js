@@ -61,7 +61,9 @@ let audio = {
 
 // handle Playing state
 audio.player.on(AudioPlayerStatus.Playing, async () => {
-  const response = await fetch(`https://noembed.com/embed?dataType=json&url=${audio.queue[0]}`);
+  const response = await fetch(
+    `https://noembed.com/embed?dataType=json&url=${audio.queue[0]}`
+  );
   const jsonData = await response.json();
   audio.queue.splice(0, 1);
   audio.message.reply(`Now playing ${jsonData.title}`);
@@ -114,7 +116,9 @@ module.exports = new Command({
         if (audio.player.state.status === AudioPlayerStatus.Idle) {
           // if the bot is idle
           // simply play the song
-          audio.player.play(createAudioResource(await ytdl(url, { filter: 'audioonly' })));
+          audio.player.play(
+            createAudioResource(await ytdl(url, { filter: 'audioonly' }))
+          );
           audio.queue.push(url);
         } else if (audio.player.state.status === AudioPlayerStatus.Playing) {
           // if the bot is playing another song, add this song to queue 
@@ -128,7 +132,9 @@ module.exports = new Command({
           // clear queues
           audio.queue = [];
           // play the song
-          audio.player.play(createAudioResource(await ytdl(url, { filter: 'audioonly' })));
+          audio.player.play(
+            createAudioResource(await ytdl(url, { filter: 'audioonly' }))
+          );
         } else {
           // buffering
           // idk if we should handle sthing here
