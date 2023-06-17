@@ -81,9 +81,15 @@ module.exports = new Command({
       // check if url is valid
       // would be better if can check playable url
       if (isValidUrl(url)) {
-        audio.player.play(
-          createAudioResource(await ytdl(url, { filter: 'audioonly' }))
-        );
+        try {
+          audio.player.play(
+            createAudioResource(await ytdl(url, { filter: 'audioonly' }))
+          );
+        } catch (_) {
+          message.reply(
+            `Sorry! Unable to stream "${args[0]}", please try a different url.`
+          );
+        }
       }
       else {
         if (args[0] === undefined)
