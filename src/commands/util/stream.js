@@ -16,6 +16,8 @@ const {
   joinVoiceChannel,
   createAudioPlayer,
   createAudioResource,
+  getVoiceConnection,
+  AudioPlayerStatus,
 
 } = require('@discordjs/voice');
 const ytdl = require('ytdl-core-discord');
@@ -45,12 +47,22 @@ const isValidUrl = url => {
         '(\\#[-a-z\\d_]*)?$', 'i'); // validate fragment locator
   return !!urlPattern.test(url);
 };
-
 // audio object
 let audio = {
   queue: [],
   player: createAudioPlayer(),
 };
+
+// idle state
+// bot dc when finish playing
+audio.player.on(AudioPlayerStatus.Idle, async () => {
+  isBotOn = false;
+  const connection = getVoiceConnection(
+    audio.message.guild.voiceStates.guild.id
+  );
+  connection.destroy();
+});
+
 // let audioPlayer = createAudioPlayer();
 let isBotOn = false;
 module.exports = new Command({
