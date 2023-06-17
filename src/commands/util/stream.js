@@ -47,16 +47,18 @@ const isValidUrl = url => {
         '(\\#[-a-z\\d_]*)?$', 'i'); // validate fragment locator
   return !!urlPattern.test(url);
 };
+
 // audio object
 let audio = {
   queue: [],
   player: createAudioPlayer(),
 };
+global.isBotOn = false;
 
 // idle state
 // bot dc when finish playing
 audio.player.on(AudioPlayerStatus.Idle, async () => {
-  isBotOn = false;
+  global.isBotOn = false;
   const connection = getVoiceConnection(
     audio.message.guild.voiceStates.guild.id
   );
@@ -64,7 +66,6 @@ audio.player.on(AudioPlayerStatus.Idle, async () => {
 });
 
 // let audioPlayer = createAudioPlayer();
-let isBotOn = false;
 module.exports = new Command({
   name: 'stream',
   description: 'imagine kneeling to a corporation',
@@ -80,9 +81,10 @@ module.exports = new Command({
     // const guildId = message.guild.voiceStates.guild.id;
     const voiceChannel = message.member.voice.channel;
     audio.message = message;
+
     if (message.member.voice.channel) {
-      if (!isBotOn) {
-        isBotOn = true;
+      if (!global.isBotOn) {
+        global.isBotOn = true;
         joinVoiceChannel({
           channelId: voiceChannel.id,
           guildId: voiceChannel.guild.id,
