@@ -86,8 +86,12 @@ module.exports = new Command({
                 );
             }
             else {
-                message.reply(`Usage: 
+                if (args[0] === undefined)
+                    message.reply(`Usage: 
           \`${prefix}stream <url>: Play a track\``);
+                else {
+                    message.reply('Invalid url || option')
+                }
 
             }
 
