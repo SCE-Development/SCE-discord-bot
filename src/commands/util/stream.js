@@ -38,13 +38,13 @@ const Command = require('../Command');
 // check valid url
 const isValidUrl = url => {
   let urlPattern = new RegExp('^(https?:\\/\\/)?' + // validate protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-        // validate domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-        // validate port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
-        '(\\#[-a-z\\d_]*)?$', 'i'); // validate fragment locator
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+    // validate domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+    // validate port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
+    '(\\#[-a-z\\d_]*)?$', 'i'); // validate fragment locator
   return !!urlPattern.test(url);
 };
 
@@ -83,18 +83,19 @@ module.exports = new Command({
     audio.message = message;
 
     if (message.member.voice.channel) {
-      if (!global.isBotOn) {
-        global.isBotOn = true;
-        joinVoiceChannel({
-          channelId: voiceChannel.id,
-          guildId: voiceChannel.guild.id,
-          adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-        }).subscribe(audio.player);
 
-      }
       // check if url is valid
       // would be better if can check playable url
       if (isValidUrl(url)) {
+        // join voice channel if valid url
+        if (!global.isBotOn) {
+          global.isBotOn = true;
+          joinVoiceChannel({
+            channelId: voiceChannel.id,
+            guildId: voiceChannel.guild.id,
+            adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+          }).subscribe(audio.player);
+        }
         try {
           audio.player.play(
             createAudioResource(await ytdl(url, { filter: 'audioonly' }))
