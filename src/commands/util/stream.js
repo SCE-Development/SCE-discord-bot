@@ -56,7 +56,7 @@ let audio = {
 // idle state
 // bot dc when finish playing
 audio.player.on(AudioPlayerStatus.Idle, async () => {
-  console.log('idle')
+  console.log('idle');
   isBotOn = false;
   const connection = getVoiceConnection(
     audio.message.guild.voiceStates.guild.id
@@ -65,12 +65,12 @@ audio.player.on(AudioPlayerStatus.Idle, async () => {
 });
 
 audio.player.on(AudioPlayerStatus.Playing, async () => {
-  console.log('playing')
-})
+  console.log('playing');
+});
 
 audio.player.on(AudioPlayerStatus.AutoPaused, async () => {
-  console.log('autopaused')
-})
+  console.log('autopaused');
+});
 // let audioPlayer = createAudioPlayer();
 let isBotOn = false;
 module.exports = new Command({
@@ -85,7 +85,7 @@ module.exports = new Command({
     const url = args[0];
     // const cacheKey = Object.keys(message.guild.voiceStates)[0];
     // const channelId = message.guild.voiceStates[cacheKey].channelID;
-    const guildId = message.guild.voiceStates.guild.id;
+    // const guildId = message.guild.voiceStates.guild.id;
     const voiceChannel = message.member.voice.channel;
     audio.message = message;
     if (message.member.voice.channel) {
