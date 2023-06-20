@@ -38,13 +38,13 @@ const Command = require('../Command');
 // check valid url
 const isValidUrl = url => {
   let urlPattern = new RegExp('^(https?:\\/\\/)?' + // validate protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-        // validate domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-        // validate port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
-        '(\\#[-a-z\\d_]*)?$', 'i'); // validate fragment locator
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+    // validate domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+    // validate port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
+    '(\\#[-a-z\\d_]*)?$', 'i'); // validate fragment locator
   return !!urlPattern.test(url);
 };
 // audio object
@@ -56,6 +56,7 @@ let audio = {
 // idle state
 // bot dc when finish playing
 audio.player.on(AudioPlayerStatus.Idle, async () => {
+  console.log('idle')
   isBotOn = false;
   const connection = getVoiceConnection(
     audio.message.guild.voiceStates.guild.id
@@ -63,6 +64,13 @@ audio.player.on(AudioPlayerStatus.Idle, async () => {
   connection.destroy();
 });
 
+audio.player.on(AudioPlayerStatus.Playing, async () => {
+  console.log('playing')
+})
+
+audio.player.on(AudioPlayerStatus.AutoPaused, async () => {
+  console.log('autopaused')
+})
 // let audioPlayer = createAudioPlayer();
 let isBotOn = false;
 module.exports = new Command({
@@ -77,7 +85,7 @@ module.exports = new Command({
     const url = args[0];
     // const cacheKey = Object.keys(message.guild.voiceStates)[0];
     // const channelId = message.guild.voiceStates[cacheKey].channelID;
-    // const guildId = message.guild.voiceStates.guild.id;
+    const guildId = message.guild.voiceStates.guild.id;
     const voiceChannel = message.member.voice.channel;
     audio.message = message;
     if (message.member.voice.channel) {
@@ -108,7 +116,12 @@ module.exports = new Command({
           message.reply(`Usage: 
           \`${prefix}stream <url>: Play a track\``);
         else {
-          message.reply(`${args[0]} is not a valid YouTube / SoundCloud URL`);
+          if (args[0] === 'stop') {
+            audio.player.stop();
+          }
+          else {
+            message.reply(`${args[0]} is not a valid YouTube / SoundCloud URL`);
+          }
         }
 
       }
