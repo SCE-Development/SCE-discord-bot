@@ -56,7 +56,6 @@ let audio = {
 // idle state
 // bot dc when finish playing
 audio.player.on(AudioPlayerStatus.Idle, async () => {
-  console.log('idle');
   isBotOn = false;
   const connection = getVoiceConnection(
     audio.message.guild.voiceStates.guild.id
@@ -64,13 +63,6 @@ audio.player.on(AudioPlayerStatus.Idle, async () => {
   connection.destroy();
 });
 
-audio.player.on(AudioPlayerStatus.Playing, async () => {
-  console.log('playing');
-});
-
-audio.player.on(AudioPlayerStatus.AutoPaused, async () => {
-  console.log('autopaused');
-});
 // let audioPlayer = createAudioPlayer();
 let isBotOn = false;
 module.exports = new Command({
