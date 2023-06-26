@@ -91,21 +91,14 @@ module.exports = new Command({
       // check if url is valid
       // would be better if can check playable url
       if (ytdl.validateURL(url)) {
-        try {
-          audio.queue.push(url);
-          if (audio.player.state.status === AudioPlayerStatus.Playing) {
-            const { videoDetails } = await ytdl.getInfo(url);
-            message.reply(`Added track ${videoDetails.title}`);
-          }
-          else {
-            audio.player.play(
-              createAudioResource(await ytdl(url, { filter: 'audioonly' }))
-            );
-
-          }
-        } catch (_) {
-          message.reply(
-            `Sorry! Unable to stream "${args[0]}", please try a different url.`
+        audio.queue.push(url);
+        const { videoDetails } = await ytdl.getInfo(url);
+        if (audio.player.state.status === AudioPlayerStatus.Playing) {
+          message.reply(`Added track ${videoDetails.title}`);
+        }
+        else {
+          audio.player.play(
+            createAudioResource(await ytdl(url, { filter: 'audioonly' }))
           );
         }
       }
