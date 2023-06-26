@@ -114,8 +114,12 @@ module.exports = new Command({
           message.reply(`Usage: 
           \`${prefix}stream <url>: Play a track\``);
         else {
-          if (args[0] === 'stop') {
+          if (args[0] === 'skip') {
             audio.player.stop();
+          }
+          else if (args[0] === 'stop') {
+            audio.player.stop();
+            audio.queue = [];
           }
           else {
             message.reply(`${args[0]} is not a valid YouTube / SoundCloud URL`);
