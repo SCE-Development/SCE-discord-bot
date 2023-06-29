@@ -26,29 +26,36 @@ const Command = require('../Command');
 
 // audio object
 let audio = {
-  queue: [],
+  upcoming: [],
+  history: [],
   player: createAudioPlayer(),
 };
 
 // get next audio resource to play
 // create new AudioResource for audio to play
 const getNextResource = async (url) => {
+
   return createAudioResource((await ytdl(url, { filter: 'audioonly' })));
 };
 
 // idle state
 // bot dc when finish playing
 audio.player.on(AudioPlayerStatus.Idle, async () => {
-  if (audio.queue.length > 0) {
-    audio.player.play(await getNextResource(audio.queue[0]));
-  }
-  else {
+  console.log('history: ', audio.history);
+  const latestTrack = audio.upcoming.shift();
+  if (latestTrack === undefined) {
+    // disconnect if there is no more track to play
     isBotOn = false;
     const connection = getVoiceConnection(
       audio.message.guild.voiceStates.guild.id
     );
     connection.destroy();
   }
+  else {
+    audio.history.push(latestTrack);
+    audio.player.play(await getNextResource(latestTrack));
+  }
+
 });
 
 // playing state
@@ -56,8 +63,9 @@ audio.player.on(AudioPlayerStatus.Idle, async () => {
 audio.player.on(AudioPlayerStatus.Playing, async () => {
 
   // get music's info
-  const { videoDetails: jsonData } = await ytdl.getInfo(audio.queue[0]);
-  audio.queue.splice(0, 1);
+  const { videoDetails: jsonData } = await ytdl.getInfo(
+    audio.history[audio.history.length - 1]
+  );
   audio.message.reply(`Now playing \`${jsonData.title}\``);
 });
 
@@ -91,12 +99,14 @@ module.exports = new Command({
       // check if url is valid
       // would be better if can check playable url
       if (ytdl.validateURL(url)) {
-        audio.queue.push(url);
+        // audio.queue.push(url);
         const { videoDetails } = await ytdl.getInfo(url);
         if (audio.player.state.status === AudioPlayerStatus.Playing) {
-          message.reply(`Added track ${videoDetails.title}`);
+          audio.upcoming.push(url);
+          message.reply(`Added track \`${videoDetails.title}\``);
         }
         else {
+          audio.history.push(url);
           audio.player.play(
             createAudioResource(await ytdl(url, { filter: 'audioonly' }))
           );
@@ -112,7 +122,8 @@ module.exports = new Command({
           }
           else if (args[0] === 'stop') {
             audio.player.stop();
-            audio.queue = [];
+            audio.upcoming = [];
+            audio.history = [];
           }
           else {
             message.reply(`${args[0]} is not a valid YouTube / SoundCloud URL`);
