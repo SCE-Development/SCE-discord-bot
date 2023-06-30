@@ -24,43 +24,45 @@ const ytdl = require('ytdl-core-discord');
 
 const Command = require('../Command');
 
-// function downloadAndPlayUrl(url, connection) {
-//   console.log(url, Object.keys(connection))
-//   connection.play(ytdl(url, { filter: 'audioonly' }))
-//     .on('error', (e) => { console.log(e) })
-//     .on('end', () => {
-//       console.log('left channel');
-//       connection.channel.leave();
-//     })
-//     .on('debug', console.log)
-// }
-
-// check valid url
-const isValidUrl = url => {
-  let urlPattern = new RegExp('^(https?:\\/\\/)?' + // validate protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-    // validate domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-    // validate port and path
-    '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
-    '(\\#[-a-z\\d_]*)?$', 'i'); // validate fragment locator
-  return !!urlPattern.test(url);
-};
 // audio object
 let audio = {
-  queue: [],
+  upcoming: [],
+  history: [],
   player: createAudioPlayer(),
+};
+
+// get next audio resource to play
+// create new AudioResource for audio to play
+const getNextResource = async (url) => {
+
+  return createAudioResource((await ytdl(url, { filter: 'audioonly' })));
 };
 
 // idle state
 // bot dc when finish playing
 audio.player.on(AudioPlayerStatus.Idle, async () => {
-  isBotOn = false;
-  const connection = getVoiceConnection(
-    audio.message.guild.voiceStates.guild.id
+  const latestTrack = audio.upcoming.shift();
+  if (latestTrack) {
+    audio.history.push(latestTrack);
+    audio.player.play(await getNextResource(latestTrack));
+
+  }
+  else {
+    // disconnect if there is no more track to play
+    isBotOn = false;
+    const connection = getVoiceConnection(
+      audio.message.guild.voiceStates.guild.id
+    );
+    connection.destroy();
+  }
+
+});
+
+audio.player.on(AudioPlayerStatus.Playing, async () => {
+  const { videoDetails: jsonData } = await ytdl.getInfo(
+    audio.history[audio.history.length - 1]
   );
-  connection.destroy();
+  audio.message.reply(`Now playing \`${jsonData.title}\``);
 });
 
 // let audioPlayer = createAudioPlayer();
@@ -92,14 +94,15 @@ module.exports = new Command({
       }
       // check if url is valid
       // would be better if can check playable url
-      if (isValidUrl(url)) {
-        try {
+      if (ytdl.validateURL(url)) {
+        const { videoDetails } = await ytdl.getInfo(url);
+        if (audio.player.state.status === AudioPlayerStatus.Playing) {
+          audio.upcoming.push(url);
+          message.reply(`Added track \`${videoDetails.title}\``);
+        } else {
+          audio.history.push(url);
           audio.player.play(
             createAudioResource(await ytdl(url, { filter: 'audioonly' }))
-          );
-        } catch (_) {
-          message.reply(
-            `Sorry! Unable to stream "${args[0]}", please try a different url.`
           );
         }
       }
@@ -108,8 +111,12 @@ module.exports = new Command({
           message.reply(`Usage: 
           \`${prefix}stream <url>: Play a track\``);
         else {
-          if (args[0] === 'stop') {
+          if (args[0] === 'skip') {
             audio.player.stop();
+          } else if (args[0] === 'stop') {
+            audio.player.stop();
+            audio.upcoming = [];
+            audio.history = [];
           }
           else {
             message.reply(`${args[0]} is not a valid YouTube / SoundCloud URL`);
