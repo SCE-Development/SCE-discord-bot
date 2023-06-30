@@ -95,7 +95,6 @@ module.exports = new Command({
       // check if url is valid
       // would be better if can check playable url
       if (ytdl.validateURL(url)) {
-        // audio.queue.push(url);
         const { videoDetails } = await ytdl.getInfo(url);
         if (audio.player.state.status === AudioPlayerStatus.Playing) {
           audio.upcoming.push(url);
