@@ -104,8 +104,7 @@ module.exports = new Command({
         if (audio.player.state.status === AudioPlayerStatus.Playing) {
           audio.upcoming.push(url);
           message.reply(`Added track \`${videoDetails.title}\``);
-        }
-        else {
+        } else {
           audio.history.push(url);
           audio.player.play(
             createAudioResource(await ytdl(url, { filter: 'audioonly' }))
