@@ -58,11 +58,7 @@ audio.player.on(AudioPlayerStatus.Idle, async () => {
 
 });
 
-// playing state
-// handle Playing state
 audio.player.on(AudioPlayerStatus.Playing, async () => {
-
-  // get music's info
   const { videoDetails: jsonData } = await ytdl.getInfo(
     audio.history[audio.history.length - 1]
   );
