@@ -118,8 +118,7 @@ module.exports = new Command({
         else {
           if (args[0] === 'skip') {
             audio.player.stop();
-          }
-          else if (args[0] === 'stop') {
+          } else if (args[0] === 'stop') {
             audio.player.stop();
             audio.upcoming = [];
             audio.history = [];
