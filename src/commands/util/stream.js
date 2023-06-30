@@ -20,7 +20,8 @@ const {
   AudioPlayerStatus,
 
 } = require('@discordjs/voice');
-const ytdl = require('ytdl-core-discord');
+const ytdl = require('ytdl-core');
+const play = require('play-dl');
 
 const Command = require('../Command');
 
@@ -33,19 +34,21 @@ let audio = {
 
 // get next audio resource to play
 // create new AudioResource for audio to play
-const getNextResource = async (url) => {
-
-  return createAudioResource((await ytdl(url, { filter: 'audioonly' })));
+const getNextResource = async () => {
+  const latestTrack = audio.upcoming.shift();
+  if (latestTrack) {
+    audio.history.push(latestTrack);
+    let stream = await play.stream(latestTrack);
+    return createAudioResource(stream.stream, { inputType: stream.type });
+  }
 };
 
 // idle state
 // bot dc when finish playing
 audio.player.on(AudioPlayerStatus.Idle, async () => {
-  const latestTrack = audio.upcoming.shift();
-  if (latestTrack) {
-    audio.history.push(latestTrack);
-    audio.player.play(await getNextResource(latestTrack));
-
+  const resource = await getNextResource();
+  if (resource) {
+    audio.player.play(resource);
   }
   else {
     // disconnect if there is no more track to play
@@ -63,6 +66,10 @@ audio.player.on(AudioPlayerStatus.Playing, async () => {
     audio.history[audio.history.length - 1]
   );
   audio.message.reply(`Now playing \`${jsonData.title}\``);
+});
+
+audio.player.on('error', error => {
+  console.error(`Error: ${error}`);
 });
 
 // let audioPlayer = createAudioPlayer();
@@ -92,8 +99,7 @@ module.exports = new Command({
         }).subscribe(audio.player);
 
       }
-      // check if url is valid
-      // would be better if can check playable url
+      // check if it is a playable url
       if (ytdl.validateURL(url)) {
         const { videoDetails } = await ytdl.getInfo(url);
         if (audio.player.state.status === AudioPlayerStatus.Playing) {
@@ -101,8 +107,9 @@ module.exports = new Command({
           message.reply(`Added track \`${videoDetails.title}\``);
         } else {
           audio.history.push(url);
+          let stream = await play.stream(url);
           audio.player.play(
-            createAudioResource(await ytdl(url, { filter: 'audioonly' }))
+            createAudioResource(stream.stream, { inputType: stream.type })
           );
         }
       }
