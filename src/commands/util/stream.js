@@ -41,19 +41,19 @@ const getNextResource = async (url) => {
 // idle state
 // bot dc when finish playing
 audio.player.on(AudioPlayerStatus.Idle, async () => {
-  console.log('history: ', audio.history);
   const latestTrack = audio.upcoming.shift();
-  if (latestTrack === undefined) {
+  if (latestTrack) {
+    audio.history.push(latestTrack);
+    audio.player.play(await getNextResource(latestTrack));
+
+  }
+  else {
     // disconnect if there is no more track to play
     isBotOn = false;
     const connection = getVoiceConnection(
       audio.message.guild.voiceStates.guild.id
     );
     connection.destroy();
-  }
-  else {
-    audio.history.push(latestTrack);
-    audio.player.play(await getNextResource(latestTrack));
   }
 
 });
