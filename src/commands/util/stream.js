@@ -21,7 +21,7 @@ const {
 
 } = require('@discordjs/voice');
 const ytdl = require('ytdl-core');
-const play = require('play-dl'); // Everything
+const play = require('play-dl');
 
 const Command = require('../Command');
 
