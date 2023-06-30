@@ -41,9 +41,6 @@ const getNextResource = async () => {
     let stream = await play.stream(latestTrack);
     return createAudioResource(stream.stream, { inputType: stream.type });
   }
-  else {
-    return undefined;
-  }
 };
 
 // idle state
