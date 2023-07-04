@@ -116,7 +116,11 @@ module.exports = new Command({
       else {
         if (args[0] === undefined)
           message.reply(`Usage: 
-          \`${prefix}stream <url>: Play a track\``);
+          \`${prefix}stream <url>: Play a track\`
+          \`${prefix}stream skip: Skip a song in queue\`
+          \`${prefix}stream stop: Stop the bot\`
+          
+          `);
         else {
           if (args[0] === 'skip') {
             audio.player.stop();
@@ -126,7 +130,24 @@ module.exports = new Command({
             audio.history = [];
           }
           else {
-            message.reply(`${args[0]} is not a valid YouTube / SoundCloud URL`);
+            // search 
+            let yt_info = await play.search(args.join(' '), { limit: 1 });
+            // if it return result
+            if (yt_info.length > 0) {
+              if (audio.player.state.status === AudioPlayerStatus.Playing) {
+                audio.upcoming.push(yt_info[0].url);
+                message.reply(`Added track \`${yt_info[0].title}\``);
+              } else {
+                audio.history.push(yt_info[0].url);
+                let stream = await play.stream(yt_info[0].url);
+                audio.player.play(
+                  createAudioResource(stream.stream, { inputType: stream.type })
+                );
+              }
+            }
+            else {
+              message.reply(`${args.join(' ')} is not a valid YouTube / SoundCloud URL`);
+            }
           }
         }
 
