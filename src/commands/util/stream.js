@@ -1,3 +1,6 @@
+const {
+  prefix
+} = require('../../../config.json');
 const { AudioPlayerStatus } = require('@discordjs/voice');
 
 const Command = require('../Command');
@@ -14,7 +17,6 @@ module.exports = new Command({
   disabled: false,
   execute: async (message, args) => {
     if (message.member.voice.channel) {
-
       if (args[0] === 'skip') {
         if (getIsBotOn()) {
           if (audio.player.state.status === AudioPlayerStatus.Playing) {
@@ -31,6 +33,16 @@ module.exports = new Command({
         audio.upcoming = [];
         audio.history = [];
         audio.player.stop();
+      }
+      else if (args[0] === undefined) {
+        message.reply(`Usage: 
+          \`${prefix}search <query>: Returns top 5\`
+          \`${prefix}play <title/url>: Plays first song from search/ url\`
+          \`${prefix}stream stop/skip: Modifies song playing\`
+          
+          `);
+      } else {
+        message.reply('Invalid Option');
       }
     } else {
       message.reply('Please join voice channel first!');
