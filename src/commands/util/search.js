@@ -2,12 +2,6 @@ const {
   prefix
 } = require('../../../config.json');
 
-const {
-  joinVoiceChannel,
-  createAudioResource,
-  AudioPlayerStatus,
-
-} = require('@discordjs/voice');
 const play = require('play-dl');
 
 const Command = require('../Command');
@@ -15,7 +9,6 @@ const Command = require('../Command');
 const MusicSingleton = require('../../util/MusicSingleton');
 const musicHandler = new MusicSingleton();
 
-let { audio, getIsBotOn, setIsBotOn } = require('./audio');
 module.exports = new Command({
   name: 'search',
   description: 'imagine kneeling to a corporation',
@@ -42,20 +35,9 @@ module.exports = new Command({
           const userInput = collected.values().next().value.content;
           // play the decided option
           if (userInput > 0 && userInput <= 5) {
-            if (musicHandler.isBotConnectedToChannel) {
-              musicHandler.playOrAddYouTubeUrlToQueue(message, ytInfo[userInput - 1].url);
-            }
-            else {
-              musicHandler.setIsBotConnectedToChannel(true);
-              const voiceChannel = message.member.voice.channel;
-              audio.message = message;
-              joinVoiceChannel({
-                channelId: voiceChannel.id,
-                guildId: voiceChannel.guild.id,
-                adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-              }).subscribe(audio.player);
-              musicHandler.playOrAddYouTubeUrlToQueue(message, ytInfo[userInput - 1].url);
-            }
+            musicHandler.playOrAddYouTubeUrlToQueue(
+              message, ytInfo[userInput - 1].url
+            );
           } else {
             message.reply('Invalid choice');
           }

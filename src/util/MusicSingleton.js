@@ -80,7 +80,7 @@ class MusicSingleton {
     }
   }
 
-  stop(message) {
+  stop() {
     this.upcoming = [];
     this.history = [];
     this.audioPlayer.stop();

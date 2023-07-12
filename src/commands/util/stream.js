@@ -1,7 +1,6 @@
 const {
   prefix
 } = require('../../../config.json');
-const { AudioPlayerStatus } = require('@discordjs/voice');
 
 const Command = require('../Command');
 
@@ -22,7 +21,7 @@ module.exports = new Command({
       if (args[0] === 'skip') {
         musicHandler.skip(message);
       } else if (args[0] === 'stop') {
-        musicHandler.stop(message);
+        musicHandler.stop();
       }
       else if (args[0] === undefined) {
         message.reply(`Usage: 
