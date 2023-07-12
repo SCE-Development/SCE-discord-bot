@@ -22,9 +22,7 @@ module.exports = new Command({
       if (args[0] === 'skip') {
         musicHandler.skip(message);
       } else if (args[0] === 'stop') {
-        audio.upcoming = [];
-        audio.history = [];
-        audio.player.stop();
+        musicHandler.stop(message);
       }
       else if (args[0] === undefined) {
         message.reply(`Usage: 

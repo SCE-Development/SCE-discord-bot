@@ -79,6 +79,12 @@ class MusicSingleton {
       message.reply('The bot is offline!');
     }
   }
+
+  stop(message) {
+    this.upcoming = [];
+    this.history = [];
+    this.audioPlayer.stop();
+  }
   // Assumes sent url is valid YouTube URL
   async playOrAddYouTubeUrlToQueue(message, url) {
     try {
