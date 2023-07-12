@@ -66,6 +66,19 @@ class MusicSingleton {
     this._isBotConnectedToChannel = value;
   }
 
+  skip(message) {
+    if (this.isBotConnectedToChannel()) {
+      if (this.audioPlayer.state.status === AudioPlayerStatus.Playing) {
+        this.audioPlayer.stop();
+      } else {
+        message.reply('There is no song to skip!');
+      }
+    }
+    else {
+      // bot is not on
+      message.reply('The bot is offline!');
+    }
+  }
   // Assumes sent url is valid YouTube URL
   async playOrAddYouTubeUrlToQueue(message, url) {
     try {
@@ -79,6 +92,7 @@ class MusicSingleton {
 
       if (!this._isBotConnectedToChannel) {
         const voiceChannel = message.member.voice.channel;
+        this.setIsBotConnectedToChannel(true);
         joinVoiceChannel({
           channelId: voiceChannel.id,
           guildId: voiceChannel.guild.id,

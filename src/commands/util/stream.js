@@ -5,7 +5,9 @@ const { AudioPlayerStatus } = require('@discordjs/voice');
 
 const Command = require('../Command');
 
-let { audio, getIsBotOn } = require('./audio');
+const MusicSingleton = require('../../util/MusicSingleton');
+
+const musicHandler = new MusicSingleton();
 
 module.exports = new Command({
   name: 'stream',
@@ -18,17 +20,7 @@ module.exports = new Command({
   execute: async (message, args) => {
     if (message.member.voice.channel) {
       if (args[0] === 'skip') {
-        if (getIsBotOn()) {
-          if (audio.player.state.status === AudioPlayerStatus.Playing) {
-            audio.player.stop();
-          } else {
-            message.reply('There is no song to skip!');
-          }
-        }
-        else {
-          // bot is not on
-          message.reply('The bot is offline!');
-        }
+        musicHandler.skip(message);
       } else if (args[0] === 'stop') {
         audio.upcoming = [];
         audio.history = [];
