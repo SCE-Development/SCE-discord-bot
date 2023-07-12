@@ -69,6 +69,8 @@ class MusicSingleton {
   skip(message) {
     if (this.isBotConnectedToChannel()) {
       if (this.audioPlayer.state.status === AudioPlayerStatus.Playing) {
+        // we stop the audio player here so the state becomes idle
+        // once idle, the next song will play
         this.audioPlayer.stop();
       } else {
         message.reply('There is no song to skip!');
