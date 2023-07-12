@@ -12,6 +12,9 @@ const play = require('play-dl');
 
 const Command = require('../Command');
 
+const MusicSingleton = require('../../util/MusicSingleton');
+const musicHandler = new MusicSingleton();
+
 let { audio, getIsBotOn, setIsBotOn } = require('./audio');
 module.exports = new Command({
   name: 'search',
@@ -39,20 +42,11 @@ module.exports = new Command({
           const userInput = collected.values().next().value.content;
           // play the decided option
           if (userInput > 0 && userInput <= 5) {
-            if (getIsBotOn()) {
-              if (audio.player.state.status === AudioPlayerStatus.Playing) {
-                audio.upcoming.push(ytInfo[userInput - 1].url);
-                message.reply(`Added track \`${ytInfo[userInput - 1].title}\``);
-              } else {
-                audio.history.push(ytInfo[userInput - 1].url);
-                let stream = await play.stream(ytInfo[userInput - 1].url);
-                audio.player.play(
-                  createAudioResource(stream.stream, { inputType: stream.type })
-                );
-              }
+            if (musicHandler.isBotConnectedToChannel) {
+              musicHandler.playOrAddYouTubeUrlToQueue(message, ytInfo[userInput - 1].url);
             }
             else {
-              setIsBotOn(true);
+              musicHandler.setIsBotConnectedToChannel(true);
               const voiceChannel = message.member.voice.channel;
               audio.message = message;
               joinVoiceChannel({
@@ -60,12 +54,7 @@ module.exports = new Command({
                 guildId: voiceChannel.guild.id,
                 adapterCreator: voiceChannel.guild.voiceAdapterCreator,
               }).subscribe(audio.player);
-
-              audio.history.push(ytInfo[userInput - 1].url);
-              let stream = await play.stream(ytInfo[userInput - 1].url);
-              audio.player.play(
-                createAudioResource(stream.stream, { inputType: stream.type })
-              );
+              musicHandler.playOrAddYouTubeUrlToQueue(message, ytInfo[userInput - 1].url);
             }
           } else {
             message.reply('Invalid choice');

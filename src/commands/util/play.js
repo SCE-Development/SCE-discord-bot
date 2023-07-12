@@ -33,7 +33,7 @@ module.exports = new Command({
       else {
         let ytInfo = await play.search(args.join(' '), { limit: 1 });
         if (ytInfo.length > 0) {
-          musicHandler.playOrAddYouTubeUrlToQueue(message, url);
+          musicHandler.playOrAddYouTubeUrlToQueue(message, ytInfo[0].url);
         } else {
           message.reply(
             `${args.join(' ')} is not a valid YouTube / SoundCloud URL`
