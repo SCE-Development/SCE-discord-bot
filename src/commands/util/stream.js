@@ -1,123 +1,37 @@
-// see https://discord.js.org/#/docs/discord.js/12.5.3/topics/voice
+const { prefix } = require("../../../config.json");
 
-/**
- * stupid hacks:
- * docker exec -it bot /bin/sh
- * npm update
- * npm i libsodium-wrappers
- */
+const Command = require("../Command");
 
-const {
-  prefix
-} = require('../../../config.json');
+const MusicSingleton = require("../../util/MusicSingleton");
 
+const musicHandler = new MusicSingleton();
 
-const {
-  joinVoiceChannel,
-  createAudioPlayer,
-  createAudioResource,
-  getVoiceConnection,
-  AudioPlayerStatus,
-
-} = require('@discordjs/voice');
-const ytdl = require('ytdl-core-discord');
-
-const Command = require('../Command');
-
-// function downloadAndPlayUrl(url, connection) {
-//   console.log(url, Object.keys(connection))
-//   connection.play(ytdl(url, { filter: 'audioonly' }))
-//     .on('error', (e) => { console.log(e) })
-//     .on('end', () => {
-//       console.log('left channel');
-//       connection.channel.leave();
-//     })
-//     .on('debug', console.log)
-// }
-
-// check valid url
-const isValidUrl = url => {
-  let urlPattern = new RegExp('^(https?:\\/\\/)?' + // validate protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-    // validate domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-    // validate port and path
-    '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
-    '(\\#[-a-z\\d_]*)?$', 'i'); // validate fragment locator
-  return !!urlPattern.test(url);
-};
-
-// audio object
-let audio = {
-  queue: [],
-  player: createAudioPlayer(),
-};
-global.isBotOn = false;
-
-// idle state
-// bot dc when finish playing
-audio.player.on(AudioPlayerStatus.Idle, async () => {
-  global.isBotOn = false;
-  const connection = getVoiceConnection(
-    audio.message.guild.voiceStates.guild.id
-  );
-  connection.destroy();
-});
-
-// let audioPlayer = createAudioPlayer();
 module.exports = new Command({
-  name: 'stream',
-  description: 'imagine kneeling to a corporation',
-  aliases: ['stream'],
-  example: 's!stream',
-  permissions: 'member',
-  category: 'information',
+  name: "stream",
+  description: "imagine kneeling to a corporation",
+  aliases: ["stream"],
+  example: "s!stream",
+  permissions: "member",
+  category: "information",
   disabled: false,
   execute: async (message, args) => {
-    const url = args[0];
-    // const cacheKey = Object.keys(message.guild.voiceStates)[0];
-    // const channelId = message.guild.voiceStates[cacheKey].channelID;
-    // const guildId = message.guild.voiceStates.guild.id;
-    const voiceChannel = message.member.voice.channel;
-    audio.message = message;
-
     if (message.member.voice.channel) {
-
-      // check if url is valid
-      // would be better if can check playable url
-      if (isValidUrl(url)) {
-        // join voice channel if valid url
-        if (!global.isBotOn) {
-          global.isBotOn = true;
-          joinVoiceChannel({
-            channelId: voiceChannel.id,
-            guildId: voiceChannel.guild.id,
-            adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-          }).subscribe(audio.player);
-        }
-        try {
-          audio.player.play(
-            createAudioResource(await ytdl(url, { filter: 'audioonly' }))
-          );
-        } catch (_) {
-          message.reply(
-            `Sorry! Unable to stream "${args[0]}", please try a different url.`
-          );
-        }
+      if (args[0] === "skip") {
+        musicHandler.skip(message);
+      } else if (args[0] === "stop") {
+        musicHandler.stop();
+      } else if (args[0] === undefined) {
+        message.reply(`Usage: 
+          \`${prefix}search <query>: Returns top 5\`
+          \`${prefix}play <title/url>: Plays first song from search/ url\`
+          \`${prefix}stream stop/skip: Modifies song playing\`
+          
+          `);
+      } else {
+        message.reply("Invalid Option");
       }
-      else {
-        if (args[0] === undefined)
-          message.reply(`Usage: 
-          \`${prefix}stream <url>: Play a track\``);
-        else {
-          message.reply(`${args[0]} is not a valid YouTube / SoundCloud URL`);
-        }
-
-      }
-
     } else {
-      message.reply('You need to join a voice channel first!');
+      message.reply("Please join voice channel first!");
     }
-  }
+  },
 });

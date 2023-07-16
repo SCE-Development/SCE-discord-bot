@@ -1,0 +1,45 @@
+const {
+  prefix
+} = require('../../../config.json');
+
+const ytdl = require('ytdl-core');
+const play = require('play-dl');
+
+const Command = require('../Command');
+const MusicSingleton = require('../../util/MusicSingleton');
+
+const musicHandler = new MusicSingleton();
+
+module.exports = new Command({
+  name: 'play',
+  description: 'imagine kneeling to a corporation',
+  aliases: ['play'],
+  example: 's!play',
+  permissions: 'member',
+  category: 'information',
+  disabled: false,
+  execute: async (message, args) => {
+    const url = args[0];
+    if (ytdl.validateURL(url)) {
+      musicHandler.playOrAddYouTubeUrlToQueue(message, url);
+    } else {
+      if (args[0] === undefined)
+        message.reply(`Usage: 
+          \`${prefix}search <query>: Returns top 5\`
+          \`${prefix}play <title/url>: Plays first song from search/ url\`
+          \`${prefix}stream stop/skip: Modifies song playing\`
+          
+          `);
+      else {
+        let ytInfo = await play.search(args.join(' '), { limit: 1 });
+        if (ytInfo.length > 0) {
+          musicHandler.playOrAddYouTubeUrlToQueue(message, ytInfo[0].url);
+        } else {
+          message.reply(
+            `${args.join(' ')} is not a valid YouTube / SoundCloud URL`
+          );
+        }
+      }
+    }
+  }
+});
