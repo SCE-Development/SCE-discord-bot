@@ -1,4 +1,7 @@
-const { getVoiceConnection } = require('@discordjs/voice');
+const { getVoiceConnection } = require("@discordjs/voice");
+
+const MusicSingleton = require("../util/MusicSingleton");
+const musicHandler = new MusicSingleton();
 /**
  * Class Which handles change in voicechannel
  */
@@ -32,8 +35,7 @@ class VoiceChannelChangeHandler {
 
       let connection = getVoiceConnection(voiceChannel.guild.id);
       if (connection && userCount === 1) {
-        global.isBotOn = false;
-        connection.destroy();
+        musicHandler.stop();
       }
     }
     // try {
