@@ -1,24 +1,24 @@
-const { prefix } = require("../../../config.json");
+const { prefix } = require('../../../config.json');
 
-const Command = require("../Command");
+const Command = require('../Command');
 
-const MusicSingleton = require("../../util/MusicSingleton");
+const MusicSingleton = require('../../util/MusicSingleton');
 
 const musicHandler = new MusicSingleton();
 
 module.exports = new Command({
-  name: "stream",
-  description: "imagine kneeling to a corporation",
-  aliases: ["stream"],
-  example: "s!stream",
-  permissions: "member",
-  category: "information",
+  name: 'stream',
+  description: 'imagine kneeling to a corporation',
+  aliases: ['stream'],
+  example: 's!stream',
+  permissions: 'member',
+  category: 'information',
   disabled: false,
   execute: async (message, args) => {
     if (message.member.voice.channel) {
-      if (args[0] === "skip") {
+      if (args[0] === 'skip') {
         musicHandler.skip(message);
-      } else if (args[0] === "stop") {
+      } else if (args[0] === 'stop') {
         musicHandler.stop();
       } else if (args[0] === undefined) {
         message.reply(`Usage: 
@@ -28,10 +28,10 @@ module.exports = new Command({
           
           `);
       } else {
-        message.reply("Invalid Option");
+        message.reply('Invalid Option');
       }
     } else {
-      message.reply("Please join voice channel first!");
+      message.reply('Please join voice channel first!');
     }
   },
 });

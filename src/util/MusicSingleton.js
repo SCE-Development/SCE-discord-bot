@@ -4,9 +4,9 @@ const {
   AudioPlayerStatus,
   getVoiceConnection,
   createAudioResource,
-} = require("@discordjs/voice");
-const ytdl = require("ytdl-core");
-const play = require("play-dl");
+} = require('@discordjs/voice');
+const ytdl = require('ytdl-core');
+const play = require('play-dl');
 
 // see https://stackoverflow.com/a/59626464
 class MusicSingleton {
@@ -19,35 +19,39 @@ class MusicSingleton {
     this._currentMessage = null;
     this.upcoming = [];
     this.history = [];
+    this.isKick = false;
     this.audioPlayer = createAudioPlayer();
-    this.audioPlayer.on(AudioPlayerStatus.Idle, () =>
-      this.playNextUpcomingUrl(this)
+    this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
+      this.playNextUpcomingUrl(this);
+
+    }
     );
-    this.audioPlayer.on(AudioPlayerStatus.Playing, () =>
-      this.announceNowPlaying(this)
+    this.audioPlayer.on(AudioPlayerStatus.Playing, () => {
+      if (this.isKick) {
+        return;
+      }
+      this.announceNowPlaying(this);
+
+    }
     );
     this.audioPlayer.on(AudioPlayerStatus.AutoPaused, async () => {
       // clear queues and stop the streaming
-      console.log("autopaused called", this.isBotConnectedToChannel());
+      this.isKick = true;
       this.stop();
       this.setIsBotConnectedToChannel(false);
-      console.log("autopaused called 2nd time", this.isBotConnectedToChannel());
     });
-    this.audioPlayer.on("error", console.error);
+    this.audioPlayer.on('error', console.error);
   }
 
   async announceNowPlaying(originalThis) {
-    console.log("original", originalThis);
+
     const nowPlaying = originalThis.history[originalThis.history.length - 1];
-    console.log("now playing", nowPlaying);
     originalThis._currentMessage.reply(
       `Now playing \`${nowPlaying.metadata.title}\``
     );
   }
 
   async playNextUpcomingUrl(originalThis) {
-    console.log("length", originalThis.upcoming.length);
-    console.log("status", originalThis.audioPlayer.state.status);
     if (originalThis.upcoming.length) {
       const { url: latestTrack, metadata } = originalThis.upcoming.shift();
       originalThis.history.push({ url: latestTrack, metadata });
@@ -56,7 +60,11 @@ class MusicSingleton {
         inputType: stream.type,
       });
       originalThis.audioPlayer.play(resource);
-    } else {
+    }
+    else if (this.isKick) {
+      this.isKick = false;
+    }
+    else {
       const connection = getVoiceConnection(
         originalThis._currentMessage.guild.voiceStates.guild.id
       );
@@ -80,11 +88,11 @@ class MusicSingleton {
         // once idle, the next song will play
         this.audioPlayer.stop();
       } else {
-        message.reply("There is no song to skip!");
+        message.reply('There is no song to skip!');
       }
     } else {
       // bot is not on
-      message.reply("The bot is offline!");
+      message.reply('The bot is offline!');
     }
   }
 
@@ -100,7 +108,7 @@ class MusicSingleton {
       this._currentMessage = message;
 
       if (!message.member.voice.channel) {
-        message.reply("You need to join a voice channel first!");
+        message.reply('You need to join a voice channel first!');
         return false;
       }
 
@@ -113,21 +121,14 @@ class MusicSingleton {
           adapterCreator: voiceChannel.guild.voiceAdapterCreator,
         }).subscribe(this.audioPlayer);
       }
-
-      console.log("state before", this.audioPlayer.state.status);
       const isInPlayingState =
         this.audioPlayer.state.status === AudioPlayerStatus.Playing;
-      const isInAutoPausedState =
-        this.audioPlayer.state.status === AudioPlayerStatus.AutoPaused;
 
       if (isInPlayingState) {
         this.upcoming.push({ url, metadata: videoDetails });
         message.reply(`Added track \`${videoDetails.title}\``);
       }
-      // else if (isInAutoPausedState) {
-      //   console.log("url", url);
-      //   this.upcoming.push({ url, metadata: videoDetails });
-      // }
+
       else {
         this.history.push({ url, metadata: videoDetails });
         const stream = await play.stream(url);
@@ -135,10 +136,9 @@ class MusicSingleton {
           createAudioResource(stream.stream, { inputType: stream.type })
         );
       }
-      console.log("state after", this.audioPlayer.state.status);
       return true;
     } catch (e) {
-      console.error("couldnt play song:", e);
+      console.error('couldnt play song:', e);
       return false;
     }
   }

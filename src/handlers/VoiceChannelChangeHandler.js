@@ -1,6 +1,6 @@
-const { getVoiceConnection } = require("@discordjs/voice");
+const { getVoiceConnection } = require('@discordjs/voice');
 
-const MusicSingleton = require("../util/MusicSingleton");
+const MusicSingleton = require('../util/MusicSingleton');
 const musicHandler = new MusicSingleton();
 /**
  * Class Which handles change in voicechannel
