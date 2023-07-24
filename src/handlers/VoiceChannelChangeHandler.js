@@ -30,7 +30,6 @@ class VoiceChannelChangeHandler {
         voiceChannel = oldState.channel;
         // Get the number of users in the voice channel
         userCount = voiceChannel.members.size;
-        // console.log('# of users in voice channel: ', userCount);
       }
 
       let connection = getVoiceConnection(voiceChannel.guild.id);
@@ -38,18 +37,6 @@ class VoiceChannelChangeHandler {
         musicHandler.stop();
       }
     }
-    // try {
-    //   const vc = oldState.channel;
-    //   if (vc && vc.members.size === 0) {
-    //     const re = /(?<=: : \().+(?=\))/;
-    //     if (re.test(vc.name)) {
-    //       const oriname = vc.name.match(re)[0];
-    //       vc.edit({ name: oriname }).catch(console.error);
-    //     }
-    //   }
-    // } catch (e) {
-    //   console.error(e);
-    // }
   }
 }
 

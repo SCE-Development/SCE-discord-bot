@@ -68,8 +68,7 @@ class MusicSingleton {
       // playing the next song instead of disconnecting
       // the bot
       this.isKick = false;
-    }
-    else {
+    } else {
       const connection = getVoiceConnection(
         originalThis._currentMessage.guild.voiceStates.guild.id
       );
@@ -132,9 +131,7 @@ class MusicSingleton {
       if (isInPlayingState) {
         this.upcoming.push({ url, metadata: videoDetails });
         message.reply(`Added track \`${videoDetails.title}\``);
-      }
-
-      else {
+      } else {
         this.history.push({ url, metadata: videoDetails });
         const stream = await play.stream(url);
         this.audioPlayer.play(
