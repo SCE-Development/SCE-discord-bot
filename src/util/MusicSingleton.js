@@ -19,7 +19,7 @@ class MusicSingleton {
     this._currentMessage = null;
     this.upcoming = [];
     this.history = [];
-    this.isKick = false;
+    this.botWasKicked = false;
     this.audioPlayer = createAudioPlayer();
     this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
       this.playNextUpcomingUrl(this);
@@ -27,7 +27,7 @@ class MusicSingleton {
     }
     );
     this.audioPlayer.on(AudioPlayerStatus.Playing, () => {
-      if (this.isKick) {
+      if (this.botWasKicked) {
         return;
       }
       this.announceNowPlaying(this);
@@ -36,7 +36,7 @@ class MusicSingleton {
     );
     this.audioPlayer.on(AudioPlayerStatus.AutoPaused, async () => {
       // clear queues and stop the streaming
-      this.isKick = true;
+      this.botWasKicked = true;
       this.stop();
       this.setIsBotConnectedToChannel(false);
     });
@@ -61,13 +61,11 @@ class MusicSingleton {
       });
       originalThis.audioPlayer.play(resource);
     }
-    else if (this.isKick) {
-      // when the bot is kicked from a channel,
-      // the next time it plays a song, the state first
-      // goes to idle. we handle this case here by
-      // playing the next song instead of disconnecting
-      // the bot
-      this.isKick = false;
+    else if (this.botWasKicked) {
+      // when the bot is kicked from a channel, the next time it plays a song,
+      // the state first goes to idle. we handle this case here by
+      // playing the next song instead of disconnecting the bot
+      this.botWasKicked = false;
     } else {
       const connection = getVoiceConnection(
         originalThis._currentMessage.guild.voiceStates.guild.id
@@ -127,7 +125,6 @@ class MusicSingleton {
       }
       const isInPlayingState =
         this.audioPlayer.state.status === AudioPlayerStatus.Playing;
-
       if (isInPlayingState) {
         this.upcoming.push({ url, metadata: videoDetails });
         message.reply(`Added track \`${videoDetails.title}\``);
