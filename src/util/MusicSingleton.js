@@ -62,6 +62,11 @@ class MusicSingleton {
       originalThis.audioPlayer.play(resource);
     }
     else if (this.isKick) {
+      // when the bot is kicked from a channel,
+      // the next time it plays a song, the state first
+      // goes to idle. we handle this case here by
+      // playing the next song instead of disconnecting
+      // the bot
       this.isKick = false;
     }
     else {
