@@ -1,3 +1,7 @@
+const { getVoiceConnection } = require('@discordjs/voice');
+
+const MusicSingleton = require('../util/MusicSingleton');
+const musicHandler = new MusicSingleton();
 /**
  * Class Which handles change in voicechannel
  */
@@ -8,18 +12,19 @@ class VoiceChannelChangeHandler {
    * @param {VoiceState} oldState The old voice channel state.
    * @param {VoiceState} newSTate the new voice channel state.
    */
-  handleChangeMemberInVoiceChannel(oldState) {
-    try {
-      const vc = oldState.channel;
-      if (vc && vc.members.size === 0) {
-        const re = /(?<=: : \().+(?=\))/;
-        if (re.test(vc.name)) {
-          const oriname = vc.name.match(re)[0];
-          vc.edit({ name: oriname }).catch(console.error);
-        }
+  handleChangeMemberInVoiceChannel(oldState, newState) {
+    let userCount;
+    let voiceChannel;
+    // console.log('oldstate', oldState.channel.members)
+    if (oldState.channelId !== newState.channelId) {
+      // Check if the new state has a voice channel
+      userCount = voiceChannel.members.size;
+      voiceChannel = oldState.channel || newState.channel;
+
+      let connection = getVoiceConnection(voiceChannel.guild.id);
+      if (connection && userCount === 1) {
+        musicHandler.stop();
       }
-    } catch (e) {
-      console.error(e);
     }
   }
 }

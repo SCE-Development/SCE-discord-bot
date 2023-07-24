@@ -1,6 +1,4 @@
-const {
-  prefix
-} = require('../../../config.json');
+const { prefix } = require('../../../config.json');
 
 const Command = require('../Command');
 
@@ -22,8 +20,7 @@ module.exports = new Command({
         musicHandler.skip(message);
       } else if (args[0] === 'stop') {
         musicHandler.stop();
-      }
-      else if (args[0] === undefined) {
+      } else if (args[0] === undefined) {
         message.reply(`Usage: 
           \`${prefix}search <query>: Returns top 5\`
           \`${prefix}play <title/url>: Plays first song from search/ url\`
@@ -36,5 +33,5 @@ module.exports = new Command({
     } else {
       message.reply('Please join voice channel first!');
     }
-  }
+  },
 });

@@ -8,7 +8,6 @@ const {
 const ytdl = require('ytdl-core');
 const play = require('play-dl');
 
-
 // see https://stackoverflow.com/a/59626464
 class MusicSingleton {
   constructor() {
@@ -20,19 +19,32 @@ class MusicSingleton {
     this._currentMessage = null;
     this.upcoming = [];
     this.history = [];
+    this.botWasKicked = false;
     this.audioPlayer = createAudioPlayer();
-    this.audioPlayer.on(
-      AudioPlayerStatus.Idle,
-      () => this.playNextUpcomingUrl(this)
+    this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
+      this.playNextUpcomingUrl(this);
+
+    }
     );
-    this.audioPlayer.on(
-      AudioPlayerStatus.Playing,
-      () => this.announceNowPlaying(this)
+    this.audioPlayer.on(AudioPlayerStatus.Playing, () => {
+      if (this.botWasKicked) {
+        return;
+      }
+      this.announceNowPlaying(this);
+
+    }
     );
+    this.audioPlayer.on(AudioPlayerStatus.AutoPaused, async () => {
+      // clear queues and stop the streaming
+      this.botWasKicked = true;
+      this.stop();
+      this.setIsBotConnectedToChannel(false);
+    });
     this.audioPlayer.on('error', console.error);
   }
 
   async announceNowPlaying(originalThis) {
+
     const nowPlaying = originalThis.history[originalThis.history.length - 1];
     originalThis._currentMessage.reply(
       `Now playing \`${nowPlaying.metadata.title}\``
@@ -44,11 +56,16 @@ class MusicSingleton {
       const { url: latestTrack, metadata } = originalThis.upcoming.shift();
       originalThis.history.push({ url: latestTrack, metadata });
       let stream = await play.stream(latestTrack);
-      const resource = createAudioResource(
-        stream.stream,
-        { inputType: stream.type },
-      );
+      const resource = createAudioResource(stream.stream, {
+        inputType: stream.type,
+      });
       originalThis.audioPlayer.play(resource);
+    }
+    else if (this.botWasKicked) {
+      // when the bot is kicked from a channel, the next time it plays a song,
+      // the state first goes to idle. we handle this case here by
+      // playing the next song instead of disconnecting the bot
+      this.botWasKicked = false;
     } else {
       const connection = getVoiceConnection(
         originalThis._currentMessage.guild.voiceStates.guild.id
@@ -75,8 +92,7 @@ class MusicSingleton {
       } else {
         message.reply('There is no song to skip!');
       }
-    }
-    else {
+    } else {
       // bot is not on
       message.reply('The bot is offline!');
     }
@@ -107,7 +123,6 @@ class MusicSingleton {
           adapterCreator: voiceChannel.guild.voiceAdapterCreator,
         }).subscribe(this.audioPlayer);
       }
-
       const isInPlayingState =
         this.audioPlayer.state.status === AudioPlayerStatus.Playing;
       if (isInPlayingState) {
