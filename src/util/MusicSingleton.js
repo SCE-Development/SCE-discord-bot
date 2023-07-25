@@ -49,11 +49,10 @@ class MusicSingleton {
   async announceNowPlaying(originalThis) {
     const { metadata } = originalThis.history[originalThis.history.length - 1];
     const exampleEmbed = new EmbedBuilder()
-      .setDescription("Started playing")
       .setColor(0x0099FF)
       .setTitle(metadata.title)
       .setURL(metadata.video_url)
-      .setAuthor({ name: metadata.author.name, iconURL: metadata.author.thumbnails[1].url, url: metadata.author.channel_url })
+      .setAuthor({ name: `Now playing` })
       .setThumbnail(metadata.thumbnails[2].url)
     originalThis._currentMessage.channel.send({ embeds: [exampleEmbed] });
   }
