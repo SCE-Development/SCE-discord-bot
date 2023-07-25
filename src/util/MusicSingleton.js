@@ -5,6 +5,9 @@ const {
   getVoiceConnection,
   createAudioResource,
 } = require('@discordjs/voice');
+// at the top of your file
+const { EmbedBuilder } = require('discord.js');
+
 const ytdl = require('ytdl-core');
 const play = require('play-dl');
 
@@ -44,11 +47,15 @@ class MusicSingleton {
   }
 
   async announceNowPlaying(originalThis) {
-
-    const nowPlaying = originalThis.history[originalThis.history.length - 1];
-    originalThis._currentMessage.reply(
-      `Now playing \`${nowPlaying.metadata.title}\``
-    );
+    const { metadata } = originalThis.history[originalThis.history.length - 1];
+    const exampleEmbed = new EmbedBuilder()
+      .setDescription("Started playing")
+      .setColor(0x0099FF)
+      .setTitle(metadata.title)
+      .setURL(metadata.video_url)
+      .setAuthor({ name: metadata.author.name, iconURL: metadata.author.thumbnails[1].url, url: metadata.author.channel_url })
+      .setThumbnail(metadata.thumbnails[2].url)
+    originalThis._currentMessage.channel.send({ embeds: [exampleEmbed] });
   }
 
   async playNextUpcomingUrl(originalThis) {
