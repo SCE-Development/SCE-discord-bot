@@ -48,13 +48,19 @@ class MusicSingleton {
 
   async announceNowPlaying(originalThis) {
     const { metadata } = originalThis.history[originalThis.history.length - 1];
-    const exampleEmbed = new EmbedBuilder()
+    const embeddedSong = new EmbedBuilder()
       .setColor(0x0099FF)
       .setTitle(metadata.title)
       .setURL(metadata.video_url)
-      .setAuthor({ name: `Now playing` })
+      .setAuthor({ name: 'Now playing' })
       .setThumbnail(metadata.thumbnails[2].url)
-    originalThis._currentMessage.channel.send({ embeds: [exampleEmbed] });
+      .setFooter(
+        {
+          text: `Requested by ${this._currentMessage.author.username}`,
+          iconURL: `${this._currentMessage.author.displayAvatarURL()}`
+        }
+      );
+    originalThis._currentMessage.channel.send({ embeds: [embeddedSong] });
   }
 
   async playNextUpcomingUrl(originalThis) {
@@ -133,13 +139,38 @@ class MusicSingleton {
         this.audioPlayer.state.status === AudioPlayerStatus.Playing;
       if (isInPlayingState) {
         this.upcoming.push({ url, metadata: videoDetails });
-        message.reply(`Added track \`${videoDetails.title}\``);
+
+        const embeddedQueue = new EmbedBuilder()
+          .setColor(0x0099FF)
+          .setTitle(videoDetails.title)
+          .setURL(videoDetails.video_url)
+          .setAuthor({ name: 'Added Track' })
+          .addFields(
+            {
+              name: 'Position in upcoming',
+              value: `${this.upcoming.length}`, inline: true
+            },
+            {
+              name: 'Position in queue',
+              value: `${this.upcoming.length + this.history.length}`,
+              inline: true
+            },
+          )
+          .setThumbnail(videoDetails.thumbnails[2].url)
+          .setTimestamp()
+          .setFooter(
+            {
+              text: `Requested by ${message.author.username}`,
+              iconURL: `${message.author.displayAvatarURL()}`
+            });
+        message.channel.send({ embeds: [embeddedQueue] });
       } else {
         this.history.push({ url, metadata: videoDetails });
         const stream = await play.stream(url);
         this.audioPlayer.play(
           createAudioResource(stream.stream, { inputType: stream.type })
         );
+
       }
       return true;
     } catch (e) {
