@@ -25,6 +25,7 @@ module.exports = new Command({
           let items = ytInfo.map((song, index) => {
             return `\`${index + 1}: ${song.title}\``;
           });
+          items.push('\n`0: Cancel`');
           // ask if which track user wish to play
           message.channel.send('Please select the following results');
           message.channel.send(`${items.join('\n')}`);
@@ -38,6 +39,8 @@ module.exports = new Command({
             musicHandler.playOrAddYouTubeUrlToQueue(
               message, ytInfo[userInput - 1].url
             );
+          } else if (userInput === '0') {
+            message.reply('Cancelled');
           } else {
             message.reply('Invalid choice');
           }
