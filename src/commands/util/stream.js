@@ -8,9 +8,9 @@ const musicHandler = new MusicSingleton();
 
 module.exports = new Command({
   name: 'stream',
-  description: 'imagine kneeling to a corporation',
+  description: 'Stop the bot / Skip song in queue',
   aliases: ['stream'],
-  example: 's!stream',
+  example: 's!stream stream/stop',
   permissions: 'member',
   category: 'information',
   disabled: false,

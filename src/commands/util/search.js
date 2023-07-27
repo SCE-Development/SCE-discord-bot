@@ -12,9 +12,9 @@ const musicHandler = new MusicSingleton();
 
 module.exports = new Command({
   name: 'search',
-  description: 'imagine kneeling to a corporation',
+  description: 'Search and play music from Youtube',
   aliases: ['search'],
-  example: 's!search',
+  example: 's!search <keywords>',
   permissions: 'member',
   category: 'information',
   disabled: false,
