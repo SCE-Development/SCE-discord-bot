@@ -18,8 +18,8 @@ class VoiceChannelChangeHandler {
     // console.log('oldstate', oldState.channel.members)
     if (oldState.channelId !== newState.channelId) {
       // Check if the new state has a voice channel
-      userCount = voiceChannel.members.size;
       voiceChannel = oldState.channel || newState.channel;
+      userCount = voiceChannel.members.size;
 
       let connection = getVoiceConnection(voiceChannel.guild.id);
       if (connection && userCount === 1) {
