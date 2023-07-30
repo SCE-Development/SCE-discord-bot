@@ -12,9 +12,9 @@ const musicHandler = new MusicSingleton();
 
 module.exports = new Command({
   name: 'play',
-  description: 'imagine kneeling to a corporation',
+  description: 'Stream the URL/the most relevant result return from Youtube',
   aliases: ['play'],
-  example: 's!play',
+  example: 's!play <url/song title>',
   permissions: 'member',
   category: 'information',
   disabled: false,

@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { isOfficer } = require('../../util/Permission');
 const Command = require('../Command');
 
@@ -29,17 +29,23 @@ module.exports = new Command({
     let dict = {};
 
     if (!args.length) {
-      const helpEmbed = new Discord.MessageEmbed()
+      const helpEmbed = new EmbedBuilder()
         .setColor('#ccffff')
-        .setAuthor('All commands',
-          'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1');
+        .setAuthor({
+          name: 'All commands',
+          iconURL:
+            'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1'
+
+        });
       for (let i = 0; i < categories.length; i++) {
         if (categories[i]) {
           dict[categories[i]] = [];
         }
       }
       // tmp is all the unique commands
-      let tmp = Array.from(new Set(commands.array()));
+      let tmp = Array.from(commands, entry => {
+        return entry[1];
+      });
       for (let j = 0; j < tmp.length; j++) {
         if (tmp[j].permissions === 'admin' && !isOfficer(author)) {
           continue;
@@ -62,16 +68,21 @@ module.exports = new Command({
         else if (category == 'information') categoryString += ':pushpin: ';
 
         categoryString += capitalize(category);
-        helpEmbed.addField(categoryString, commandString);
+        helpEmbed.addFields(
+          {
+            name: categoryString,
+            value: commandString
+          }
+        );
       });
-      message.channel.send(helpEmbed);
+      message.channel.send({ embeds: [helpEmbed] });
     } else {
       let command = args[0].toLowerCase();
-      
+
       // Grab command info
       const commandInfo = commands.get(command);
-      
-      if (!commandInfo){
+
+      if (!commandInfo) {
         message.channel.send(`Command ${command} does not exist!`);
         return;
       }
@@ -82,17 +93,20 @@ module.exports = new Command({
         return;
       }
 
-      const helpEmbed = new Discord.MessageEmbed()
+      const helpEmbed = new EmbedBuilder()
         .setColor('#ccffff');
       let noAlias = true;
 
       Object.entries(commandInfo).forEach(([field, info]) => {
-        if (field == 'executeCommand' || !info || info.length == 0) return;
+        if (field === 'executeCommand' || !info || info.length === 0) return;
         let infoText = info;
-        
+
         if (field == 'name') {
-          helpEmbed.setAuthor(capitalize(infoText), 
-            'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1');
+          helpEmbed.setAuthor({
+            name: capitalize(infoText),
+            iconURL:
+              'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1'
+          });
           return;
         } else if (field == 'aliases') {
           infoText = info.join(', ');
@@ -103,22 +117,64 @@ module.exports = new Command({
         }
 
         if (field == 'description') {
-          helpEmbed.addField(capitalize(field), infoText, false);
+          helpEmbed.addFields(
+            {
+              name: capitalize(field),
+              value: infoText,
+              inline: false
+            }
+          );
           return;
         } else if (field == 'example') {
-          if (!noAlias) helpEmbed.addField('\u200b', '\u200b', true);
-          helpEmbed.addField(capitalize(field), '`' + infoText + '`', true);
+          if (!noAlias)
+            helpEmbed.addFields(
+              {
+                name: '\u200b',
+                value: '\u200b',
+                inline: true
+              }
+            );
+          helpEmbed.addFields(
+            {
+              name: capitalize(field),
+              value: '`' + infoText + '`',
+              inline: true
+            }
+          );
           return;
         } else if (field == 'permissions' && noAlias) {
-          helpEmbed.addField('\u200b', '\u200b', true);
-          helpEmbed.addField('\u200b', '\u200b', true);
+          helpEmbed.addFields(
+            {
+              name: '\u200b',
+              value: '\u200b',
+              inline: true
+            });
+          helpEmbed.addFields(
+            {
+              name: '\u200b',
+              value: '\u200b',
+              inline: true
+            }
+          );
         } else if (field == 'category') {
-          helpEmbed.addField('\u200b', '\u200b', true);
+          helpEmbed.addFields(
+            {
+              name: '\u200b',
+              value: '\u200b',
+              inline: true
+            }
+          );
         }
-
-        helpEmbed.addField(capitalize(field), infoText, true);
+        helpEmbed.addFields(
+          {
+            name: capitalize(field),
+            value: infoText,
+            inline: true
+          }
+        );
       });
-      message.channel.send(helpEmbed);
+
+      message.channel.send({ embeds: [helpEmbed] });
     }
   }
 });
