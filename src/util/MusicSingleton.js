@@ -84,6 +84,11 @@ class MusicSingleton {
       );
       originalThis._isBotConnectedToChannel = false;
       connection.destroy();
+      const embeddedDestroy = new EmbedBuilder()
+        .setColor(0x0099FF)
+        .setAuthor({ name: 'I\'m disconnected from the channel' })
+      this._currentMessage.channel.send({ embeds: [embeddedDestroy] });
+
     }
   }
 
@@ -114,7 +119,60 @@ class MusicSingleton {
     this.upcoming = [];
     this.history = [];
     this.audioPlayer.stop();
+    const embeddedStop = new EmbedBuilder()
+      .setColor(0x0099FF)
+      .setAuthor({ name: 'The bot is stopped' })
+      .setDescription('Clearing queues... Disconnecting')
+      .setFooter(
+        {
+          text: `Requested by ${this._currentMessage.author.username}`,
+          iconURL: `${this._currentMessage.author.displayAvatarURL()}`
+        }
+      );
+    this._currentMessage.channel.send({ embeds: [embeddedStop] });
   }
+
+  pause(message, option) {
+    // pause
+    if (option === 1) {
+      if (this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
+        message.reply('The bot is already paused!!!');
+        return;
+      } else {
+        this.audioPlayer.pause();
+        const { metadata } = this.history[this.history.length - 1];
+        const embeddedPause = new EmbedBuilder()
+          .setColor(0x0099FF)
+          .setTitle(metadata.title)
+          .setAuthor({ name: 'Paused' })
+          .setURL(metadata.video_url)
+          .setThumbnail(metadata.thumbnails[2].url)
+          .setFooter(
+            {
+              text: `Requested by ${this._currentMessage.author.username}`,
+              iconURL: `${this._currentMessage.author.displayAvatarURL()}`
+            }
+          );
+        message.channel.send({ embeds: [embeddedPause] });
+      }
+
+    }
+    // unpause
+    else if (option === 2) {
+      if (this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
+        this.audioPlayer.unpause();
+      } else {
+        message.reply('The bot is not paused!!!');
+        return;
+      }
+    } else {
+      console.error("Invalid options!!!")
+    }
+
+
+
+  }
+
   // Assumes sent url is valid YouTube URL
   async playOrAddYouTubeUrlToQueue(message, url) {
     try {
