@@ -14,7 +14,7 @@ module.exports = new Command({
   name: 'search',
   description: 'Search and play music from Youtube',
   aliases: ['search'],
-  example: 's!search <keywords>',
+  example: `${prefix}search <keywords>`,
   permissions: 'member',
   category: 'information',
   disabled: false,

@@ -86,7 +86,7 @@ class MusicSingleton {
       connection.destroy();
       const embeddedDestroy = new EmbedBuilder()
         .setColor(0x0099FF)
-        .setAuthor({ name: 'I\'m disconnected from the channel' })
+        .setAuthor({ name: 'I\'m disconnected from the channel' });
       this._currentMessage.channel.send({ embeds: [embeddedDestroy] });
 
     }
@@ -166,7 +166,7 @@ class MusicSingleton {
         return;
       }
     } else {
-      console.error("Invalid options!!!")
+      console.error('Invalid options!!!');
     }
 
 

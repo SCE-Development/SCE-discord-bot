@@ -14,7 +14,7 @@ module.exports = new Command({
   name: 'play',
   description: 'Stream the URL/the most relevant result return from Youtube',
   aliases: ['play'],
-  example: 's!play <url/song title>',
+  example: `${prefix}play <url/song title>`,
   permissions: 'member',
   category: 'information',
   disabled: false,
