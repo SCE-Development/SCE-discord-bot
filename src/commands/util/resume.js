@@ -7,17 +7,17 @@ const MusicSingleton = require('../../util/MusicSingleton');
 const musicHandler = new MusicSingleton();
 
 module.exports = new Command({
-  name: 'unpause',
-  description: 'Unpause the track',
-  aliases: ['unpause'],
-  example: `${prefix}unpause`,
+  name: 'resume',
+  description: 'Resume the paused track',
+  aliases: ['resume'],
+  example: `${prefix}resume`,
   permissions: 'member',
   category: 'information',
   disabled: false,
   execute: async (message, args) => {
     if (message.member.voice.channel) {
       if (args[0] === undefined) {
-        musicHandler.pause(message, 2);
+        musicHandler.resume(message);
       } else {
         message.reply('Invalid Option');
       }

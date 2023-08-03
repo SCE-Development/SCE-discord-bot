@@ -17,7 +17,7 @@ module.exports = new Command({
   execute: async (message, args) => {
     if (message.member.voice.channel) {
       if (args[0] === undefined) {
-        musicHandler.pause(message, 1);
+        musicHandler.pause(message);
       } else {
         message.reply('Invalid Option');
       }
