@@ -16,13 +16,12 @@ module.exports = new Command({
   disabled: false,
   execute: async (message, args) => {
     if (message.member.voice.channel) {
-      if (args[0] === undefined) {
-        musicHandler.pause(message);
-      } else {
-        message.reply('Invalid Option');
-      }
+      return message.reply('Please join voice channel first!');
+    }
+    if (args[0] === undefined) {
+      musicHandler.pause(message);
     } else {
-      message.reply('Please join voice channel first!');
+      message.reply('Invalid Option');
     }
   },
 });
