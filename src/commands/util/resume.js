@@ -15,9 +15,6 @@ module.exports = new Command({
   category: 'information',
   disabled: false,
   execute: async (message, args) => {
-    if (!message.member.voice.channel) {
-      return message.reply('Please join voice channel first!');
-    }
     if (args[0] === undefined) {
       musicHandler.resume(message);
     } else {

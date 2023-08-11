@@ -166,7 +166,10 @@ class MusicSingleton {
     message.channel.send({ embeds: [embeddedPause] });
   }
 
-  resume() {
+  resume(message) {
+    if (!message.member.voice.channel) {
+      return message.reply('Please join voice channel first!');
+    }
     if (this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
       this.audioPlayer.unpause();
     } else {

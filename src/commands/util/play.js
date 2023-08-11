@@ -19,9 +19,6 @@ module.exports = new Command({
   category: 'information',
   disabled: false,
   execute: async (message, args) => {
-    if (!message.member.voice.channel) {
-      return message.reply('Please join voice channel first!');
-    }
     const url = args[0];
     if (ytdl.validateURL(url)) {
       musicHandler.playOrAddYouTubeUrlToQueue(message, url);
