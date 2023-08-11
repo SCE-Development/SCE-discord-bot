@@ -84,6 +84,11 @@ class MusicSingleton {
       );
       originalThis._isBotConnectedToChannel = false;
       connection.destroy();
+      const embeddedDestroy = new EmbedBuilder()
+        .setColor(0x0099FF)
+        .setAuthor({ name: 'I\'m disconnected from the channel' });
+      this._currentMessage.channel.send({ embeds: [embeddedDestroy] });
+
     }
   }
 
@@ -96,6 +101,9 @@ class MusicSingleton {
   }
 
   skip(message) {
+    if (!message.member.voice.channel) {
+      return message.reply('Please join voice channel first!');
+    }
     if (this.isBotConnectedToChannel()) {
       if (this.audioPlayer.state.status === AudioPlayerStatus.Playing) {
         // we stop the audio player here so the state becomes idle
@@ -106,15 +114,71 @@ class MusicSingleton {
       }
     } else {
       // bot is not on
-      message.reply('The bot is offline!');
+      message.reply('The bot is not connected to a voice channel!');
     }
   }
 
-  stop() {
+  stop(message) {
+    if (!message.member.voice.channel) {
+      return message.reply('Please join voice channel first!');
+    }
+    if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
+      message.reply('Bot is already stopped.');
+      return false;
+    }
     this.upcoming = [];
     this.history = [];
     this.audioPlayer.stop();
+    const embeddedStop = new EmbedBuilder()
+      .setColor(0x0099FF)
+      .setAuthor({ name: 'The bot is stopped' })
+      .setDescription('Clearing queues... Disconnecting')
+      .setFooter(
+        {
+          text: `Requested by ${this._currentMessage.author.username}`,
+          iconURL: `${this._currentMessage.author.displayAvatarURL()}`
+        }
+      );
+    this._currentMessage.channel.send({ embeds: [embeddedStop] });
   }
+
+  pause(message) {
+    if (!message.member.voice.channel) {
+      message.reply('You need to join a voice channel first!');
+      return false;
+    }
+    if (this.audioPlayer.state.status !== AudioPlayerStatus.Paused) {
+      this.audioPlayer.pause();
+    }
+    const { metadata } = this.history[this.history.length - 1];
+    const embeddedPause = new EmbedBuilder()
+      .setColor(0x0099FF)
+      .setTitle(metadata.title)
+      .setAuthor({ name: 'Paused' })
+      .setURL(metadata.video_url)
+      .setThumbnail(metadata.thumbnails[2].url)
+      .setFooter(
+        {
+          text: `Requested by ${this._currentMessage.author.username}`,
+          iconURL: `${this._currentMessage.author.displayAvatarURL()}`
+        }
+      );
+    message.channel.send({ embeds: [embeddedPause] });
+  }
+
+  resume(message) {
+    if (!message.member.voice.channel) {
+      return message.reply('Please join voice channel first!');
+    }
+    if (this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
+      this.audioPlayer.unpause();
+    } else {
+      // the above will call announceNowPlaying implicitly, so we put the
+      // below call in an else to avoid showing the user what's playing twice
+      this.announceNowPlaying(this);
+    }
+  }
+
   // Assumes sent url is valid YouTube URL
   async playOrAddYouTubeUrlToQueue(message, url) {
     try {
