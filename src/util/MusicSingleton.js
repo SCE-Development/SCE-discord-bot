@@ -101,6 +101,9 @@ class MusicSingleton {
   }
 
   skip(message) {
+    if (!message.member.voice.channel) {
+      return message.reply('Please join voice channel first!');
+    }
     if (this.isBotConnectedToChannel()) {
       if (this.audioPlayer.state.status === AudioPlayerStatus.Playing) {
         // we stop the audio player here so the state becomes idle
