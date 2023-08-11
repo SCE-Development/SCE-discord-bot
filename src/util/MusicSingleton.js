@@ -114,7 +114,7 @@ class MusicSingleton {
       }
     } else {
       // bot is not on
-      message.reply('The bot is offline!');
+      message.reply('The bot is not connected to a voice channel!');
     }
   }
 
