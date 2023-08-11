@@ -14,12 +14,7 @@ module.exports = new Command({
   permissions: 'member',
   category: 'information',
   disabled: false,
-  execute: async (message, args) => {
-    if (args[0] === undefined) {
-      musicHandler.resume(message);
-    } else {
-      message.reply('Invalid Option');
-    }
-
+  execute: async (message) => {
+    musicHandler.resume(message);
   },
 });
