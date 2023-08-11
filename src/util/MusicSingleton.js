@@ -115,7 +115,11 @@ class MusicSingleton {
     }
   }
 
-  stop() {
+  stop(message) {
+    if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
+      message.reply('Bot is already stopped.');
+      return false;
+    }
     this.upcoming = [];
     this.history = [];
     this.audioPlayer.stop();
@@ -133,37 +137,36 @@ class MusicSingleton {
   }
 
   pause(message) {
-    // pauses
-    if (this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
-      message.reply('The bot is already paused!!!');
-      return;
-    } else {
-      this.audioPlayer.pause();
-      const { metadata } = this.history[this.history.length - 1];
-      const embeddedPause = new EmbedBuilder()
-        .setColor(0x0099FF)
-        .setTitle(metadata.title)
-        .setAuthor({ name: 'Paused' })
-        .setURL(metadata.video_url)
-        .setThumbnail(metadata.thumbnails[2].url)
-        .setFooter(
-          {
-            text: `Requested by ${this._currentMessage.author.username}`,
-            iconURL: `${this._currentMessage.author.displayAvatarURL()}`
-          }
-        );
-      message.channel.send({ embeds: [embeddedPause] });
-
-
+    if (!message.member.voice.channel) {
+      message.reply('You need to join a voice channel first!');
+      return false;
     }
+    if (this.audioPlayer.state.status !== AudioPlayerStatus.Paused) {
+      this.audioPlayer.pause();
+    }
+    const { metadata } = this.history[this.history.length - 1];
+    const embeddedPause = new EmbedBuilder()
+      .setColor(0x0099FF)
+      .setTitle(metadata.title)
+      .setAuthor({ name: 'Paused' })
+      .setURL(metadata.video_url)
+      .setThumbnail(metadata.thumbnails[2].url)
+      .setFooter(
+        {
+          text: `Requested by ${this._currentMessage.author.username}`,
+          iconURL: `${this._currentMessage.author.displayAvatarURL()}`
+        }
+      );
+    message.channel.send({ embeds: [embeddedPause] });
   }
 
-  resume(message) {
+  resume() {
     if (this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
       this.audioPlayer.unpause();
     } else {
-      message.reply('The bot is not paused!!!');
-      return;
+      // the above will call announceNowPlaying implicitly, so we put the
+      // below call in an else to avoid showing the user what's playing twice
+      this.announceNowPlaying(this);
     }
   }
 

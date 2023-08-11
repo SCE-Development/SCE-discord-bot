@@ -14,14 +14,7 @@ module.exports = new Command({
   permissions: 'member',
   category: 'information',
   disabled: false,
-  execute: async (message, args) => {
-    if (!message.member.voice.channel) {
-      return message.reply('Please join voice channel first!');
-    }
-    if (args[0] === undefined) {
-      musicHandler.pause(message);
-    } else {
-      message.reply('Invalid Option');
-    }
+  execute: async (message) => {
+    musicHandler.pause(message);
   },
 });
