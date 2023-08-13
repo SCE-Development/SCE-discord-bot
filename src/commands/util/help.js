@@ -76,106 +76,103 @@ module.exports = new Command({
           }
         );
       });
-      message.channel.send({ embeds: [helpEmbed] });
-    } else {
-      let command = args[0].toLowerCase();
+      return message.channel.send({ embeds: [helpEmbed] });
+    }
+    let command = args[0].toLowerCase();
 
-      // Grab command info
-      const commandInfo = commands.get(command);
+    // Grab command info
+    const commandInfo = commands.get(command);
 
-      if (!commandInfo) {
-        message.channel.send(`Command ${command} does not exist!`);
+    if (!commandInfo) {
+      return message.channel.send(`Command ${command} does not exist!`);
+    }
+
+    if (commandInfo.permissions === 'admin' && !isOfficer(author)) {
+      return message.channel
+        .send('You do not have permissions to use this command!');
+    }
+
+    const helpEmbed = new EmbedBuilder()
+      .setColor('#ccffff');
+    let noAlias = true;
+
+    Object.entries(commandInfo).forEach(([field, info]) => {
+      if (field === 'executeCommand' || !info || info.length === 0) return;
+      let infoText = info;
+
+      if (field == 'name') {
+        helpEmbed.setAuthor({
+          name: capitalize(infoText),
+          iconURL:
+            'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1'
+        });
         return;
+      } else if (field == 'aliases') {
+        infoText = info.join(', ');
+        noAlias = false;
+      }
+      if (field != 'name' && field != 'aliases' && field != 'example') {
+        infoText = capitalize(infoText);
       }
 
-      if (commandInfo.permissions === 'admin' && !isOfficer(author)) {
-        message.channel
-          .send('You do not have permissions to use this command!');
-        return;
-      }
-
-      const helpEmbed = new EmbedBuilder()
-        .setColor('#ccffff');
-      let noAlias = true;
-
-      Object.entries(commandInfo).forEach(([field, info]) => {
-        if (field === 'executeCommand' || !info || info.length === 0) return;
-        let infoText = info;
-
-        if (field == 'name') {
-          helpEmbed.setAuthor({
-            name: capitalize(infoText),
-            iconURL:
-              'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1'
-          });
-          return;
-        } else if (field == 'aliases') {
-          infoText = info.join(', ');
-          noAlias = false;
-        }
-        if (field != 'name' && field != 'aliases' && field != 'example') {
-          infoText = capitalize(infoText);
-        }
-
-        if (field == 'description') {
-          helpEmbed.addFields(
-            {
-              name: capitalize(field),
-              value: infoText,
-              inline: false
-            }
-          );
-          return;
-        } else if (field == 'example') {
-          if (!noAlias)
-            helpEmbed.addFields(
-              {
-                name: '\u200b',
-                value: '\u200b',
-                inline: true
-              }
-            );
-          helpEmbed.addFields(
-            {
-              name: capitalize(field),
-              value: '`' + infoText + '`',
-              inline: true
-            }
-          );
-          return;
-        } else if (field == 'permissions' && noAlias) {
-          helpEmbed.addFields(
-            {
-              name: '\u200b',
-              value: '\u200b',
-              inline: true
-            });
-          helpEmbed.addFields(
-            {
-              name: '\u200b',
-              value: '\u200b',
-              inline: true
-            }
-          );
-        } else if (field == 'category') {
-          helpEmbed.addFields(
-            {
-              name: '\u200b',
-              value: '\u200b',
-              inline: true
-            }
-          );
-        }
+      if (field == 'description') {
         helpEmbed.addFields(
           {
             name: capitalize(field),
             value: infoText,
+            inline: false
+          }
+        );
+        return;
+      } else if (field == 'example') {
+        if (!noAlias)
+          helpEmbed.addFields(
+            {
+              name: '\u200b',
+              value: '\u200b',
+              inline: true
+            }
+          );
+        helpEmbed.addFields(
+          {
+            name: capitalize(field),
+            value: '`' + infoText + '`',
             inline: true
           }
         );
-      });
+        return;
+      } else if (field == 'permissions' && noAlias) {
+        helpEmbed.addFields(
+          {
+            name: '\u200b',
+            value: '\u200b',
+            inline: true
+          });
+        helpEmbed.addFields(
+          {
+            name: '\u200b',
+            value: '\u200b',
+            inline: true
+          }
+        );
+      } else if (field == 'category') {
+        helpEmbed.addFields(
+          {
+            name: '\u200b',
+            value: '\u200b',
+            inline: true
+          }
+        );
+      }
+      helpEmbed.addFields(
+        {
+          name: capitalize(field),
+          value: infoText,
+          inline: true
+        }
+      );
+    });
 
-      message.channel.send({ embeds: [helpEmbed] });
-    }
+    message.channel.send({ embeds: [helpEmbed] });
   }
 });
