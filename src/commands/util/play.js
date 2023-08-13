@@ -16,7 +16,7 @@ module.exports = new Command({
   aliases: ['play'],
   example: `${prefix}play <url/song title>`,
   permissions: 'member',
-  category: 'information',
+  category: 'music',
   disabled: false,
   execute: async (message, args) => {
     const url = args[0];

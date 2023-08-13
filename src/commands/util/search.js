@@ -16,7 +16,7 @@ module.exports = new Command({
   aliases: ['search'],
   example: `${prefix}search <keywords>`,
   permissions: 'member',
-  category: 'information',
+  category: 'music',
   disabled: false,
   execute: async (message, args) => {
     if (!message.member.voice.channel) {
