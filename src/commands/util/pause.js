@@ -12,7 +12,7 @@ module.exports = new Command({
   aliases: ['pause'],
   example: `${prefix}pause`,
   permissions: 'member',
-  category: 'information',
+  category: 'music',
   disabled: false,
   execute: async (message) => {
     musicHandler.pause(message);

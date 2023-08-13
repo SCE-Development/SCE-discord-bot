@@ -12,7 +12,7 @@ module.exports = new Command({
   aliases: ['resume'],
   example: `${prefix}resume`,
   permissions: 'member',
-  category: 'information',
+  category: 'music',
   disabled: false,
   execute: async (message) => {
     musicHandler.resume(message);

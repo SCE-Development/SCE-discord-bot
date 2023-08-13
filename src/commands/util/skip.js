@@ -12,7 +12,7 @@ module.exports = new Command({
   aliases: ['skip'],
   example: `${prefix}skip`,
   permissions: 'member',
-  category: 'information',
+  category: 'music',
   disabled: false,
   execute: async (message) => {
     musicHandler.skip(message);

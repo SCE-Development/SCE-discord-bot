@@ -66,6 +66,7 @@ module.exports = new Command({
         }
         else if (category == 'custom threads') categoryString += ':thread: ';
         else if (category == 'information') categoryString += ':pushpin: ';
+        else if (category == 'music') categoryString += ':notes:';
 
         categoryString += capitalize(category);
         helpEmbed.addFields(
