@@ -1,8 +1,8 @@
 const { prefix } = require('../../../config.json');
-
 const Command = require('../Command');
-
 const MusicSingleton = require('../../util/MusicSingleton');
+const { CommandCategory } = require('../../util/enums');
+
 
 const musicHandler = new MusicSingleton();
 
@@ -12,7 +12,7 @@ module.exports = new Command({
   aliases: ['stop'],
   example: `${prefix}stop`,
   permissions: 'member',
-  category: 'music',
+  category: CommandCategory.MUSIC,
   disabled: false,
   execute: async (message) => {
     musicHandler.stop(message);

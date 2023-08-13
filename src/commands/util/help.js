@@ -1,6 +1,24 @@
+/**
+ * 
+ * make category enum
+ * 
+ * make each command have said category enum
+ * 
+ * when its time to display all commands, make a bucket for each category like
+ * 
+ * [CommandCategory.MUSIC] = ['play', 'pause']
+ * 
+ * then iterate over each bucket and replacing the
+ * Object.entries(dict).forEach(([category, commands]) => {
+ * 
+ * the emoji to use should be a dictionary
+ */
+
 const { EmbedBuilder } = require('discord.js');
 const { isOfficer } = require('../../util/Permission');
 const Command = require('../Command');
+const { CommandCategory } = require('../../util/enums');
+
 
 module.exports = new Command({
   name: 'help',
@@ -8,7 +26,7 @@ module.exports = new Command({
   aliases: ['commands'],
   example: 's!help [commandName]',
   permissions: 'general',
-  category: 'information',
+  category: CommandCategory.INFORMATION,
   execute: (message, args) => {
 
     const author = message.member;
@@ -16,6 +34,7 @@ module.exports = new Command({
     const capitalize = (message) => (message.charAt(0).toUpperCase()
       + message.slice(1));
     const { commands } = message.client;
+      console.log("commands", {commands})
 
     // list of categories
     const categories = (commands.map((command) => {
@@ -35,7 +54,6 @@ module.exports = new Command({
           name: 'All commands',
           iconURL:
             'https://cdn.discordapp.com/emojis/718330337071071323.png?v=1'
-
         });
       for (let i = 0; i < categories.length; i++) {
         if (categories[i]) {
@@ -60,11 +78,9 @@ module.exports = new Command({
 
         if (category == 'Server management') categoryString += ':scales: ';
         else if (category == 'mod') categoryString += ':crown: ';
-        else if (category == 'github') categoryString += ':computer: ';
         else if (category == 'member services') {
           categoryString += ':badminton: ';
         }
-        else if (category == 'custom threads') categoryString += ':thread: ';
         else if (category == 'information') categoryString += ':pushpin: ';
         else if (category == 'music') categoryString += ':notes:';
 

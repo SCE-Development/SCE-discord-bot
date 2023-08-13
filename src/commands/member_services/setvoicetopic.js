@@ -1,4 +1,6 @@
 const Command = require('../Command');
+const { CommandCategory } = require('../../util/enums');
+
 
 module.exports = new Command({
   name: 'setvoicetopic',
@@ -6,7 +8,7 @@ module.exports = new Command({
   aliases: ['svt'],
   example: 's!setvoicetopic',
   permissions: 'member',
-  category: 'member services',
+  category: CommandCategory.MEMBER_SERVICES,
   execute: async (message, args) => {
     // Check if a user gave topic for args
     if (!args.length) {

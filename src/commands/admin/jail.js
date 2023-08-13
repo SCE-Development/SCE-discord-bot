@@ -1,4 +1,6 @@
 const Command = require('../Command');
+const { CommandCategory } = require('../../util/enums');
+
 
 module.exports = new Command({
   name: 'jail',
@@ -6,7 +8,7 @@ module.exports = new Command({
   aliases: [],
   example: 's!jail @user', 
   permissions: 'admin',
-  category: 'mod',
+  category: CommandCategory.MOD,
   disabled: true,
   execute: (message, args) => {
     if (args.join(' ') == '') {

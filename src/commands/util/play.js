@@ -7,6 +7,8 @@ const play = require('play-dl');
 
 const Command = require('../Command');
 const MusicSingleton = require('../../util/MusicSingleton');
+const { CommandCategory } = require('../../util/enums');
+
 
 const musicHandler = new MusicSingleton();
 
@@ -16,7 +18,7 @@ module.exports = new Command({
   aliases: ['play'],
   example: `${prefix}play <url/song title>`,
   permissions: 'member',
-  category: 'music',
+  category: CommandCategory.MUSIC,
   disabled: false,
   execute: async (message, args) => {
     const url = args[0];

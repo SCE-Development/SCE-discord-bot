@@ -1,11 +1,14 @@
 const Command = require('../Command');
+const { CommandCategory } = require('../../util/enums');
+
+
 module.exports = new Command({
   name: 'unsubscribe',
   description: 'unsubscribes user from discord SCE notifications',
   aliases: ['unsub'],
   example: '!unsubscribe',
   permissions: 'general',
-  category: 'member services',
+  category: CommandCategory.MEMBER_SERVICES,
   // eslint-disable-next-line
   execute: async (message, args) => {
     const roles = await message.guild.roles.fetch();

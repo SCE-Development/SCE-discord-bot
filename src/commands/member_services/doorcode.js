@@ -1,4 +1,6 @@
 const Command = require('../Command');
+const { CommandCategory } = require('../../util/enums');
+
 
 module.exports = new Command({
   name: 'doorcode',
@@ -7,7 +9,7 @@ module.exports = new Command({
   aliases: ['dcode'],
   example: 's!dcode',
   permissions: 'admin',
-  category: 'information',
+  category: CommandCategory.INFORMATION,
   disabled: true,
   execute: () => {}
 });

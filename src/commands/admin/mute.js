@@ -1,5 +1,7 @@
 const Command = require('../Command');
 const { isOfficer } = require('../../util/Permission');
+const { CommandCategory } = require('../../util/enums');
+
 
 module.exports = new Command({
   name: 'mute',
@@ -7,7 +9,7 @@ module.exports = new Command({
   aliases: [],
   example: 's!mute @user <message>',
   permissions: 'admin',
-  category: 'Server management',
+  category: CommandCategory.SERVER_MANAGEMENT,
   execute: async (message, args) => {
     const author = message.member;
     // Check if author can mute

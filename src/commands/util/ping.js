@@ -1,4 +1,6 @@
 const Command = require('../Command');
+const { CommandCategory } = require('../../util/enums');
+
 
 const snowboardEmoji = '🏂';
 const clockEmoji = '🕑';
@@ -9,7 +11,7 @@ module.exports = new Command({
   aliases: [],
   example: 's!ping',
   permissions: 'general',
-  category: 'information',
+  category: CommandCategory.INFORMATION,
   // eslint-disable-next-line
   execute: async (message, args) => {
     const pingResponse = await message.channel.send(

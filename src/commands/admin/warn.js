@@ -1,5 +1,7 @@
 const Command = require('../Command');
 const { isOfficer } = require('../../util/Permission');
+const { CommandCategory } = require('../../util/enums');
+
 
 module.exports = new Command({
   name: 'warn',
@@ -7,7 +9,7 @@ module.exports = new Command({
   aliases: [],
   example: 's!warn @user <message>',
   permissions: 'admin',
-  category: 'Server management',
+  category: CommandCategory.SERVER_MANAGEMENT,
   execute: (message, args) => {
     if (args.join(' ') == '') {
       message.channel.send('You need to mention a user to warn!');

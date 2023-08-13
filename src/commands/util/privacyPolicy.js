@@ -1,5 +1,7 @@
 const Command = require('../Command');
 const Discord = require('discord.js');
+const { CommandCategory } = require('../../util/enums');
+
 
 module.exports = new Command ({
   name: 'privacypolicy',
@@ -7,7 +9,7 @@ module.exports = new Command ({
   aliases: [],
   example: 's!privacypolicy',
   permission: 'general',
-  category: 'information',
+  category: CommandCategory.INFORMATION,
   execute: async (message) => {
     const privacyEmbed = new Discord.MessageEmbed()
       .setColor('#ccffff')

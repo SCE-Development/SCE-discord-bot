@@ -6,8 +6,10 @@ const play = require('play-dl');
 
 const Command = require('../Command');
 const { EmbedBuilder } = require('discord.js');
-
+const { CommandCategory } = require('../../util/enums');
 const MusicSingleton = require('../../util/MusicSingleton');
+
+
 const musicHandler = new MusicSingleton();
 
 module.exports = new Command({
@@ -16,7 +18,7 @@ module.exports = new Command({
   aliases: ['search'],
   example: `${prefix}search <keywords>`,
   permissions: 'member',
-  category: 'music',
+  category: CommandCategory.MUSIC,
   disabled: false,
   execute: async (message, args) => {
     if (!message.member.voice.channel) {

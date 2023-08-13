@@ -1,5 +1,7 @@
 const Command = require('../Command');
 const { isOfficer } = require('../../util/Permission');
+const { CommandCategory } = require('../../util/enums');
+
 
 module.exports = new Command({
   name: 'ban',
@@ -7,7 +9,7 @@ module.exports = new Command({
   aliases: [],
   example: 's!ban @user <message>',
   permissions: 'admin',
-  category: 'Server management',
+  category: CommandCategory.SERVER_MANAGEMENT,
   execute: async (message, args) => {
     if (args.join(' ') == '') {
       message.channel.send('You need to give a user to ban');

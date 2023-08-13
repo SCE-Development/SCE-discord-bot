@@ -6,6 +6,8 @@ const {
   pushDiscordPDFToSqs,
   editUserPagesPrinted
 } = require('../../APIFunctions/Print.js');
+const { CommandCategory } = require('../../util/enums');
+
 
 module.exports = new Command({
   name: 'print',
@@ -13,7 +15,7 @@ module.exports = new Command({
   aliases: ['print'],
   example: 's!print',
   permissions: 'member',
-  category: 'member services',
+  category: CommandCategory.MEMBER_SERVICES,
 
   execute: async (message) => {
     const { id } = message.author;

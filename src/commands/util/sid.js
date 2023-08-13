@@ -1,4 +1,6 @@
 const Command = require('../Command');
+const { CommandCategory } = require('../../util/enums');
+
 
 module.exports = new Command({
   name: 'sid',
@@ -6,7 +8,7 @@ module.exports = new Command({
   aliases: [],
   example: 's!sid',
   permissions: 'general',
-  category: 'information',
+  category: CommandCategory.INFORMATION,
   // eslint-disable-next-line
   execute: (message, args) => {
     message.channel.send('Guild ID is ' + message.guild.id);

@@ -1,6 +1,8 @@
 const Discord = require('discord.js');
 const Command = require('../Command');
 const { gitCommands, npmCommands } = require('../../util/cli-commands');
+const { CommandCategory } = require('../../util/enums');
+
 
 function getEmbedColor(commandType) {
   switch (commandType) {
@@ -49,7 +51,7 @@ module.exports = new Command({
   aliases: ['cli-commands'],
   example: 's!clihelp',
   permissions: 'general',
-  category: 'information',
+  category: CommandCategory.INFORMATION,
   execute: (message, args) => {
     if (!args.length) {
       const generalCliHelpEmbed = {
