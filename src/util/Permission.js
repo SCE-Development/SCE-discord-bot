@@ -1,8 +1,12 @@
 function isOfficer(user) {
-  return (
-    user.permissions.has('MANAGE_CHANNELS') ||
-    user.permissions.has('ADMINISTRATOR')
-  );
+  try {
+    return (
+      user.permissions.has('MANAGE_CHANNELS') ||
+      user.permissions.has('ADMINISTRATOR')
+    );
+  } catch (error) {
+    return false;
+  }
 }
 
 function isAdmin(user) {
