@@ -23,7 +23,7 @@ class VoiceChannelChangeHandler {
 
       let connection = getVoiceConnection(voiceChannel.guild.id);
       if (connection && userCount === 1) {
-        musicHandler.stop();
+        musicHandler.disconnectBot();
       }
     }
   }
