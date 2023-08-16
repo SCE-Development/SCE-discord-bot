@@ -100,6 +100,12 @@ class MusicSingleton {
     this._isBotConnectedToChannel = value;
   }
 
+  disconnectBot() {
+    this.upcoming = [];
+    this.history = [];
+    this.audioPlayer.stop();
+  }
+
   skip(message) {
     if (!message.member.voice.channel) {
       return message.reply('Please join voice channel first!');
