@@ -15,6 +15,9 @@ module.exports = new Command({
   category: 'music',
   disabled: false,
   execute: async (message) => {
+    if (!message.member.voice.channel) {
+      return message.reply('Please join voice channel first!');
+    }
     musicHandler.stop(message);
   },
 });
