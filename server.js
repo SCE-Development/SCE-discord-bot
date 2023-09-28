@@ -56,7 +56,6 @@ const startBot = async () => {
   client.on('messageReactionAdd', async (reaction, user) => {
     // can replace this msg id to a specfic msg to listen for reactions
     if (reaction.message.id === VERIFICATION.MESSAGE_ID) {
-      console.log('reaction added', user.id);
       // get member
       const member = reaction.message.guild.members.cache.get(user.id);
       // can replace this id to a specific role id from discord server
