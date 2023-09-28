@@ -3,5 +3,6 @@
     "DISCORD_API_URL": "http://localhost:5000",
     "prefix": "s!",
     "SCE_API_URL": "http://sce.engr.sjsu.edu",
+    "ERROR_CHANNEL_ID": "xxxxxxxxxxxxxx",
     "CORE_V4_API_KEY" : "xxxxxxxxxxxxxx"
 }
