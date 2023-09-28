@@ -21,7 +21,11 @@ const startBot = async () => {
       Discord.GatewayIntentBits.GuildVoiceStates,
       Discord.GatewayIntentBits.GuildMessageReactions,
     ],
-    partials: [Discord.Partials.Channel, Discord.Partials.Message, Discord.Partials.Reaction],
+    partials:
+      [
+        Discord.Partials.Channel,
+        Discord.Partials.Message,
+        Discord.Partials.Reaction],
   });
   const messageHandler = new MessageHandler(prefix);
   const vcChangeHandler = new VoiceChannelChangeHandler();
@@ -52,14 +56,16 @@ const startBot = async () => {
   client.on('messageReactionAdd', async (reaction, user) => {
     // can replace this msg id to a specfic msg to listen for reactions
     if (reaction.message.id === VERIFICATION.MESSAGE_ID) {
-      console.log("reaction added", user.id)
+      console.log('reaction added', user.id);
       // get member
       const member = reaction.message.guild.members.cache.get(user.id);
       // can replace this id to a specific role id from discord server
-      const role = reaction.message.guild.roles.cache.get(VERIFICATION.VERIFIED_ROLE_ID)
-      member.roles.add(role)
+      const role = reaction.message.guild.roles.cache.get(
+        VERIFICATION.VERIFIED_ROLE_ID
+      );
+      member.roles.add(role);
     }
-  })
+  });
 
   client.login(API_TOKEN);
 };
