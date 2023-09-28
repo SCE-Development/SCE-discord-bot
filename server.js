@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const {
   prefix,
   API_TOKEN,
+  VERIFICATION
 } = require('./config.json');
 const { MessageHandler } = require('./src/handlers/MessageHandler');
 const {
@@ -50,26 +51,15 @@ const startBot = async () => {
 
   client.on('messageReactionAdd', async (reaction, user) => {
     // can replace this msg id to a specfic msg to listen for reactions
-    if (reaction.message.id === '1155762142516097034') {
+    if (reaction.message.id === VERIFICATION.MESSAGE_ID) {
       console.log("reaction added", user.id)
       // get member
       const member = reaction.message.guild.members.cache.get(user.id);
       // can replace this id to a specific role id from discord server
-      const role = reaction.message.guild.roles.cache.get('1155733322064998424')
+      const role = reaction.message.guild.roles.cache.get(VERIFICATION.VERIFIED_ROLE_ID)
       member.roles.add(role)
     }
   })
-
-  client.on('messageReactionRemove', async (reaction, user) => {
-    if (reaction.message.id === '1155762142516097034') {
-      console.log("reaction remove")
-      const member = reaction.message.guild.members.cache.get(user.id);
-      const role = reaction.message.guild.roles.cache.get('1155733322064998424')
-      member.roles.remove(role);
-    }
-  })
-
-
 
   client.login(API_TOKEN);
 };
