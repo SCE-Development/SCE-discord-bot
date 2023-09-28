@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const {
   prefix,
   API_TOKEN,
-  VERIFICATION
+  VERIFICATION = {}
 } = require('./config.json');
 const { MessageHandler } = require('./src/handlers/MessageHandler');
 const {
