@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const {
   prefix,
   API_TOKEN,
-  VERIFICATION = {}
+  REACTIONS = {}
 } = require('./config.json');
 const { MessageHandler } = require('./src/handlers/MessageHandler');
 const {
@@ -54,15 +54,18 @@ const startBot = async () => {
   });
 
   client.on('messageReactionAdd', async (reaction, user) => {
-    // can replace this msg id to a specfic msg to listen for reactions
-    if (reaction.message.id === VERIFICATION.MESSAGE_ID) {
-      // get member
+
+    if (REACTIONS[reaction.message.id]) {
+      const emoji = reaction._emoji.name
       const member = reaction.message.guild.members.cache.get(user.id);
-      // can replace this id to a specific role id from discord server
-      const role = reaction.message.guild.roles.cache.get(
-        VERIFICATION.VERIFIED_ROLE_ID
-      );
-      member.roles.add(role);
+      try {
+        const role = reaction.message.guild.roles.cache.get(
+          REACTIONS[reaction.message.id][emoji]
+        );
+        member.roles.add(role);
+      } catch (e) {
+        console.log("Role does not exist", e)
+      }
     }
   });
 
