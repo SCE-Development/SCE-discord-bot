@@ -56,7 +56,7 @@ const startBot = async () => {
   client.on('messageReactionAdd', async (reaction, user) => {
 
     if (REACTIONS[reaction.message.id]) {
-      const emoji = reaction._emoji.name
+      const emoji = reaction._emoji.name;
       const member = reaction.message.guild.members.cache.get(user.id);
       try {
         const role = reaction.message.guild.roles.cache.get(
@@ -64,7 +64,7 @@ const startBot = async () => {
         );
         member.roles.add(role);
       } catch (e) {
-        console.log("Role does not exist", e)
+        console.log('Role does not exist', e);
       }
     }
   });
