@@ -28,6 +28,28 @@ the Discord server with custom commands.
    2. run `npm start`
 3. Test out the bot in the discord channel!
 
+### Reaction Roles
+To have the bot assign a role to a user when they react to a message, add
+an entry to `config.json` like below:
+```json
+{
+   "MESSAGE_ID": {
+      "EMOJI": "ROLE_ID"
+   }
+}
+```
+
+For example, if we want to assign a role if a user reacts to a message
+with either 😂 or 👍, we would create an entry like below:
+```json
+{
+   "1162195531150393364": {
+      "😂": "847528126207885383",
+      "👍": "622587142639714304"
+   }
+}
+```
+
 ## Purpose of this bot
 
 We are currently using Dyno/Tatsumaki/Reactionrole/Owobot to manage

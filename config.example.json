@@ -5,8 +5,9 @@
   "SCE_API_URL": "http://sce.engr.sjsu.edu",
   "ERROR_CHANNEL_ID": "xxxxxxxxxxxxxx",
   "CORE_V4_API_KEY": "xxxxxxxxxxxxxx",
-  "VERIFICATION": {
-    "MESSAGE_ID": "xxxxxxxxxxxxxxxxxxx",
-    "VERIFIED_ROLE_ID": "xxxxxxxxxxxxxxxxxxx"
+  "REACTIONS": {
+    "MESSAGE_ID": {
+      "EMOJI": "ROLE_ID"
+    }
   }
 }
