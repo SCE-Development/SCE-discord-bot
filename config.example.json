@@ -7,15 +7,7 @@
   "CORE_V4_API_KEY": "xxxxxxxxxxxxxx",
   "REACTIONS": {
     "MESSAGE_ID": {
-      "👍": "xxxxxxxxxxxxxxxxxxx"
-    },
-    "MESSAGE_ID_1": {
-      "EMOJI": "ROLE_ID_1",
-      "OTHER_EMOJI": "ROLE_ID_2"
-    },
-    "MESSAGE_ID_2": {
-      "EMOJI": "ROLE_ID_3",
-      "OTHER_EMOJI": "ROLE_ID_4"
+      "EMOJI": "ROLE_ID"
     }
   }
 }
