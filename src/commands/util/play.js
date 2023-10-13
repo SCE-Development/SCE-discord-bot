@@ -21,7 +21,12 @@ module.exports = new Command({
   execute: async (message, args) => {
     const url = args[0];
     if (ytdl.validateURL(url)) {
-      musicHandler.playOrAddYouTubeUrlToQueue(message, url);
+      let maybeReplayCount = Number(args[1]);
+      if (Number.isNaN(Number(maybeReplayCount))) {
+        maybeReplayCount = 1;
+      }
+      console.log({url, maybeReplayCount})
+      musicHandler.playOrAddYouTubeUrlToQueue(message, url, maybeReplayCount);
     } else {
       if (args[0] === undefined)
         message.reply(`Usage: 

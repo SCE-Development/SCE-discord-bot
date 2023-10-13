@@ -25,6 +25,7 @@ class MusicSingleton {
     this.botWasKicked = false;
     this.audioPlayer = createAudioPlayer();
     this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
+      console.log("idle")
       this.playNextUpcomingUrl(this);
 
     }
@@ -33,6 +34,7 @@ class MusicSingleton {
       if (this.botWasKicked) {
         return;
       }
+      console.log("playing")
       this.announceNowPlaying(this);
 
     }
@@ -64,8 +66,15 @@ class MusicSingleton {
   }
 
   async playNextUpcomingUrl(originalThis) {
+    console.log('playNextUpcomingUrl', originalThis.upcoming.length)
     if (originalThis.upcoming.length) {
-      const { url: latestTrack, metadata } = originalThis.upcoming.shift();
+      const { url: latestTrack, metadata, replayCount = 1 } = originalThis.upcoming[originalThis.upcoming.length - 1]
+      console.log({latestTrack, metadata, replayCount});
+      if (replayCount <= 1) {
+        originalThis.upcoming.shift();
+      } else {
+        originalThis.upcoming[originalThis.upcoming.length - 1].replayCount -= 1;
+      }
       originalThis.history.push({ url: latestTrack, metadata });
       let stream = await play.stream(latestTrack);
       const resource = createAudioResource(stream.stream, {
@@ -186,7 +195,7 @@ class MusicSingleton {
   }
 
   // Assumes sent url is valid YouTube URL
-  async playOrAddYouTubeUrlToQueue(message, url) {
+  async playOrAddYouTubeUrlToQueue(message, url, replayCount=1) {
     try {
       const { videoDetails } = await ytdl.getInfo(url);
       this._currentMessage = message;
@@ -208,7 +217,7 @@ class MusicSingleton {
       const isInPlayingState =
         this.audioPlayer.state.status === AudioPlayerStatus.Playing;
       if (isInPlayingState) {
-        this.upcoming.push({ url, metadata: videoDetails });
+        this.upcoming.push({ url, metadata: videoDetails, replayCount });
 
         const embeddedQueue = new EmbedBuilder()
           .setColor(0x0099FF)
@@ -235,7 +244,10 @@ class MusicSingleton {
             });
         message.channel.send({ embeds: [embeddedQueue] });
       } else {
-        this.history.push({ url, metadata: videoDetails });
+        this.history.push({ url, metadata: videoDetails, replayCount });
+        if (replayCount > 1) {
+          this.upcoming.push({ url, metadata: videoDetails, replayCount: replayCount - 1 });
+        }
         const stream = await play.stream(url);
         this.audioPlayer.play(
           createAudioResource(stream.stream, { inputType: stream.type })
