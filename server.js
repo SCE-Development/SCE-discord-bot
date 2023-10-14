@@ -80,7 +80,7 @@ const startBot = async () => {
     } catch (e) {
       console.log('Role does not exist', e);
     }
-  })
+  });
 
   client.login(API_TOKEN);
 };
