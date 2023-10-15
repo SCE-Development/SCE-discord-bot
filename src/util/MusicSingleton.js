@@ -84,11 +84,6 @@ class MusicSingleton {
       );
       originalThis._isBotConnectedToChannel = false;
       connection.destroy();
-      const embeddedDestroy = new EmbedBuilder()
-        .setColor(0x0099FF)
-        .setAuthor({ name: 'I\'m disconnected from the channel' });
-      this._currentMessage.channel.send({ embeds: [embeddedDestroy] });
-
     }
   }
 
@@ -108,7 +103,7 @@ class MusicSingleton {
 
   skip(message) {
     if (!message.member.voice.channel) {
-      return message.reply('Please join voice channel first!');
+      return message.reply('Please join a voice channel first!');
     }
     if (this.isBotConnectedToChannel()) {
       if (this.audioPlayer.state.status === AudioPlayerStatus.Playing) {
@@ -116,7 +111,7 @@ class MusicSingleton {
         // once idle, the next song will play
         this.audioPlayer.stop();
       } else {
-        message.reply('There is no song to skip!');
+        message.reply('There are no songs to skip!');
       }
     } else {
       // bot is not on
@@ -127,12 +122,11 @@ class MusicSingleton {
   stop(message) {
     if (!message) return;
     if (!message.member.voice.channel) {
-      return message.reply('Please join voice channel first!');
+      return message.reply('Please join a voice channel first!');
     }
 
 
     if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
-      message.reply('Bot is already stopped.');
       return false;
     }
     this.upcoming = [];
@@ -141,7 +135,6 @@ class MusicSingleton {
     const embeddedStop = new EmbedBuilder()
       .setColor(0x0099FF)
       .setAuthor({ name: 'The bot is stopped' })
-      .setDescription('Clearing queues... Disconnecting')
       .setFooter(
         {
           text: `Requested by ${this._currentMessage.author.username}`,
@@ -177,7 +170,7 @@ class MusicSingleton {
 
   resume(message) {
     if (!message.member.voice.channel) {
-      return message.reply('Please join voice channel first!');
+      return message.reply('Please join a voice channel first!');
     }
     if (this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
       this.audioPlayer.unpause();
@@ -222,11 +215,6 @@ class MusicSingleton {
             {
               name: 'Position in upcoming',
               value: `${this.upcoming.length}`, inline: true
-            },
-            {
-              name: 'Position in queue',
-              value: `${this.upcoming.length + this.history.length}`,
-              inline: true
             },
           )
           .setThumbnail(videoDetails.thumbnails[2].url)
