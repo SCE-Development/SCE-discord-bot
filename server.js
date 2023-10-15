@@ -69,6 +69,19 @@ const startBot = async () => {
     }
   });
 
+  client.on('messageReactionRemove', async (reaction, user) => {
+    const emoji = reaction._emoji.name;
+    const member = reaction.message.guild.members.cache.get(user.id);
+    try {
+      const role = reaction.message.guild.roles.cache.get(
+        REACTIONS[reaction.message.id][emoji]
+      );
+      member.roles.remove(role);
+    } catch (e) {
+      console.log('Role does not exist', e);
+    }
+  });
+
   client.login(API_TOKEN);
 };
 

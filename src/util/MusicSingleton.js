@@ -125,9 +125,12 @@ class MusicSingleton {
   }
 
   stop(message) {
+    if (!message) return;
     if (!message.member.voice.channel) {
       return message.reply('Please join voice channel first!');
     }
+
+
     if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
       message.reply('Bot is already stopped.');
       return false;
