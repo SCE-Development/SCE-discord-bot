@@ -125,7 +125,8 @@ class MusicSingleton {
   }
 
   stop(message) {
-    if (message && message.member.voice.channel) {
+    if (!message) return;
+    if (!message.member.voice.channel) {
       return message.reply('Please join voice channel first!');
     }
 
