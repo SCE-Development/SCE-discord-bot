@@ -1,13 +1,13 @@
-const commandsPath = '../commands';
-const utilPath = '../util';
+const commandsPath = "../commands";
+const utilPath = "../util";
 
-const Command = require(commandsPath + '/Command');
-const { CooldownManager } = require(utilPath + '/CooldownManager');
-const { INVALID_TIME } = require(utilPath + '/constants');
-const { parseCommandParameters } = require(utilPath + '/CommandParser');
+const Command = require(commandsPath + "/Command");
+const { CooldownManager } = require(utilPath + "/CooldownManager");
+const { INVALID_TIME } = require(utilPath + "/constants");
+const { parseCommandParameters } = require(utilPath + "/CommandParser");
 
-const Discord = require('discord.js');
-const requireDir = require('require-dir');
+const Discord = require("discord.js");
+const requireDir = require("require-dir");
 
 /**
  * Class which handles invoking the correct prefixed command
@@ -38,7 +38,7 @@ class CommandHandler {
         if (command instanceof Command) {
           if (!command.disabled) {
             this.commandMap.set(command.name, command);
-            command.aliases.map(alias => this.commandMap.set(alias, command));
+            command.aliases.map((alias) => this.commandMap.set(alias, command));
           }
         }
       }
@@ -53,8 +53,14 @@ class CommandHandler {
    */
   handleCommand(prefix, message) {
     let args = message.content.slice(prefix.length).split(/ +/);
-    const commandName = args.shift().toLowerCase();
-    args = parseCommandParameters(args.join(' '));
+    let commandName = args.shift().toLowerCase();
+    const cmd = commandName.match(/[a-zA-Z]+/g);
+    const num = commandName.match(/\d+/g);
+    if (cmd[0] === "play") {
+      commandName = "play";
+    }
+
+    args = parseCommandParameters(args.join(" "));
 
     if (!this.commandMap.has(commandName)) {
       return;
@@ -73,6 +79,11 @@ class CommandHandler {
       // Add a commands field to message.client to
       // reference all available commands
       message.client.commands = this.commandMap;
+
+      // add loop information to the command
+      if (num !== null) {
+        message.loop = num[0];
+      }
       this.executeCommand(commandName, message, args);
     }
   }
