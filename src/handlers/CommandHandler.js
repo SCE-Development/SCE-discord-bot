@@ -53,9 +53,14 @@ class CommandHandler {
    */
   handleCommand(prefix, message) {
     let args = message.content.slice(prefix.length).split(/ +/);
-    const commandName = args.shift().toLowerCase();
+    let commandName = args.shift().toLowerCase();
     args = parseCommandParameters(args.join(' '));
 
+    // Check if the command is a play command with a number
+    if (commandName.slice(0, 4) === "play" && !isNaN(commandName.slice(4))) {
+      args.push(commandName.slice(4));
+      commandName = commandName.slice(0, 4);
+    }
     if (!this.commandMap.has(commandName)) {
       return;
     } else {

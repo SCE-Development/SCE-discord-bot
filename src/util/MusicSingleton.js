@@ -181,8 +181,43 @@ class MusicSingleton {
     }
   }
 
+  getQueue(message) {
+    if (this.upcoming.length) {
+      let queueTimeLength = 0;
+      const songs = this.upcoming.map((song, index) => {
+        queueTimeLength += parseInt(song.metadata.lengthSeconds);
+        let songLengthMin = Math.floor(song.metadata.lengthSeconds / 60);
+        songLengthMin =
+          songLengthMin < 10 ? `0${songLengthMin}` : songLengthMin;
+        let songLengthSec = song.metadata.lengthSeconds % 60;
+        songLengthSec =
+          songLengthSec < 10 ? `0${songLengthSec}` : songLengthSec;
+        return `\`[${index + 1}]\` ${song.metadata.title} \`[${songLengthMin}:${songLengthSec}]\``;
+      });
+
+      let queueTimeLengthMin = Math.floor(queueTimeLength / 60);
+      queueTimeLengthMin =
+        queueTimeLengthMin < 10 ? `0${queueTimeLengthMin}` : queueTimeLengthMin;
+      let queueTimeLengthSec = queueTimeLength % 60;
+      queueTimeLengthSec =
+        queueTimeLengthSec < 10 ? `0${queueTimeLengthSec}` : queueTimeLengthSec;
+
+      const embeddedQueue = new EmbedBuilder()
+        .setColor(0x0099ff)
+        .setAuthor({ name: "Upcoming songs" })
+        .setDescription(
+          songs.join("\n") +
+            "\n\n" +
+            `There are **${this.upcoming.length}** tracks in queue with a length of \`[${queueTimeLengthMin}:${queueTimeLengthSec}]\`.`,
+        );
+      message.channel.send({ embeds: [embeddedQueue] });
+    } else {
+      message.channel.send("Queue is empty!");
+    }
+  }
+
   // Assumes sent url is valid YouTube URL
-  async playOrAddYouTubeUrlToQueue(message, url) {
+  async playOrAddYouTubeUrlToQueue(message, url, repetitions = 1) {
     try {
       const { videoDetails } = await ytdl.getInfo(url);
       this._currentMessage = message;
@@ -204,8 +239,9 @@ class MusicSingleton {
       const isInPlayingState =
         this.audioPlayer.state.status === AudioPlayerStatus.Playing;
       if (isInPlayingState) {
-        this.upcoming.push({ url, metadata: videoDetails });
-
+        for (let i = 0; i < repetitions; i++) {
+          this.upcoming.push({ url, metadata: videoDetails });
+        }
         const embeddedQueue = new EmbedBuilder()
           .setColor(0x0099FF)
           .setTitle(videoDetails.title)
@@ -214,8 +250,9 @@ class MusicSingleton {
           .addFields(
             {
               name: 'Position in upcoming',
-              value: `${this.upcoming.length}`, inline: true
-            },
+              value: `${repetitions === 1 ? this.upcoming.length : `${Number(this.upcoming.length - repetitions + 1)} - ${this.upcoming.length}`}`,
+              inline: true,
+            }
           )
           .setThumbnail(videoDetails.thumbnails[2].url)
           .setTimestamp()
@@ -223,7 +260,8 @@ class MusicSingleton {
             {
               text: `Requested by ${message.author.username}`,
               iconURL: `${message.author.displayAvatarURL()}`
-            });
+            }
+          );
         message.channel.send({ embeds: [embeddedQueue] });
       } else {
         this.history.push({ url, metadata: videoDetails });
@@ -232,6 +270,9 @@ class MusicSingleton {
           createAudioResource(stream.stream, { inputType: stream.type })
         );
 
+        if (repetitions > 1) {
+          this.playOrAddYouTubeUrlToQueue(message, url, repetitions - 1);
+        }
       }
       return true;
     } catch (e) {
