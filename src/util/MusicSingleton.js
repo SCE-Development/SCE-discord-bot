@@ -181,46 +181,6 @@ class MusicSingleton {
     }
   }
 
-  getQueue(message) {
-    if (this.upcoming.length) {
-      let queueTimeLength = 0;
-      const songs = this.upcoming.map((song, index) => {
-        queueTimeLength += parseInt(song.metadata.lengthSeconds);
-        let songLengthMin = Math.floor(song.metadata.lengthSeconds / 60);
-        songLengthMin =
-          songLengthMin < 10 ? `0${songLengthMin}` : songLengthMin;
-        let songLengthSec = song.metadata.lengthSeconds % 60;
-        songLengthSec =
-          songLengthSec < 10 ? `0${songLengthSec}` : songLengthSec;
-        return (
-          `\`[${index + 1}]\` 
-          ${song.metadata.title} 
-          \`[${songLengthMin}:${songLengthSec}]\``
-        );
-      });
-
-      let queueTimeLengthMin = Math.floor(queueTimeLength / 60);
-      queueTimeLengthMin =
-        queueTimeLengthMin < 10 ? `0${queueTimeLengthMin}` : queueTimeLengthMin;
-      let queueTimeLengthSec = queueTimeLength % 60;
-      queueTimeLengthSec =
-        queueTimeLengthSec < 10 ? `0${queueTimeLengthSec}` : queueTimeLengthSec;
-
-      const embeddedQueue = new EmbedBuilder()
-        .setColor(0x0099ff)
-        .setAuthor({ name: 'Upcoming songs' })
-        .setDescription(
-          songs.join('\n') +
-          '\n\n' +
-          `There are **${this.upcoming.length}** tracks in queue with 
-          a length of \`[${queueTimeLengthMin}:${queueTimeLengthSec}]\`.`,
-        );
-      message.channel.send({ embeds: [embeddedQueue] });
-    } else {
-      message.channel.send('Queue is empty!');
-    }
-  }
-
   // Assumes sent url is valid YouTube URL
   async playOrAddYouTubeUrlToQueue(message, url, repetitions = 1) {
     try {
@@ -256,8 +216,9 @@ class MusicSingleton {
             {
               name: 'Position in upcoming',
               value: `${repetitions === 1 ? 
-                        this.upcoming.length : 
-                        `${Number(this.upcoming.length - repetitions + 1)} - ${this.upcoming.length}`}`,
+                this.upcoming.length : 
+                `${Number(this.upcoming.length - repetitions + 1)} - ` + 
+                this.upcoming.length}`,
               inline: true,
             }
           )
