@@ -57,10 +57,17 @@ class CommandHandler {
     args = parseCommandParameters(args.join(' '));
 
     // Check if the command is a play command with a number
-    if (commandName.slice(0, 4) === "play" && !isNaN(commandName.slice(4))) {
-      args.push(commandName.slice(4));
-      commandName = commandName.slice(0, 4);
+    if (commandName.includes('play')) {
+      const playSuffix = commandName.slice(4);
+      if (playSuffix === '' || isNaN(playSuffix)) {
+        args.unshift(1);
+      }
+      else if (!isNaN(commandName.slice(4))) {
+        args.unshift(parseInt(commandName.slice(4)));
+      }
+      commandName = 'play';
     }
+    
     if (!this.commandMap.has(commandName)) {
       return;
     } else {

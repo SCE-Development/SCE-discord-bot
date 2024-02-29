@@ -192,7 +192,11 @@ class MusicSingleton {
         let songLengthSec = song.metadata.lengthSeconds % 60;
         songLengthSec =
           songLengthSec < 10 ? `0${songLengthSec}` : songLengthSec;
-        return `\`[${index + 1}]\` ${song.metadata.title} \`[${songLengthMin}:${songLengthSec}]\``;
+        return (
+          `\`[${index + 1}]\` 
+          ${song.metadata.title} 
+          \`[${songLengthMin}:${songLengthSec}]\``
+        );
       });
 
       let queueTimeLengthMin = Math.floor(queueTimeLength / 60);
@@ -204,15 +208,16 @@ class MusicSingleton {
 
       const embeddedQueue = new EmbedBuilder()
         .setColor(0x0099ff)
-        .setAuthor({ name: "Upcoming songs" })
+        .setAuthor({ name: 'Upcoming songs' })
         .setDescription(
-          songs.join("\n") +
-            "\n\n" +
-            `There are **${this.upcoming.length}** tracks in queue with a length of \`[${queueTimeLengthMin}:${queueTimeLengthSec}]\`.`,
+          songs.join('\n') +
+          '\n\n' +
+          `There are **${this.upcoming.length}** tracks in queue with 
+          a length of \`[${queueTimeLengthMin}:${queueTimeLengthSec}]\`.`,
         );
       message.channel.send({ embeds: [embeddedQueue] });
     } else {
-      message.channel.send("Queue is empty!");
+      message.channel.send('Queue is empty!');
     }
   }
 
@@ -250,7 +255,9 @@ class MusicSingleton {
           .addFields(
             {
               name: 'Position in upcoming',
-              value: `${repetitions === 1 ? this.upcoming.length : `${Number(this.upcoming.length - repetitions + 1)} - ${this.upcoming.length}`}`,
+              value: `${repetitions === 1 ? 
+                        this.upcoming.length : 
+                        `${Number(this.upcoming.length - repetitions + 1)} - ${this.upcoming.length}`}`,
               inline: true,
             }
           )
