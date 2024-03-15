@@ -65,7 +65,11 @@ class MusicSingleton {
 
   async playNextUpcomingUrl(originalThis) {
     if (originalThis.upcoming.length) {
-      const { url: latestTrack, metadata } = originalThis.upcoming.shift();
+      const { url: latestTrack, metadata } = originalThis.upcoming[0];
+      metadata.repetitions -= 1;
+      if (metadata.repetitions === 0) {
+        originalThis.upcoming.shift();
+      }
       originalThis.history.push({ url: latestTrack, metadata });
       let stream = await play.stream(latestTrack);
       const resource = createAudioResource(stream.stream, {
@@ -182,7 +186,7 @@ class MusicSingleton {
   }
 
   // Assumes sent url is valid YouTube URL
-  async playOrAddYouTubeUrlToQueue(message, url) {
+  async playOrAddYouTubeUrlToQueue(message, url, repetitions = 1) {
     try {
       const { videoDetails } = await ytdl.getInfo(url);
       this._currentMessage = message;
@@ -204,8 +208,10 @@ class MusicSingleton {
       const isInPlayingState =
         this.audioPlayer.state.status === AudioPlayerStatus.Playing;
       if (isInPlayingState) {
-        this.upcoming.push({ url, metadata: videoDetails });
-
+        this.upcoming.push({ 
+          url, 
+          metadata: { ...videoDetails, repetitions }
+        });
         const embeddedQueue = new EmbedBuilder()
           .setColor(0x0099FF)
           .setTitle(videoDetails.title)
@@ -214,8 +220,14 @@ class MusicSingleton {
           .addFields(
             {
               name: 'Position in upcoming',
-              value: `${this.upcoming.length}`, inline: true
+              value: `${this.upcoming.length}`,
+              inline: true,
             },
+            {
+              name: 'Repetitions',
+              value: `${repetitions}`,
+              inline: true,
+            }
           )
           .setThumbnail(videoDetails.thumbnails[2].url)
           .setTimestamp()
@@ -223,15 +235,21 @@ class MusicSingleton {
             {
               text: `Requested by ${message.author.username}`,
               iconURL: `${message.author.displayAvatarURL()}`
-            });
+            }
+          );
         message.channel.send({ embeds: [embeddedQueue] });
       } else {
-        this.history.push({ url, metadata: videoDetails });
+        this.history.push({ 
+          url, 
+          metadata: { ...videoDetails, repetitions: 1 }
+        });
         const stream = await play.stream(url);
         this.audioPlayer.play(
           createAudioResource(stream.stream, { inputType: stream.type })
         );
-
+        if (repetitions > 1) {
+          this.playOrAddYouTubeUrlToQueue(message, url, repetitions - 1);
+        }
       }
       return true;
     } catch (e) {

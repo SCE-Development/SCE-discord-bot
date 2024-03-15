@@ -19,9 +19,10 @@ module.exports = new Command({
   category: 'music',
   disabled: false,
   execute: async (message, args) => {
-    const url = args[0];
+    const repetitions = args[0];
+    const url = args[1];
     if (ytdl.validateURL(url)) {
-      musicHandler.playOrAddYouTubeUrlToQueue(message, url);
+      musicHandler.playOrAddYouTubeUrlToQueue(message, url, repetitions);
     } else {
       if (args[0] === undefined)
         message.reply(`Usage: 
@@ -31,9 +32,14 @@ module.exports = new Command({
           
           `);
       else {
-        let ytInfo = await play.search(args.join(' '), { limit: 1 });
+        const searchQuery = args.slice(1).join(' ');
+        let ytInfo = await play.search(searchQuery, { limit: 1 });
         if (ytInfo.length > 0) {
-          musicHandler.playOrAddYouTubeUrlToQueue(message, ytInfo[0].url);
+          musicHandler.playOrAddYouTubeUrlToQueue(
+            message, 
+            ytInfo[0].url, 
+            repetitions
+          );
         } else {
           message.reply(
             `${args.join(' ')} is not a valid YouTube / SoundCloud URL`
