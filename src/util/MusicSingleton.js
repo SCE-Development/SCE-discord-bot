@@ -70,7 +70,8 @@ class MusicSingleton {
       if (metadata.repetitions === 0) {
         originalThis.upcoming.shift();
       }
-      this.alreadyAnnouncedCurrentVideo = this.nowPlayingMetadata?.video_url === metadata.video_url
+      this.alreadyAnnouncedCurrentVideo = this.nowPlayingMetadata && 
+        this.nowPlayingMetadata.video_url === metadata.video_url;
       this.nowPlayingMetadata = metadata;
       let stream = await play.stream(latestTrack);
       const resource = createAudioResource(stream.stream, {
