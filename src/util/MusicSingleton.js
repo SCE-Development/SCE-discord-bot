@@ -21,22 +21,19 @@ class MusicSingleton {
 
     this._currentMessage = null;
     this.upcoming = [];
-    this.history = [];
+    this.nowPlayingMetadata = {};
+    this.alreadyAnnouncedCurrentVideo = false;
     this.botWasKicked = false;
     this.audioPlayer = createAudioPlayer();
     this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
       this.playNextUpcomingUrl(this);
-
-    }
-    );
+    });
     this.audioPlayer.on(AudioPlayerStatus.Playing, () => {
       if (this.botWasKicked) {
         return;
       }
       this.announceNowPlaying(this);
-
-    }
-    );
+    });
     this.audioPlayer.on(AudioPlayerStatus.AutoPaused, async () => {
       // clear queues and stop the streaming
       this.botWasKicked = true;
@@ -47,13 +44,16 @@ class MusicSingleton {
   }
 
   async announceNowPlaying(originalThis) {
-    const { metadata } = originalThis.history[originalThis.history.length - 1];
+    if (originalThis.alreadyAnnouncedCurrentVideo) {
+      return;
+    }
+    originalThis.alreadyAnnouncedCurrentVideo = true;
     const embeddedSong = new EmbedBuilder()
       .setColor(0x0099FF)
-      .setTitle(metadata.title)
-      .setURL(metadata.video_url)
+      .setTitle(originalThis.nowPlayingMetadata.title)
+      .setURL(originalThis.nowPlayingMetadata.video_url)
       .setAuthor({ name: 'Now playing' })
-      .setThumbnail(metadata.thumbnails[2].url)
+      .setThumbnail(originalThis.nowPlayingMetadata.thumbnails[2].url)
       .setFooter(
         {
           text: `Requested by ${this._currentMessage.author.username}`,
@@ -70,7 +70,9 @@ class MusicSingleton {
       if (metadata.repetitions === 0) {
         originalThis.upcoming.shift();
       }
-      originalThis.history.push({ url: latestTrack, metadata });
+      this.alreadyAnnouncedCurrentVideo = this.nowPlayingMetadata && 
+        this.nowPlayingMetadata.video_url === metadata.video_url;
+      this.nowPlayingMetadata = metadata;
       let stream = await play.stream(latestTrack);
       const resource = createAudioResource(stream.stream, {
         inputType: stream.type,
@@ -101,7 +103,8 @@ class MusicSingleton {
 
   disconnectBot() {
     this.upcoming = [];
-    this.history = [];
+    this.nowPlayingMetadata = {};
+    this.alreadyAnnouncedCurrentVideo = false;
     this.audioPlayer.stop();
   }
 
@@ -134,7 +137,7 @@ class MusicSingleton {
       return false;
     }
     this.upcoming = [];
-    this.history = [];
+    this.nowPlayingMetadata = {};
     this.audioPlayer.stop();
     const embeddedStop = new EmbedBuilder()
       .setColor(0x0099FF)
@@ -156,13 +159,12 @@ class MusicSingleton {
     if (this.audioPlayer.state.status !== AudioPlayerStatus.Paused) {
       this.audioPlayer.pause();
     }
-    const { metadata } = this.history[this.history.length - 1];
     const embeddedPause = new EmbedBuilder()
       .setColor(0x0099FF)
-      .setTitle(metadata.title)
+      .setTitle(this.nowPlayingMetadata.title)
       .setAuthor({ name: 'Paused' })
-      .setURL(metadata.video_url)
-      .setThumbnail(metadata.thumbnails[2].url)
+      .setURL(this.nowPlayingMetadata.video_url)
+      .setThumbnail(this.nowPlayingMetadata.thumbnails[2].url)
       .setFooter(
         {
           text: `Requested by ${this._currentMessage.author.username}`,
@@ -239,10 +241,7 @@ class MusicSingleton {
           );
         message.channel.send({ embeds: [embeddedQueue] });
       } else {
-        this.history.push({ 
-          url, 
-          metadata: { ...videoDetails, repetitions: 1 }
-        });
+        this.nowPlayingMetadata = { ...videoDetails, repetitions: 1 };
         const stream = await play.stream(url);
         this.audioPlayer.play(
           createAudioResource(stream.stream, { inputType: stream.type })
