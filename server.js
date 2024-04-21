@@ -62,6 +62,9 @@ const startBot = async () => {
         const role = reaction.message.guild.roles.cache.get(
           REACTIONS[reaction.message.id][emoji]
         );
+        if (REACTIONS[reaction.message.id].reverse) {
+          return member.roles.remove(role);
+        }
         member.roles.add(role);
       } catch (e) {
         console.log('Role does not exist', e);
@@ -76,6 +79,9 @@ const startBot = async () => {
       const role = reaction.message.guild.roles.cache.get(
         REACTIONS[reaction.message.id][emoji]
       );
+      if (REACTIONS[reaction.message.id].reverse) {
+        return member.roles.add(role);
+      }
       member.roles.remove(role);
     } catch (e) {
       console.log('Role does not exist', e);
