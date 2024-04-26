@@ -4,12 +4,10 @@ The SCE has a [discord server](https://discord.gg/e2Dsgd9) where
 its members gather online. The purpose of this bot is to manage
 the Discord server with custom commands.
 
-## How to use
-
+## How to Run
 ### Prerequisites
-
 1. [npm](https://www.npmjs.com)
-2. [docker](https://www.docker.com)
+1. [docker](https://www.docker.com)
 
 ### With Docker
 1.  Create a `config.json` file with the same format as `config.example.json`
@@ -28,13 +26,15 @@ the Discord server with custom commands.
    2. run `npm start`
 3. Test out the bot in the discord channel!
 
-### Reaction Roles
+## Reaction Roles
 To have the bot assign a role to a user when they react to a message, add
-an entry to `config.json` like below:
+an entry to the `REACTIONS` object in `config.json` like below:
 ```json
 {
-   "MESSAGE_ID": {
-      "EMOJI": "ROLE_ID"
+   "REACTIONS": {
+      "MESSAGE_ID": {
+         "EMOJI": "ROLE_ID"
+      }
    }
 }
 ```
@@ -43,9 +43,27 @@ For example, if we want to assign a role if a user reacts to a message
 with either 😂 or 👍, we would create an entry like below:
 ```json
 {
-   "1162195531150393364": {
-      "😂": "847528126207885383",
-      "👍": "622587142639714304"
+   "REACTIONS": {
+      "1162195531150393364": {
+         "😂": "847528126207885383",
+         "👍": "622587142639714304"
+      }
+   }
+}
+```
+**Note:** The role will be removed if the user un-reacts to the message.
+
+### Reverse Reaction Role Behavior
+If we want to un-assign a role if a user reacts to a message and
+re-assign the role if the user un-reacts with 👍, we would create
+an entry like below:
+```json
+{
+   "REACTIONS": {
+      "1162195531150393364": {
+         "👍": "622587142639714304",
+         "reverse": true
+      }
    }
 }
 ```
