@@ -30,6 +30,8 @@ class MessageHandler {
     this.nonPrefixRegex = createNonPrefixRegex();
     this.commandHandler.initialize();
     this.nonPrefixHandler.initialize();
+    // Initialize the Date object for the uptime command when the bot starts
+    this.startTime = new Date()
   }
 
   /**
@@ -39,6 +41,8 @@ class MessageHandler {
    */
   handleMessage(message) {
     try {
+      // Add a botStartTime field to the message object
+      message.botStartTime = this.startTime;
       if (message.author.bot) {
         return;
       }
