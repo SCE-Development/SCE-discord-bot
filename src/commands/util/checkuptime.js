@@ -20,7 +20,10 @@ module.exports = new Command({
     const returnedHour = `${hours} ${hours > 1 ? 'hours' : 'hour'}`;
     const returnedMinute = `${minutes} ${minutes > 1 ? 'minutes' : 'minute'}`;
     const botStartTimeISO = message.botStartTime.toISOString();
-    const returnedMsg = `up ${returnedDay}, ${returnedHour}, ${returnedMinute} since ${botStartTimeISO}`;
+    const returnedMsg = `up ${returnedDay}, ` +
+                    `${returnedHour}, ` +
+                    `${returnedMinute} ` +
+                    `since ${botStartTimeISO}`;
     //  send the message to the channel
     message.channel.send(`\`\`\`${returnedMsg}\`\`\``);
   }
@@ -42,3 +45,4 @@ const converMSToISO = (ms) => {
 
   return {days, hours, minutes};
 };
+
