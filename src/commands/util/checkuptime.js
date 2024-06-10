@@ -9,19 +9,19 @@ module.exports = new Command({
   permissions: 'general',
   category: 'information',
   execute: async (message) => {
-    // send the botStartTime to the channel
+    //  send the botStartTime to the channel
     const today = new Date();
-    //get the bot start time from the message object
-    //calculate the difference between the current time and the bot start time
+    //  get the bot start time from the message object
+    //  calculate the difference between the current time and the bot start time
     const diffDate = today - message.botStartTime;
-    //convert the difference to ISO format
+    //  convert the difference to ISO format
     const {days, hours, minutes} = converMSToISO(diffDate);
     const returnedDay = `${days} ${days > 1 ? 'days' : 'day'}`;
     const returnedHour = `${hours} ${hours > 1 ? 'hours' : 'hour'}`;
     const returnedMinute = `${minutes} ${minutes > 1 ? 'minutes' : 'minute'}`;
     const botStartTimeISO = message.botStartTime.toISOString();
     const returnedMsg = `up ${returnedDay}, ${returnedHour}, ${returnedMinute} since ${botStartTimeISO}`;
-    //send the message to the channel
+    //  send the message to the channel
     message.channel.send(`\`\`\`${returnedMsg}\`\`\``);
   }
 });
