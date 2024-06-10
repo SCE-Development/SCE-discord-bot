@@ -1,6 +1,23 @@
 const {prefix} = require('../../../config.json');
 const Command = require('../Command');
 
+const converMSToISO = (ms) => {
+  const milisecondPerMinute = 60000;
+  const milisecondPerHour = 60 * milisecondPerMinute;
+  const milisecondPerDay = 24 * milisecondPerHour;
+
+  const days = Math.floor(ms / milisecondPerDay);
+  ms %= milisecondPerDay;
+
+  const hours = Math.floor( ms / milisecondPerHour);
+  ms %= milisecondPerHour;
+
+  const minutes = Math.floor(ms / milisecondPerMinute);
+  ms %= milisecondPerMinute;
+
+  return {days, hours, minutes};
+};
+
 module.exports = new Command({
   name: 'uptime',
   description: 'Check the bot\'s uptime',
@@ -22,27 +39,10 @@ module.exports = new Command({
     const botStartTimeISO = message.botStartTime.toISOString();
     const returnedMsg = `up ${returnedDay}, ` +
                     `${returnedHour}, ` +
-                    `${returnedMinute} ` +
+                    `${returnedMinute} \n` +
                     `since ${botStartTimeISO}`;
     //  send the message to the channel
     message.channel.send(`\`\`\`${returnedMsg}\`\`\``);
   }
 });
-
-const converMSToISO = (ms) => {
-  const milisecondPerMinute = 60000;
-  const milisecondPerHour = 60 * milisecondPerMinute;
-  const milisecondPerDay = 24 * milisecondPerHour;
-
-  const days = Math.floor(ms / milisecondPerDay);
-  ms %= milisecondPerDay;
-
-  const hours = Math.floor( ms / milisecondPerHour);
-  ms %= milisecondPerHour;
-
-  const minutes = Math.floor(ms / milisecondPerMinute);
-  ms %= milisecondPerMinute;
-
-  return {days, hours, minutes};
-};
 
