@@ -9,15 +9,22 @@ module.exports = new Command({
   permissions: 'general',
   category: 'information',
   execute: async (message) => {
-    // send the botStartTime to the channel in the format of "up 2 days, 8 hours, 12 minutes since 2024-06-08T04:39:01.387Z"
-    const today = new Date()
+    // send the botStartTime to the channel
+    const today = new Date();
+    //get the bot start time from the message object
+    //calculate the difference between the current time and the bot start time
     const diffDate = today - message.botStartTime;
+    //convert the difference to ISO format
     const {days, hours, minutes} = converMSToISO(diffDate);
-    const returnedMsg = `up ${days} ${days > 1 ? 'days' : 'day'}, ${hours} ${hours > 1 ? 'hours' : 'hour'}, ${minutes} ${minutes > 1 ? 'minutes' : 'minute'} since ${message.botStartTime.toISOString()}`
-    
-    message.channel.send(`\`\`\`${returnedMsg}\`\`\``)
+    const returnedDay = `${days} ${days > 1 ? 'days' : 'day'}`;
+    const returnedHour = `${hours} ${hours > 1 ? 'hours' : 'hour'}`;
+    const returnedMinute = `${minutes} ${minutes > 1 ? 'minutes' : 'minute'}`;
+    const botStartTimeISO = message.botStartTime.toISOString();
+    const returnedMsg = `up ${returnedDay}, ${returnedHour}, ${returnedMinute} since ${botStartTimeISO}`;
+    //send the message to the channel
+    message.channel.send(`\`\`\`${returnedMsg}\`\`\``);
   }
-})
+});
 
 const converMSToISO = (ms) => {
   const milisecondPerMinute = 60000;
@@ -30,9 +37,8 @@ const converMSToISO = (ms) => {
   const hours = Math.floor( ms / milisecondPerHour);
   ms %= milisecondPerHour;
 
-  const minutes = Math.floor(ms / milisecondPerMinute)
+  const minutes = Math.floor(ms / milisecondPerMinute);
   ms %= milisecondPerMinute;
 
-  return {days, hours, minutes}
-
-}
+  return {days, hours, minutes};
+};

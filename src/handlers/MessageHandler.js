@@ -31,7 +31,7 @@ class MessageHandler {
     this.commandHandler.initialize();
     this.nonPrefixHandler.initialize();
     // Initialize the Date object for the uptime command when the bot starts
-    this.startTime = new Date()
+    this.startTime = new Date();
   }
 
   /**
