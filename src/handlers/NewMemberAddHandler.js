@@ -1,20 +1,29 @@
+const config = require('../../config.json');
+
 /**
  * Class which handles a new member coming to the server
  */
 class NewMemberAddHandler {
   /**
-   * Function that assigns the new member the notification role when they join
+   * Function that handles a new member joining the server
    * @param {GuildMember} newMember The new member in the server
    */
   async handleNewMember(newMember) {
     try {
-      const roles = await newMember.guild.roles.fetch();
-      const targetRole = roles.cache.find(role => role.name === 'Notification');
-      if (targetRole) {
-        await newMember.roles.add(targetRole);
+
+      const welcomeChannel = newMember.guild.channels.cache.get(config.WELCOME.NEW_MEMBER_CHANNEL_ID);
+      const message = `<@${newMember.user.id}> welcome to SCE Dev! Please read server rules in <#${config.WELCOME.WELCOME_CHANNEL_ID}> and <#${config.WELCOME.INTRODUCE_YOURSELF_CHANNEL_ID}> so we can get to know you.`;
+
+      // send message to new member in welcome channel
+      if (welcomeChannel) {
+        await welcomeChannel.send(message);
+        console.log(`Sent welcome message in ${welcomeChannel.name}`);
+      } else {
+        console.log(`Welcome channel not found`);
       }
-      await newMember.send(`Welcome to ${newMember.guild.name}!`);
-    } catch (e) {
+    } 
+    
+    catch (e) {
       console.error(e);
     }
   }
