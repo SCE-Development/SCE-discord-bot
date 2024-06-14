@@ -11,15 +11,22 @@ class NewMemberAddHandler {
   async handleNewMember(newMember) {
     try {
 
-      const welcomeChannel = newMember.guild.channels.cache.get(config.WELCOME.NEW_MEMBER_CHANNEL_ID);
-      const message = `<@${newMember.user.id}> welcome to SCE Dev! Please read server rules in <#${config.WELCOME.WELCOME_CHANNEL_ID}> and <#${config.WELCOME.INTRODUCE_YOURSELF_CHANNEL_ID}> so we can get to know you.`;
+      const guild = newMember.guild;
+      const channels = guild.channels.cache;
+      const newMemberChannelId = config.WELCOME.NEW_MEMBER_CHANNEL_ID;
+      const welcomeChannel = channels.get(newMemberChannelId);
+
+      const message = 
+        `<@${newMember.user.id}> welcome to SCE Dev! Please read server rules in ` +
+        `<#${config.WELCOME.WELCOME_CHANNEL_ID}> and ` +
+        `<#${config.WELCOME.INTRODUCE_YOURSELF_CHANNEL_ID}> so we can get to know you.`;
 
       // send message to new member in welcome channel
       if (welcomeChannel) {
         await welcomeChannel.send(message);
-        console.log(`Sent welcome message in ${welcomeChannel.name}`);
+        console.log('Sent welcome message in ${welcomeChannel.name}');
       } else {
-        console.log(`Welcome channel not found`);
+        console.log('Welcome channel not found');
       }
     } 
     
