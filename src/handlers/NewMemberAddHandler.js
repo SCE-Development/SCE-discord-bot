@@ -17,9 +17,11 @@ class NewMemberAddHandler {
       const welcomeChannel = channels.get(newMemberChannelId);
 
       const message = 
-        `<@${newMember.user.id}> welcome to SCE Dev! Please read server rules in ` +
-        `<#${config.WELCOME.WELCOME_CHANNEL_ID}> and ` +
-        `<#${config.WELCOME.INTRODUCE_YOURSELF_CHANNEL_ID}> so we can get to know you.`;
+        `<@${newMember.user.id}> welcome to SCE Dev! Please read server rules ` +
+        `in <#${config.WELCOME.WELCOME_CHANNEL_ID}> and ` +
+        `<#${config.WELCOME.INTRODUCE_YOURSELF_CHANNEL_ID}> so we can ` +
+        `get to know you.`;
+
 
       // send message to new member in welcome channel
       if (welcomeChannel) {
