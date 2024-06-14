@@ -20,6 +20,7 @@ const startBot = async () => {
       Discord.GatewayIntentBits.MessageContent,
       Discord.GatewayIntentBits.GuildVoiceStates,
       Discord.GatewayIntentBits.GuildMessageReactions,
+      Discord.GatewayIntentBits.GuildMembers,
     ],
     partials:
       [
