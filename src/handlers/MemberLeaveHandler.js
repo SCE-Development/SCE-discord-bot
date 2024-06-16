@@ -23,10 +23,10 @@ class MemberLeaveHandler {
       if (leaveChannel) {
         await leaveChannel.send(message);
       } else {
-          console.log('Leave channel not found');
+        console.log('Leave channel not found');
       }
     } catch (e) {
-        console.error('Error in handleMemberLeave:', e);
+      console.error('Error in handleMemberLeave:', e);
     }
   }
 }
