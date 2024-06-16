@@ -58,7 +58,7 @@ const startBot = async () => {
   });
 
   client.on('guildMemberRemove', (member) => {
-    newMemberHandler.handleNewMember(member);
+    memberLeaveHandler.handleNewMember(member);
   });
 
   client.on('messageReactionAdd', async (reaction, user) => {
