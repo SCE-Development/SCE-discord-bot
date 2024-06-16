@@ -27,7 +27,6 @@ class NewMemberAddHandler {
       // send message to new member in welcome channel
       if (welcomeChannel) {
         await welcomeChannel.send(message);
-        console.log('Sent welcome message in ${welcomeChannel.name}');
       } else {
         console.log('Welcome channel not found');
       }
