@@ -15,10 +15,11 @@ class NewMemberAddHandler {
       const channels = guild.channels.cache;
       const newMemberChannelId = config.WELCOME.NEW_MEMBER_CHANNEL_ID;
       const welcomeChannel = channels.get(newMemberChannelId);
+      const guildName = guild.name;
 
       const message = 
-      `<@${newMember.user.id}> welcome to SCE Dev! Please read server ` +
-      `rules in <#${config.WELCOME.WELCOME_CHANNEL_ID}> and ` +
+      `<@${newMember.user.id}> welcome to ${guildName}! Please read ` +
+      `server rules in <#${config.WELCOME.WELCOME_CHANNEL_ID}> and ` +
       `<#${config.WELCOME.INTRODUCE_YOURSELF_CHANNEL_ID}> so we can ` +
       'get to know you.';
 
