@@ -63,7 +63,7 @@ const startBot = async () => {
 
   client.on('messageReactionAdd', async (reaction, user) => {
     const botpfp = client.user.displayAvatarURL();
-    reactionHandler.handleReaction(reaction, user);
+    reactionHandler.handleReaction(reaction, user, botpfp);
   });
 
   client.on('messageReactionRemove', async (reaction, user) => {
