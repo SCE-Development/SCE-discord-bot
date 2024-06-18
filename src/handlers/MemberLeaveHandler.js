@@ -10,7 +10,6 @@ class MemberLeaveHandler {
      */
   async handleMemberLeave(member) {
     try {
-      console.log('handleMemberLeave called');
       const guild = member.guild;
       const channels = guild.channels.cache;
       const leaveChannelId = config.WELCOME.NEW_MEMBER_CHANNEL_ID;
