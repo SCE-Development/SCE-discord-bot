@@ -9,6 +9,7 @@ const {
   VoiceChannelChangeHandler,
 } = require('./src/handlers/VoiceChannelChangeHandler');
 const { NewMemberAddHandler } = require('./src/handlers/NewMemberAddHandler');
+const { MemberLeaveHandler } = require('./src/handlers/MemberLeaveHandler');
 
 
 
@@ -21,6 +22,7 @@ const startBot = async () => {
       Discord.GatewayIntentBits.GuildVoiceStates,
       Discord.GatewayIntentBits.GuildMessageReactions,
       Discord.GatewayIntentBits.GuildMembers,
+      Discord.GatewayIntentBits.GuildPresences,
     ],
     partials:
       [
@@ -31,6 +33,7 @@ const startBot = async () => {
   const messageHandler = new MessageHandler(prefix);
   const vcChangeHandler = new VoiceChannelChangeHandler();
   const newMemberHandler = new NewMemberAddHandler();
+  const memberLeaveHandler = new MemberLeaveHandler();
   client.once('ready', () => {
     messageHandler.initialize();
     client.user.setPresence({
@@ -52,6 +55,10 @@ const startBot = async () => {
 
   client.on('guildMemberAdd', (newMember) => {
     newMemberHandler.handleNewMember(newMember);
+  });
+
+  client.on('guildMemberRemove', (member) => {
+    memberLeaveHandler.handleMemberLeave(member);
   });
 
   client.on('messageReactionAdd', async (reaction, user) => {
