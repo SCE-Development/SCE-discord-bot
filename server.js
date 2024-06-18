@@ -2,7 +2,6 @@ const Discord = require('discord.js');
 const {
   prefix,
   API_TOKEN,
-  REACTIONS = {}
 } = require('./config.json');
 const { MessageHandler } = require('./src/handlers/MessageHandler');
 const {
@@ -10,7 +9,7 @@ const {
 } = require('./src/handlers/VoiceChannelChangeHandler');
 const { NewMemberAddHandler } = require('./src/handlers/NewMemberAddHandler');
 const { MemberLeaveHandler } = require('./src/handlers/MemberLeaveHandler');
-
+const { ReactionHandler } = require ('./src/handlers/ReactionHandler');
 
 
 const startBot = async () => {
@@ -34,6 +33,7 @@ const startBot = async () => {
   const vcChangeHandler = new VoiceChannelChangeHandler();
   const newMemberHandler = new NewMemberAddHandler();
   const memberLeaveHandler = new MemberLeaveHandler();
+  const reactionHandler = new ReactionHandler();
   client.once('ready', () => {
     messageHandler.initialize();
     client.user.setPresence({
