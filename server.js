@@ -62,11 +62,13 @@ const startBot = async () => {
   });
 
   client.on('messageReactionAdd', async (reaction, user) => {
-    reactionHandler.handleReaction(reaction, user, client.user.displayAvatarURL());
+    const botpfp = client.user.displayAvatarURL();
+    reactionHandler.handleReaction(reaction, user);
   });
 
   client.on('messageReactionRemove', async (reaction, user) => {
-    reactionHandler.handleReaction(reaction, user, client.user.displayAvatarURL(), true);
+    const botpfp = client.user.displayAvatarURL();
+    reactionHandler.handleReaction(reaction, user, botpfp, true);
   });
 
   client.login(API_TOKEN);

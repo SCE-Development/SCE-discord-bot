@@ -26,12 +26,12 @@ class ReactionHandler {
           .setTitle('Roles Updated')
           .setDescription(`You reacted to this [this message](${reaction.message.url}) in the server, SCE-dev, and changed your roles.`)
           .setFooter({
-            text: "Sent by the Reaction Roles bot on behalf of the server, SCE-dev",
+            text: 'Sent by the Reaction Roles bot on behalf of the server, SCE-dev',
             iconURL: `${botpfp}`
           });
         embed.addFields(
           { name: 'Roles Added', value: `${role.name}` }
-        )
+        );
         if (reactionWasRemoved) {
           member.roles.remove(role);
         } else {
@@ -44,4 +44,5 @@ class ReactionHandler {
     }
   }
 }
-module.exports = { ReactionHandler }
+
+module.exports = { ReactionHandler };
