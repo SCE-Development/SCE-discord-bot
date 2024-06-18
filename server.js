@@ -58,6 +58,7 @@ const startBot = async () => {
   });
 
   client.on('guildMemberRemove', (member) => {
+    console.log('client works');
     memberLeaveHandler.handleMemberLeave(member);
   });
 
