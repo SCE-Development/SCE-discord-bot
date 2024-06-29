@@ -22,23 +22,29 @@ class ReactionHandler {
           return member.roles.remove(role);
         }
 
+        const guildName = reaction.message.guild.name;
         const embed = new EmbedBuilder()
           .setTitle('Roles Updated')
           .setDescription('You reacted to this ' + 
             `[this message](${reaction.message.url}) in the server, `
-            + 'SCE-dev, and changed your roles.')
+            + `${guildName}, and changed your roles.`)
           .setFooter({
             text: 'Sent by the Reaction Roles bot'
              + 'on behalf of the server, SCE-dev',
             iconURL: `${botpfp}`
           });
-        embed.addFields(
-          { name: 'Roles Added', value: `${role.name}` }
-        );
+          
         if (reactionWasRemoved) {
           member.roles.remove(role);
+          embed.addFields(
+            { name: 'Roles Removed', value: `${role.name}` }
+          );
+          await member.send({embeds: [embed]});
         } else {
           member.roles.add(role);
+          embed.addFields(
+            { name: 'Roles Added', value: `${role.name}` }
+          );
           await member.send({embeds: [embed]});
         }
       } catch (e) {
