@@ -5,7 +5,7 @@ services:
     build:
       context: ./
       dockerfile: ./Dockerfile
-    restart: 'on-failure'
+    restart: always
     volumes:
       - ./api:/bot/api
       - ./src:/bot/src
