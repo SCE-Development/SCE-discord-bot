@@ -25,9 +25,6 @@ class ReactionHandler {
         const guildName = reaction.message.guild.name;
         const embed = new EmbedBuilder()
           .setTitle('Roles Updated')
-          .setDescription('You reacted to this ' + 
-            `[this message](${reaction.message.url}) in the server, `
-            + `${guildName}, and changed your roles.`)
           .setFooter({
             text: 'Sent by the Reaction Roles bot'
              + 'on behalf of the server, SCE-dev',
@@ -36,12 +33,18 @@ class ReactionHandler {
           
         if (reactionWasRemoved) {
           member.roles.remove(role);
+          embed.setDescription('You removed your reaction to this ' + 
+            `[this message](${reaction.message.url}) in the server, `
+            + `${guildName}, and changed your roles.`)
           embed.addFields(
             { name: 'Roles Removed', value: `${role.name}` }
           );
           await member.send({embeds: [embed]});
         } else {
           member.roles.add(role);
+          embed.setDescription('You reacted to this ' + 
+            `[this message](${reaction.message.url}) in the server, `
+            + `${guildName}, and changed your roles.`)
           embed.addFields(
             { name: 'Roles Added', value: `${role.name}` }
           );
