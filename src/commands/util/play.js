@@ -22,11 +22,7 @@ module.exports = new Command({
   category: 'music',
   disabled: false,
   execute: async (message, args) => {
-    console.log('Received message:', message.content);
-    console.log('Args:', args);
     const query = args.slice(1).join(' ');
-    console.log('Query:', query);
-
 
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) {
