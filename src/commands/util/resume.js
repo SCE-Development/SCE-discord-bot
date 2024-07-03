@@ -2,9 +2,7 @@ const { prefix } = require('../../../config.json');
 
 const Command = require('../Command');
 
-const MusicSingleton = require('../../util/MusicSingleton');
-
-const musicHandler = new MusicSingleton();
+const audioManager = require('../../util/audioManager');
 
 module.exports = new Command({
   name: 'resume',
@@ -15,6 +13,7 @@ module.exports = new Command({
   category: 'music',
   disabled: false,
   execute: async (message) => {
-    musicHandler.resume(message);
+    audioManager.getAudioPlayer().unpause();
+    return message.reply('Resumed!')
   },
 });
