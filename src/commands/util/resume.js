@@ -14,6 +14,6 @@ module.exports = new Command({
   disabled: false,
   execute: async (message) => {
     audioManager.getAudioPlayer().unpause();
-    return message.reply('Resumed!')
+    return message.reply('Resumed!');
   },
 });

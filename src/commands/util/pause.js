@@ -17,14 +17,14 @@ module.exports = new Command({
   category: 'music',
   disabled: false,
   execute: async (message) => {
-    const player = audioManager.getAudioPlayer()
+    const player = audioManager.getAudioPlayer();
 
     if (!message.member.voice.channel) {
       return message.reply('Please join a voice channel first!');
     }
 
     if (!player) {
-      return message.reply("There is nothing currently playing!")
+      return message.reply('There is nothing currently playing!');
     }
 
     const vidInfo = audioManager.getInfo();

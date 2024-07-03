@@ -2,7 +2,12 @@ const { prefix } = require('../../../config.json');
 const play = require('play-dl');
 const ytdl = require('ytdl-core');
 
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, VoiceConnectionStatus, AudioPlayerStatus } = require('@discordjs/voice');
+const {
+  joinVoiceChannel,
+  createAudioPlayer,
+  createAudioResource,
+  AudioPlayerStatus
+} = require('@discordjs/voice');
 const { EmbedBuilder } = require('discord.js');
 const Command = require('../Command');
 const audioManager = require('../../util/audioManager');
@@ -17,18 +22,35 @@ module.exports = new Command({
   category: 'music',
   disabled: false,
   execute: async (message, args) => {
-    const query = args.join(' ');
+    console.log('Received message:', message.content);
+    console.log('Args:', args);
+    const query = args.slice(1).join(' ');
+    console.log('Query:', query);
 
-    const YT_URL = 'https://www.youtube.com/watch?v=koWC_T6KxPs';
+
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) {
       return message.reply('You need to be in a voice channel to play music!');
     }
 
+    let player = audioManager.getAudioPlayer();
+
+    if (!player) {
+      player = createAudioPlayer();
+      audioManager.setAudioPlayer(player);
+    }
+    else if (player.state.status === AudioPlayerStatus.Playing) {
+      return message.reply('An audio track is already playing!');
+    }
+    else if (player.state.status === AudioPlayerStatus.Paused && !query) {
+      player.unpause();
+      return message.reply('Unpaused!');
+    }
+
     const connection = joinVoiceChannel({
-    channelId: voiceChannel.id,
-    guildId: message.guild.id,
-    adapterCreator: message.guild.voiceAdapterCreator,
+      channelId: voiceChannel.id,
+      guildId: message.guild.id,
+      adapterCreator: message.guild.voiceAdapterCreator,
     });
 
     audioManager.setConnection(connection);
@@ -43,17 +65,14 @@ module.exports = new Command({
     stream = ytdl(url, { filter: 'audioonly' });
     console.log(`search result url: ${url}`);
     
-
     const resource = createAudioResource(stream);
-    const player = createAudioPlayer();
-
-    audioManager.setAudioPlayer(player)
+    audioManager.setAudioPlayer(player);
 
     player.play(resource);
     connection.subscribe(player);
 
     player.on('idle', () => {
-    connection.destroy();
+      connection.destroy();
     });
 
     audioManager.setInfo(await ytdl.getInfo(url));
