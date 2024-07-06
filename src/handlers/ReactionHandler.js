@@ -27,7 +27,7 @@ class ReactionHandler {
           .setTitle('Roles Updated')
           .setFooter({
             text: 'Sent by the Reaction Roles bot'
-             + ' on behalf of the server, SCE-dev',
+             + ` on behalf of the server, ${guildName}`,
             iconURL: `${botpfp}`
           });
           
