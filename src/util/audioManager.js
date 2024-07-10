@@ -2,6 +2,7 @@ let audioPlayer = null;
 let connection = null;
 let videoInfo = null;
 let vidUrl = null;
+let queue = [];
 
 module.exports = {
   getAudioPlayer: () => audioPlayer,
@@ -19,5 +20,12 @@ module.exports = {
   getUrl: () => vidUrl,
   setUrl: (url) => {
     vidUrl = url;
+  },
+  getQueue: () => queue,
+  addToQueue: (song) => {
+    queue.push(song);
+  },
+  removeFromQueue: () => {
+    return queue.shift();
   }
 };

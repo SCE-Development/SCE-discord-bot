@@ -12,6 +12,64 @@ const { EmbedBuilder } = require('discord.js');
 const Command = require('../Command');
 const audioManager = require('../../util/audioManager');
 
+async function playSong(message, query) {
+  let player = audioManager.getAudioPlayer();
+
+  if (!player) {
+    player = createAudioPlayer();
+    audioManager.setAudioPlayer(player);
+  }
+
+  const connection = joinVoiceChannel({
+    channelId: message.member.voice.channel.id,
+    guildId: message.guild.id,
+    adapterCreator: message.guild.voiceAdapterCreator,
+  });
+
+  audioManager.setConnection(connection);
+
+  console.log(`searching for ${query}`);
+  const searchResults = await play.search(query, { limit: 1 });
+  if (searchResults.length === 0) {
+    return message.reply('No results were found!');
+  }
+  const url = searchResults[0].url;
+  const stream = ytdl(url, { filter: 'audioonly' });
+  console.log(`search result url: ${url}`);
+  
+  const resource = createAudioResource(stream);
+  player.play(resource);
+  connection.subscribe(player);
+
+  audioManager.setInfo(await ytdl.getInfo(url));
+  audioManager.setUrl(url);
+
+  const vidInfo = audioManager.getInfo();
+
+  const embedPlaying = new EmbedBuilder()
+    .setColor('#1DB954')
+    .setTitle(vidInfo.videoDetails.title)
+    .setAuthor({ name: 'Now playing!' })
+    .setURL(url)
+    .setThumbnail(vidInfo.videoDetails.thumbnails[2].url)
+    .setFooter(
+      {
+        text: `Requested by ${message.author.username}`,
+        iconURL: `${message.author.displayAvatarURL()}`
+      }
+    );
+
+  await message.reply({embeds: [embedPlaying]});
+
+  player.on('idle', () => {
+    const nextSong = audioManager.removeFromQueue();
+    if (nextSong) {
+      playSong(message, nextSong.query);
+    } else {
+      connection.destroy();
+    }
+  });
+}
 
 module.exports = new Command({
   name: 'play',
@@ -31,66 +89,11 @@ module.exports = new Command({
 
     let player = audioManager.getAudioPlayer();
 
-    if (!player) {
-      player = createAudioPlayer();
-      audioManager.setAudioPlayer(player);
-    }
-    else if (player.state.status === AudioPlayerStatus.Playing) {
-      return message.reply('An audio track is already playing!');
-    }
-    else if (player.state.status === AudioPlayerStatus.Paused && !query) {
-      player.unpause();
-      return message.reply('Unpaused!');
+    if (player && player.state.status === AudioPlayerStatus.Playing) {
+      audioManager.addToQueue({ query, author: message.author });
+      return message.reply('Song added to the queue!');
     }
 
-    const connection = joinVoiceChannel({
-      channelId: voiceChannel.id,
-      guildId: message.guild.id,
-      adapterCreator: message.guild.voiceAdapterCreator,
-    });
-
-    audioManager.setConnection(connection);
-
-    let stream;
-    console.log(`searching for ${query}`);
-    const searchResults = await play.search(query, { limit: 1 });
-    if (searchResults.length === 0) {
-      return message.reply('No results were found!');
-    }
-    const url = searchResults[0].url;
-    stream = ytdl(url, { filter: 'audioonly' });
-    console.log(`search result url: ${url}`);
-    
-    const resource = createAudioResource(stream);
-    audioManager.setAudioPlayer(player);
-
-    player.play(resource);
-    connection.subscribe(player);
-
-    player.on('idle', () => {
-      connection.destroy();
-    });
-
-    audioManager.setInfo(await ytdl.getInfo(url));
-    audioManager.setUrl(url);
-
-    const vidInfo = audioManager.getInfo();
-
-
-    const embedPlaying = new EmbedBuilder()
-      .setColor('#1DB954')
-      .setTitle(vidInfo.videoDetails.title)
-      .setAuthor({ name: 'Now playing!' })
-      .setURL(url)
-      .setThumbnail(vidInfo.videoDetails.thumbnails[2].url)
-      .setFooter(
-        {
-          text: `Requested by ${message.author.username}`,
-          iconURL: `${message.author.displayAvatarURL()}`
-        }
-      );
-
-    await message.reply({embeds: [embedPlaying]});
-
+    await playSong(message, query);
   } 
 });
