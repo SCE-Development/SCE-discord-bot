@@ -27,8 +27,9 @@ module.exports = new Command({
         // pick a choice from the above, then reply the choice to the user
 
         //console.log({args}, '???')
-        var names = []
-
+        const names = []
+        const fullNames = []
+        let currName = ""
         /* 
         initialize names with list of names
         use math.rand to pick a name in the list
@@ -40,32 +41,25 @@ module.exports = new Command({
         }
 
         if (args.length > 1) {
-            names.push(args[0] + args[1])
             for(i = 0; i < args.length; i++){
                 // if the string contains a '|', ignore it
                 if (args[i] === '|')
                 {
-                    console.log(args[i])
-                    args.splice(i,1)
-                    if(!args[i-2].includes(' ') && !args[i-1].includes(' ') && args[i] !== 'undefined')
-                    {
-                        names.push(args[i] + args[i+1])
-                        console.log({names})
-                    }
-                    else{
-
-                        names.push(args[i])
-                    }
-                    continue;
+                    names.push(currName)
+                    console.log({names})
+                    currName = ""
                 }
-                console.log(args[i])
+                else{
+                    currName += ` ${args[i]}`
+                }
             }
-            
+            names.push(currName)
+            console.log({names})
             console.log({args})
             let rand = randomize(names.length)
             let winner = names[rand]
             //console.log({names})
-            message.channel.send(`🤔 |  ${message.member}, I pick ${winner}!`)
+            message.channel.send(`🤔 |  ${message.member}, I pick${winner}!`)
             
         }
         
