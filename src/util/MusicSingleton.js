@@ -8,7 +8,7 @@ const {
 // at the top of your file
 const { EmbedBuilder } = require('discord.js');
 
-const ytdl = require('ytdl-core');
+const ytdl = require('@distube/ytdl-core');
 const play = require('play-dl');
 
 // see https://stackoverflow.com/a/59626464

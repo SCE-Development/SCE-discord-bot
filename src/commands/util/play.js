@@ -1,6 +1,6 @@
 const { prefix } = require('../../../config.json');
 const play = require('play-dl');
-const ytdl = require('ytdl-core');
+const ytdl = require('@distube/ytdl-core');
 
 const {
   joinVoiceChannel,
