@@ -41,17 +41,14 @@ module.exports = new Command({
 
         if (args.length > 1) {
             console.log({args})
-            args.forEach(arg => 
-            {
+            args.forEach(arg => {
                 
                 // if the string contains a '|', ignore it
-                if (arg === '|')
-                {
+                if (arg === '|') {
                     names.push(currName)
                     //console.log({names})
                     currName = ""
-                }
-                else{
+                } else{
                     currName += ` ${arg}`
                     console.log(currName)
                 }
