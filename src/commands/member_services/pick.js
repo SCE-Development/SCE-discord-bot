@@ -28,7 +28,6 @@ module.exports = new Command({
 
         //console.log({args}, '???')
         const names = []
-        const fullNames = []
         let currName = ""
         /* 
         initialize names with list of names
@@ -41,24 +40,29 @@ module.exports = new Command({
         }
 
         if (args.length > 1) {
-            for(i = 0; i < args.length; i++){
+            console.log({args})
+            args.forEach(arg => 
+            {
+                
                 // if the string contains a '|', ignore it
-                if (args[i] === '|')
+                if (arg === '|')
                 {
                     names.push(currName)
-                    console.log({names})
+                    //console.log({names})
                     currName = ""
                 }
                 else{
-                    currName += ` ${args[i]}`
+                    currName += ` ${arg}`
+                    console.log(currName)
                 }
-            }
+            })
+        
             names.push(currName)
+
             console.log({names})
-            console.log({args})
+            //console.log({args})
             let rand = randomize(names.length)
             let winner = names[rand]
-            //console.log({names})
             message.channel.send(`🤔 |  ${message.member}, I pick${winner}!`)
             
         }
