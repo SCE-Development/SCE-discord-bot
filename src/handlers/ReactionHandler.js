@@ -20,11 +20,12 @@ class ReactionHandler {
       const role = reaction.message.guild.roles.cache.get(
         REACTIONS[reaction.message.id][emoji]
       );
-
+      // If reverse is true, flip. If not keep as is
+      let roleAction = reactionWasRemoved;
       if (REACTIONS[reaction.message.id].reverse) {
-        return member.roles.remove(role);
+        roleAction = !roleAction
       }
-      
+
       const guildName = reaction.message.guild.name;
       const embed = new EmbedBuilder()
         .setTitle('Roles Updated')
@@ -36,7 +37,7 @@ class ReactionHandler {
         
       let verb = 'reacted';
       let addedOrRemoved = 'Added';
-      if (reactionWasRemoved) {
+      if (roleAction) {
         member.roles.remove(role);
         verb = 'removed your reaction';
         addedOrRemoved = 'Removed';
