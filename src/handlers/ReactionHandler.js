@@ -34,24 +34,24 @@ class ReactionHandler {
           iconURL: `${botpfp}`
         });
         
-        let verb = 'reacted';
-        let addedOrRemoved = 'Added';
-        if (reactionWasRemoved) {
-          member.roles.remove(role);
-          verb = 'removed your reaction';
-          addedOrRemoved = 'Removed';
-        } else {
-          member.roles.add(role);
-        }
-        const name = `Roles ${addedOrRemoved}`;
-        let description = `You ${verb} to this ` + 
-            `[this message](${reaction.message.url}) in the server, `
-            + `${guildName}, and changed your roles.`
-        embed.setDescription(description)
-        embed.addFields(
-          { name, value: `${role.name}` }
-        );
-        await member.send({embeds: [embed]});
+      let verb = 'reacted';
+      let addedOrRemoved = 'Added';
+      if (reactionWasRemoved) {
+        member.roles.remove(role);
+        verb = 'removed your reaction';
+        addedOrRemoved = 'Removed';
+      } else {
+        member.roles.add(role);
+      }
+      const name = `Roles ${addedOrRemoved}`;
+      let description = `You ${verb} to this ` + 
+        `[this message](${reaction.message.url}) in the server, `
+        + `${guildName}, and changed your roles.`
+      embed.setDescription(description)
+      embed.addFields(
+        { name, value: `${role.name}` }
+      );
+      await member.send({embeds: [embed]});
     } catch (e) {
       console.log('Role does not exist', e);
     }
