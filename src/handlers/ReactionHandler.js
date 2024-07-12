@@ -23,7 +23,7 @@ class ReactionHandler {
       // If reverse is true, flip. If not keep as is
       let roleAction = reactionWasRemoved;
       if (REACTIONS[reaction.message.id].reverse) {
-        roleAction = !roleAction
+        roleAction = !roleAction;
       }
 
       const guildName = reaction.message.guild.name;
