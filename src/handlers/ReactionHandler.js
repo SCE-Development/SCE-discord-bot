@@ -12,47 +12,48 @@ class ReactionHandler {
     const emoji = reaction.emoji.name;
     const member = reaction.message.guild.members.cache.get(user.id);
 
-    if (REACTIONS[reaction.message.id]) {
-      try {
-        const role = reaction.message.guild.roles.cache.get(
-          REACTIONS[reaction.message.id][emoji]
-        );
+    if (!REACTIONS[reaction.message.id]) {
+      return;
+    }
 
-        if (REACTIONS[reaction.message.id].reverse) {
-          return member.roles.remove(role);
-        }
+    try {
+      const role = reaction.message.guild.roles.cache.get(
+        REACTIONS[reaction.message.id][emoji]
+      );
 
-        const guildName = reaction.message.guild.name;
-        const embed = new EmbedBuilder()
-          .setTitle('Roles Updated')
-          .setFooter({
-            text: 'Sent by the Reaction Roles bot'
-             + ` on behalf of the server, ${guildName}`,
-            iconURL: `${botpfp}`
-          });
-          
+      if (REACTIONS[reaction.message.id].reverse) {
+        return member.roles.remove(role);
+      }
+      
+      const guildName = reaction.message.guild.name;
+      const embed = new EmbedBuilder()
+        .setTitle('Roles Updated')
+        .setFooter({
+          text: 'Sent by the Reaction Roles bot'
+            + ` on behalf of the server, ${guildName}`,
+          iconURL: `${botpfp}`
+        });
+        
+        let verb = 'reacted';
+        let addedOrRemoved = 'Added';
         if (reactionWasRemoved) {
           member.roles.remove(role);
-          embed.setDescription('You removed your reaction to this ' + 
-            `[this message](${reaction.message.url}) in the server, `
-            + `${guildName}, and changed your roles.`)
-          embed.addFields(
-            { name: 'Roles Removed', value: `${role.name}` }
-          );
-          await member.send({embeds: [embed]});
+          verb = 'removed your reaction';
+          addedOrRemoved = 'Removed';
         } else {
           member.roles.add(role);
-          embed.setDescription('You reacted to this ' + 
-            `[this message](${reaction.message.url}) in the server, `
-            + `${guildName}, and changed your roles.`)
-          embed.addFields(
-            { name: 'Roles Added', value: `${role.name}` }
-          );
-          await member.send({embeds: [embed]});
         }
-      } catch (e) {
-        console.log('Role does not exist', e);
-      }
+        const name = `Roles ${addedOrRemoved}`;
+        let description = `You ${verb} to this ` + 
+            `[this message](${reaction.message.url}) in the server, `
+            + `${guildName}, and changed your roles.`
+        embed.setDescription(description)
+        embed.addFields(
+          { name, value: `${role.name}` }
+        );
+        await member.send({embeds: [embed]});
+    } catch (e) {
+      console.log('Role does not exist', e);
     }
   }
 }
