@@ -2,7 +2,6 @@ const Discord = require('discord.js');
 const {
   prefix,
   API_TOKEN,
-  REACTIONS = {}
 } = require('./config.json');
 const { MessageHandler } = require('./src/handlers/MessageHandler');
 const {
@@ -10,7 +9,7 @@ const {
 } = require('./src/handlers/VoiceChannelChangeHandler');
 const { NewMemberAddHandler } = require('./src/handlers/NewMemberAddHandler');
 const { MemberLeaveHandler } = require('./src/handlers/MemberLeaveHandler');
-
+const { ReactionHandler } = require ('./src/handlers/ReactionHandler');
 
 
 const startBot = async () => {
@@ -34,6 +33,7 @@ const startBot = async () => {
   const vcChangeHandler = new VoiceChannelChangeHandler();
   const newMemberHandler = new NewMemberAddHandler();
   const memberLeaveHandler = new MemberLeaveHandler();
+  const reactionHandler = new ReactionHandler();
   client.once('ready', () => {
     messageHandler.initialize();
     client.user.setPresence({
@@ -62,40 +62,13 @@ const startBot = async () => {
   });
 
   client.on('messageReactionAdd', async (reaction, user) => {
-
-    if (REACTIONS[reaction.message.id]) {
-      const emoji = reaction._emoji.name;
-      const member = reaction.message.guild.members.cache.get(user.id);
-      try {
-        const role = reaction.message.guild.roles.cache.get(
-          REACTIONS[reaction.message.id][emoji]
-        );
-        if (REACTIONS[reaction.message.id].reverse) {
-          return member.roles.remove(role);
-        }
-        member.roles.add(role);
-      } catch (e) {
-        console.log('Role does not exist', e);
-      }
-    }
+    const botpfp = client.user.displayAvatarURL();
+    reactionHandler.handleReaction(reaction, user, botpfp);
   });
 
   client.on('messageReactionRemove', async (reaction, user) => {
-    const emoji = reaction._emoji.name;
-    const member = reaction.message.guild.members.cache.get(user.id);
-    if (REACTIONS[reaction.message.id]) {
-      try {
-        const role = reaction.message.guild.roles.cache.get(
-          REACTIONS[reaction.message.id][emoji]
-        );
-        if (REACTIONS[reaction.message.id].reverse) {
-          return member.roles.add(role);
-        }
-        member.roles.remove(role);
-      } catch (e) {
-        console.log('Role does not exist', e);
-      }
-    }
+    const botpfp = client.user.displayAvatarURL();
+    reactionHandler.handleReaction(reaction, user, botpfp, true);
   });
 
   client.login(API_TOKEN);
