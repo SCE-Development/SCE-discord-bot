@@ -46,8 +46,8 @@ class ReactionHandler {
       const name = `Roles ${addedOrRemoved}`;
       let description = `You ${verb} to this ` + 
         `[this message](${reaction.message.url}) in the server, `
-        + `${guildName}, and changed your roles.`
-      embed.setDescription(description)
+        + `${guildName}, and changed your roles.`;
+      embed.setDescription(description);
       embed.addFields(
         { name, value: `${role.name}` }
       );
