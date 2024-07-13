@@ -16,7 +16,7 @@ class NewMemberAddHandler {
       const newMemberChannelId = config.WELCOME.NEW_MEMBER_CHANNEL_ID;
       const welcomeChannel = channels.get(newMemberChannelId);
       const guildName = guild.name;
-      const defaultRoles = config.DEFAULT_ROLES
+      const defaultRoles = config.DEFAULT_ROLES;
 
       const message = 
       `<@${newMember.user.id}> welcome to ${guildName}! Please read ` +
@@ -41,7 +41,7 @@ class NewMemberAddHandler {
         else {
           console.log(`roleId of ${roleId} not found`);
         }
-      })
+      });
     } 
     
     catch (e) {
