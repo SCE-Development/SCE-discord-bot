@@ -10,7 +10,7 @@ module.exports = new Command({
   category: 'member services',
   disabled: false,
   execute: async (message, args) => 
-    {
+  {
     // step 1:
     // we have an array like
     // args: [ 'one', '|', 'two', '|', 'three' ]
@@ -39,24 +39,24 @@ module.exports = new Command({
     use math.rand to pick a name in the list
     
       */
-      function randomize(number) {
-        let result = Math.floor( Math.random() * (number - 1) );
-        return result;
-      }
+    function randomize(number) {
+      let result = Math.floor( Math.random() * (number - 1) );
+      return result;
+    }
 
     if (args.length > 1) {
       args.forEach(arg => {
         // if the string contains a '|', ignore it
         if (arg === '|')
         {
-            names.push(currName);
-            console.log({names});
-            currName = '';
+          names.push(currName);
+          console.log({names});
+          currName = '';
         }
         else{
-            currName += ` ${arg}`;
+          currName += ` ${arg}`;
         }
-      })
+      });
       names.push(currName);
       console.log({names});
       console.log({args});
@@ -67,8 +67,8 @@ module.exports = new Command({
     }
     
     else {
-        message.channel.send(`❌ | ${message.member}, 
+      message.channel.send(`❌ | ${message.member}, 
           You need to have 2 or more names in the raffle`);
     }
-}
+  }
 });
