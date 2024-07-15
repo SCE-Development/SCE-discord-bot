@@ -5,9 +5,7 @@
   "SCE_API_URL": "http://sce.engr.sjsu.edu",
   "ERROR_CHANNEL_ID": "xxxxxxxxxxxxxx",
   "CORE_V4_API_KEY": "xxxxxxxxxxxxxx",
-  "DEFAULT_ROLES": [
-    "ROLE_ID"
-  ],
+  "DEFAULT_ROLES": [],
   "REACTIONS": {
     "MESSAGE_ID": {
       "EMOJI": "ROLE_ID"
