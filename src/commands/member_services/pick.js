@@ -27,44 +27,45 @@ module.exports = new Command({
         // pick a choice from the above, then reply the choice to the user
 
         //console.log({args}, '???')
-        const names = []
-        const fullNames = []
-        let currName = ""
+        const names = [];
+        let currName = "";
         /* 
         initialize names with list of names
         use math.rand to pick a name in the list
         
         */
         function randomize(number) {
-            let result = Math.floor( Math.random() * (number - 1) )
-            return result
+            let result = Math.floor( Math.random() * (number - 1) );
+            return result;
         }
 
         if (args.length > 1) {
-            for(i = 0; i < args.length; i++){
+            for(i = 0; i < args.length; i++)
+            {
                 // if the string contains a '|', ignore it
                 if (args[i] === '|')
                 {
-                    names.push(currName)
-                    console.log({names})
-                    currName = ""
+                    names.push(currName);
+                    console.log({names});
+                    currName = "";
                 }
-                else{
-                    currName += ` ${args[i]}`
+                else
+                {
+                    currName += ` ${args[i]}`;
                 }
             }
-            names.push(currName)
-            console.log({names})
-            console.log({args})
-            let rand = randomize(names.length)
-            let winner = names[rand]
-            //console.log({names})
-            message.channel.send(`🤔 |  ${message.member}, I pick${winner}!`)
+            names.push(currName);
+            console.log({names});
+            console.log({args});
+
+            let rand = randomize(names.length);
+            let winner = names[rand];
+            message.channel.send(`🤔 |  ${message.member}, I pick${winner}!`);
             
         }
         
         else {
-            message.channel.send(`❌ | ${message.member}, You need to have 2 or more names in the raffle`)
+            message.channel.send(`❌ | ${message.member}, You need to have 2 or more names in the raffle`);
         }
         
     }
