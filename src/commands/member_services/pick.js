@@ -44,31 +44,33 @@ module.exports = new Command({
       return result;
     }
 
-    if (args.length > 1) {
-      args.forEach(arg => {
-        // if the string contains a '|', ignore it
-        if (arg === '|')
-        {
-          names.push(currName);
-          console.log({names});
-          currName = '';
-        }
-        else{
-          currName += ` ${arg}`;
-        }
-      });
-      names.push(currName);
-      console.log({names});
-      console.log({args});
-      let rand = randomize(names.length);
-      let winner = names[rand];
-      message.channel.send(`🤔 |  ${message.member}, I pick${winner}!`);
-        
+    if (args.length <= 1 || !args.includes('|')) 
+    {
+      message.channel.send(`❌ | ${message.member}, 
+        You need to have 2 or more names in the raffle, 
+        and separate the items with a '|'`);
+        return
     }
     
-    else {
-      message.channel.send(`❌ | ${message.member}, 
-          You need to have 2 or more names in the raffle`);
-    }
+
+    args.forEach(arg => {
+      // if the string contains a '|', ignore it
+      if (arg === '|')
+      {
+        names.push(currName);
+        currName = '';
+      }
+      else{
+        currName += ` ${arg}`;
+      }
+    });
+    names.push(currName);
+
+    let rand = randomize(names.length);
+    let winner = names[rand];
+    message.channel.send(`🤔 |  ${message.member}, I pick${winner}!`);
+  
+
+    
   }
 });
