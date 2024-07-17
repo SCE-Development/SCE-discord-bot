@@ -49,7 +49,7 @@ module.exports = new Command({
       message.channel.send(`❌ | ${message.member}, 
         You need to have 2 or more names in the raffle, 
         and separate the items with a '|'`);
-        return
+      return;
     }
     
 
