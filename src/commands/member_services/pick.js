@@ -11,27 +11,6 @@ module.exports = new Command({
   disabled: false,
   execute: async (message, args) => 
   {
-    // step 1:
-    // we have an array like
-    // args: [ 'one', '|', 'two', '|', 'three' ]
-    // the choices are divided by a veritcal line
-    // we need to remove the vertical line from the array, 
-    // and then pick a choice from the array
-    // i.e. pick 'one', 'two', or 'three', 
-    // then reply the choice to the user
-
-    // step 2
-    // the user called the command like 
-    // `s!pick pizza | french fries | cold water
-    
-    // we have an array like
-    // args: [ 'pizza', '|', 'french', 'fries', '|', 'cold', 'water' ]
-    // the choices are still divided by a veritcal line
-    // before removing a vertical line from the array, 
-    // we also need to "group" the choices together
-    // the choices in this case are 'pizza', 'french fries' and 'cold water'
-    // pick a choice from the above, then reply the choice to the user
-
     const names = [];
     let currName = '';
     /* 
@@ -48,19 +27,17 @@ module.exports = new Command({
     {
       message.channel.send(`❌ | ${message.member}, 
         You need to have 2 or more names in the raffle, 
-        and separate the items with a '|'`);
+        AND separate the items with a '|'`);
       return;
     }
     
-
     args.forEach(arg => {
       // if the string contains a '|', ignore it
       if (arg === '|')
       {
         names.push(currName);
         currName = '';
-      }
-      else{
+      } else {
         currName += ` ${arg}`;
       }
     });
@@ -68,9 +45,8 @@ module.exports = new Command({
 
     let rand = randomize(names.length);
     let winner = names[rand];
+    console.log({names})
     message.channel.send(`🤔 |  ${message.member}, I pick${winner}!`);
-  
 
-    
   }
 });
