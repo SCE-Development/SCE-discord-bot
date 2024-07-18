@@ -43,8 +43,8 @@ module.exports = new Command({
     });
     names.push(currName);
 
-    let rand = randomize(names.length);
-    let winner = names[rand];
+    const rand = randomize(names.length);
+    const winner = names[rand];
     message.channel.send(`🤔 |  ${message.member}, I pick${winner}!`);
 
   }
