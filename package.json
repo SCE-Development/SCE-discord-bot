@@ -20,7 +20,7 @@
     "pdf-lib": "^1.17.1",
     "play-dl": "^1.9.6",
     "require-dir": "^1.2.0",
-    "ytdl-core": "^4.11.5"
+    "ytdl-core": "^4.11.4"
   },
   "license": "MIT",
   "keywords": [
