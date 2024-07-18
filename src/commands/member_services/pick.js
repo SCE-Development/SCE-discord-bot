@@ -45,7 +45,6 @@ module.exports = new Command({
 
     let rand = randomize(names.length);
     let winner = names[rand];
-    console.log({names})
     message.channel.send(`🤔 |  ${message.member}, I pick${winner}!`);
 
   }
