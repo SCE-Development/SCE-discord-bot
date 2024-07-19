@@ -2,9 +2,14 @@ const { prefix } = require('../../../config.json');
 
 const Command = require('../Command');
 
-const MusicSingleton = require('../../util/MusicSingleton');
+const {
+  joinVoiceChannel,
+  createAudioPlayer,
+  createAudioResource,
+  AudioPlayerStatus
+} = require('@discordjs/voice');
 
-const musicHandler = new MusicSingleton();
+const audioManager = require('../../util/audioManager');
 
 module.exports = new Command({
   name: 'skip',
@@ -15,6 +20,10 @@ module.exports = new Command({
   category: 'music',
   disabled: false,
   execute: async (message) => {
-    musicHandler.skip(message);
+    let player = audioManager.getAudioPlayer();
+
+    if (player.state.status === AudioPlayerStatus.Playing) {
+      audioManager.removeFromQueue();
+    }
   },
 });

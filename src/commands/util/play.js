@@ -28,14 +28,23 @@ async function playSong(message, query) {
 
   audioManager.setConnection(connection);
 
-  console.log(`searching for ${query}`);
-  const searchResults = await play.search(query, { limit: 1 });
-  if (searchResults.length === 0) {
-    return message.reply('No results were found!');
+  let url;
+
+  if (ytdl.validateURL(query)) {
+    url = query;
+    console.log("raw URL provided!")
   }
-  const url = searchResults[0].url;
+  else {
+    console.log(`searching for ${query}`);
+    const searchResults = await play.search(query, { limit: 1 });
+    if (searchResults.length === 0) {
+    return message.reply('No results were found!');
+    }
+    url = searchResults[0].url;
+    console.log(`search result url: ${url}`);
+  }
+  
   const stream = ytdl(url, { filter: 'audioonly' });
-  console.log(`search result url: ${url}`);
   
   const resource = createAudioResource(stream);
   player.play(resource);
