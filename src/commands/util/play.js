@@ -1,84 +1,12 @@
 const { prefix } = require('../../../config.json');
-const play = require('play-dl');
-const ytdl = require('@distube/ytdl-core');
-
 const {
   joinVoiceChannel,
   createAudioPlayer,
-  createAudioResource,
   AudioPlayerStatus
 } = require('@discordjs/voice');
-const { EmbedBuilder } = require('discord.js');
+
 const Command = require('../Command');
 const audioManager = require('../../util/audioManager');
-
-async function playSong(message, query) {
-  let player = audioManager.getAudioPlayer();
-
-  if (!player) {
-    player = createAudioPlayer();
-    audioManager.setAudioPlayer(player);
-  }
-
-  const connection = joinVoiceChannel({
-    channelId: message.member.voice.channel.id,
-    guildId: message.guild.id,
-    adapterCreator: message.guild.voiceAdapterCreator,
-  });
-
-  audioManager.setConnection(connection);
-
-  let url;
-
-  if (ytdl.validateURL(query)) {
-    url = query;
-    console.log("raw URL provided!")
-  }
-  else {
-    console.log(`searching for ${query}`);
-    const searchResults = await play.search(query, { limit: 1 });
-    if (searchResults.length === 0) {
-    return message.reply('No results were found!');
-    }
-    url = searchResults[0].url;
-    console.log(`search result url: ${url}`);
-  }
-  
-  const stream = ytdl(url, { filter: 'audioonly' });
-  
-  const resource = createAudioResource(stream);
-  player.play(resource);
-  connection.subscribe(player);
-
-  audioManager.setInfo(await ytdl.getInfo(url));
-  audioManager.setUrl(url);
-
-  const vidInfo = audioManager.getInfo();
-
-  const embedPlaying = new EmbedBuilder()
-    .setColor('#1DB954')
-    .setTitle(vidInfo.videoDetails.title)
-    .setAuthor({ name: 'Now playing!' })
-    .setURL(url)
-    .setThumbnail(vidInfo.videoDetails.thumbnails[2].url)
-    .setFooter(
-      {
-        text: `Requested by ${message.author.username}`,
-        iconURL: `${message.author.displayAvatarURL()}`
-      }
-    );
-
-  await message.reply({embeds: [embedPlaying]});
-
-  player.on('idle', () => {
-    const nextSong = audioManager.removeFromQueue();
-    if (nextSong) {
-      playSong(message, nextSong.query);
-    } else {
-      connection.destroy();
-    }
-  });
-}
 
 module.exports = new Command({
   name: 'play',
@@ -99,10 +27,11 @@ module.exports = new Command({
     let player = audioManager.getAudioPlayer();
 
     if (player && player.state.status === AudioPlayerStatus.Playing) {
-      audioManager.addToQueue({ query, author: message.author });
+      
+      audioManager.addToQueue({ message, query});
       return message.reply('Song added to the queue!');
     }
 
-    await playSong(message, query);
+    await audioManager.playSong(message, query);
   } 
 });
