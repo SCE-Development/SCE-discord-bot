@@ -6,6 +6,9 @@ const audioManager = require('../../util/audioManager');
 
 const { EmbedBuilder } = require('discord.js');
 
+const MusicSingleton = require('../../util/MusicSingleton');
+
+const musicHandler = new MusicSingleton();
 
 
 module.exports = new Command({
@@ -17,7 +20,7 @@ module.exports = new Command({
   category: 'music',
   disabled: false,
   execute: async (message) => {
-    const player = audioManager.getAudioPlayer();
+    /* const player = audioManager.getAudioPlayer();
 
     if (!message.member.voice.channel) {
       return message.reply('Please join a voice channel first!');
@@ -44,7 +47,8 @@ module.exports = new Command({
     
     player.pause();
 
-    await message.reply({embeds: [embedPlaying]});
+    await message.reply({embeds: [embedPlaying]}); */
+    musicHandler.pause(message);
 
 
   },
