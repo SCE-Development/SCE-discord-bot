@@ -6,7 +6,6 @@ const {
 } = require('@discordjs/voice');
 const ytdl = require('@distube/ytdl-core');
 const play = require('play-dl');
-const audioManager = require('../../util/audioManager');
 
 const Command = require('../Command');
 const MusicSingleton = require('../../util/MusicSingleton');
