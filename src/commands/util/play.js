@@ -50,52 +50,5 @@ module.exports = new Command({
     message.reply(
       `${args.join(' ')} is not a valid YouTube / SoundCloud URL`
     );
-    /* 
-    const query = args.slice(1).join(' ');
-
-    const voiceChannel = message.member.voice.channel;
-    if (!voiceChannel) {
-      return message.reply('You need to be in a voice channel to play music!');
-    }
-
-
-
-
-    let url;
-
-    if (ytdl.validateURL(query)) {
-      url = query;
-      console.log("URL detected!")
-    }
-    else {
-      console.log(`searching for ${query}`);
-      const searchResults = await play.search(query, { limit: 1 });
-      if (searchResults.length === 0) {
-        return message.reply('No results were found!');
-      }
-      url = searchResults[0].url;
-      console.log(`search result url: ${url}`);
-    }
-    
-    audioManager.setUrl(url);
-    let vidInfo = await ytdl.getInfo(url);
-
-
-    let player = audioManager.getAudioPlayer();
-
-    if (player && player.state.status === AudioPlayerStatus.Playing) {
-      audioManager.addToQueue({ message, query});
-      return message.reply('Song added to the queue!');
-    }
-    else if (player && player.state.status === AudioPlayerStatus.Paused && !query) {
-      player.unpause();
-      return message.reply('Unpaused!');
-    }
-      
-
-    
-
-    await audioManager.playSong(message, query);
-    */
   } 
 });

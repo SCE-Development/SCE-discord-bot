@@ -1,7 +1,5 @@
 const { prefix } = require('../../../config.json');
-
 const Command = require('../Command');
-
 const audioManager = require('../../util/audioManager');
 
 module.exports = new Command({

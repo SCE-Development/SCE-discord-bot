@@ -1,12 +1,6 @@
 const { prefix } = require('../../../config.json');
-
 const Command = require('../Command');
-
-const audioManager = require('../../util/audioManager.js');
-
-
 const MusicSingleton = require('../../util/MusicSingleton');
-
 const musicHandler = new MusicSingleton();
 
 module.exports = new Command({
@@ -18,13 +12,6 @@ module.exports = new Command({
   category: 'music',
   disabled: false,
   execute: async (message) => {
-    /* let queue = audioManager.getQueue();
-    console.log('Before queue: ' + queue);
-    audioManager.stop();
-    queue = audioManager.getQueue();
-    console.log('After queue: ' + queue);
-    return message.reply("Bot stopped!") */
-
     musicHandler.stop(message);
   },
 });
