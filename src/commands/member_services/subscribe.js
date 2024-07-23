@@ -2,7 +2,7 @@ const Command = require('../Command');
 module.exports = new Command({
   name: 'subscribe',
   description: 'subscribes user to discord SCE notifications',
-  aliases: ['sub'],
+  aliases: [],
   example: '!subscribe',
   permissions: 'general',
   category: 'member services',

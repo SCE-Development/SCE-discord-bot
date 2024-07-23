@@ -46,7 +46,7 @@ function getCommandList(commandType) {
 module.exports = new Command({
   name: 'clihelp',
   description: 'List CLI commands and info about CLI commands',
-  aliases: ['cli-commands'],
+  aliases: [],
   example: 's!clihelp',
   permissions: 'general',
   category: 'information',

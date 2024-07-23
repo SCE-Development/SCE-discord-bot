@@ -3,7 +3,7 @@ const Command = require('../Command');
 module.exports = new Command({
   name: 'setvoicetopic',
   description: 'Rename Voice Channel, but can be only done 2 per 10 min',
-  aliases: ['svt'],
+  aliases: [],
   example: 's!setvoicetopic',
   permissions: 'member',
   category: 'member services',
