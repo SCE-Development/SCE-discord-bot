@@ -188,7 +188,6 @@ class MusicSingleton {
 
   // Assumes sent url is valid YouTube URL
   async playOrAddYouTubeUrlToQueue(message, url, repetitions = 1) {
-    console.log('playOrAddYouTubeUrlToQueue', {message, url, repetitions})
     try {
       const { videoDetails } = await ytdl.getInfo(url);
       this._currentMessage = message;
@@ -210,10 +209,6 @@ class MusicSingleton {
       const isInPlayingState =
         this.audioPlayer.state.status === AudioPlayerStatus.Playing;
 
-      console.log('playOrAddYouTubeUrlToQueue', {
-        isInPlayingState,
-        
-      })
       if (isInPlayingState) {
         this.upcoming.push({ 
           url, 

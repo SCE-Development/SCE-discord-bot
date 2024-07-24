@@ -1,9 +1,4 @@
 const { prefix } = require('../../../config.json');
-const {
-  joinVoiceChannel,
-  createAudioPlayer,
-  AudioPlayerStatus
-} = require('@discordjs/voice');
 const ytdl = require('@distube/ytdl-core');
 const play = require('play-dl');
 
