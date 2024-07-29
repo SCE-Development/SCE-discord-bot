@@ -28,7 +28,7 @@ class NewMemberAddHandler {
       
       // Avatar
       const { body } = await request(
-        newMember.displayAvatarURL({ extension: 'jpg' })
+        newMember.displayAvatarURL({ extension: 'png' })
       );
       const avatar = await Canvas.loadImage(await body.arrayBuffer());
       
