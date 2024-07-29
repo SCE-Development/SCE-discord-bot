@@ -10,6 +10,7 @@ const {
 const { NewMemberAddHandler } = require('./src/handlers/NewMemberAddHandler');
 const { MemberLeaveHandler } = require('./src/handlers/MemberLeaveHandler');
 const { ReactionHandler } = require ('./src/handlers/ReactionHandler');
+const { MusicSingleton } = require('./src/util/MusicSingleton');
 
 
 const startBot = async () => {
@@ -34,8 +35,11 @@ const startBot = async () => {
   const newMemberHandler = new NewMemberAddHandler();
   const memberLeaveHandler = new MemberLeaveHandler();
   const reactionHandler = new ReactionHandler();
+  const musicSingleton = new MusicSingleton();
   client.once('ready', () => {
     messageHandler.initialize();
+    musicSingleton.initializeDistube(client);
+    musicSingleton.setupListeners();
     client.user.setPresence({
       activity: {
         name: `${prefix}help`,

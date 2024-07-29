@@ -7,14 +7,14 @@ const { MusicSingleton } = require('../../util/MusicSingleton');
 const musicHandler = new MusicSingleton();
 
 module.exports = new Command({
-  name: 'resume',
-  description: 'Resume the paused track',
-  aliases: ['resume'],
-  example: `${prefix}resume`,
+  name: 'getqueue',
+  description: 'Print all songs in queue',
+  aliases: ['getqueue'],
+  example: `${prefix}getqueue`,
   permissions: 'member',
   category: 'music',
   disabled: false,
   execute: async (message) => {
-    musicHandler.resume(message);
+    musicHandler.getQueue(message);
   },
 });

@@ -7,7 +7,7 @@ const play = require('play-dl');
 const Command = require('../Command');
 const { EmbedBuilder } = require('discord.js');
 
-const MusicSingleton = require('../../util/MusicSingleton');
+const { MusicSingleton } = require('../../util/MusicSingleton');
 const musicHandler = new MusicSingleton();
 
 module.exports = new Command({

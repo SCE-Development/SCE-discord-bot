@@ -6,7 +6,7 @@ const ytdl = require('ytdl-core');
 const play = require('play-dl');
 
 const Command = require('../Command');
-const MusicSingleton = require('../../util/MusicSingleton');
+const { MusicSingleton } = require('../../util/MusicSingleton');
 
 const musicHandler = new MusicSingleton();
 
@@ -19,11 +19,13 @@ module.exports = new Command({
   category: 'music',
   disabled: false,
   execute: async (message, args) => {
-    const repetitions = args[0];
-    const url = args[1];
+    // const repetitions = args[0];
+    // const url = args[1];
+    const url = args[0]
     if (ytdl.validateURL(url)) {
-      musicHandler.playOrAddYouTubeUrlToQueue(message, url, repetitions);
-    } else {
+      //musicHandler.playOrAddYouTubeUrlToQueue(message, url, repetitions);
+      musicHandler.play(message, url);
+    } else { // Remove second else statement?
       if (args[0] === undefined)
         message.reply(`Usage: 
           \`${prefix}search <query>: Returns top 5\`
@@ -35,10 +37,9 @@ module.exports = new Command({
         const searchQuery = args.slice(1).join(' ');
         let ytInfo = await play.search(searchQuery, { limit: 1 });
         if (ytInfo.length > 0) {
-          musicHandler.playOrAddYouTubeUrlToQueue(
+          musicHandler.play(
             message, 
-            ytInfo[0].url, 
-            repetitions
+            ytInfo[0].url
           );
         } else {
           message.reply(
