@@ -9,7 +9,8 @@ const {
   AudioPlayerStatus
 } = require('@discordjs/voice');
 
-const audioManager = require('../../util/audioManager');
+const MusicSingleton = require('../../util/MusicSingleton');
+const musicHandler = new MusicSingleton();
 
 module.exports = new Command({
   name: 'skip',
@@ -20,10 +21,6 @@ module.exports = new Command({
   category: 'music',
   disabled: false,
   execute: async (message) => {
-    let player = audioManager.getAudioPlayer();
-
-    if (player.state.status === AudioPlayerStatus.Playing) {
-      audioManager.removeFromQueue();
-    }
+    musicHandler.skip(message);
   },
 });
