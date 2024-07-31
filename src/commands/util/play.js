@@ -18,7 +18,7 @@ module.exports = new Command({
   execute: async (message, args) => {
     const repetitions = args[0];
     const url = args[1];
-    if (!repetitions && !url) {
+    if (!url) {
       return musicHandler.resume(message);
     }
     if (ytdl.validateURL(url)) {
