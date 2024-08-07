@@ -17,7 +17,7 @@
     "discord.js": "^14.15.3",
     "ffmpeg-static": "^5.1.0",
     "libsodium-wrappers": "^0.7.11",
-    "nodemon": "^2.0.4",
+    "nodemon": "^2.0.22",
     "path": "^0.12.7",
     "pdf-lib": "^1.17.1",
     "play-dl": "^1.9.6",
