@@ -2,13 +2,6 @@ const { prefix } = require('../../../config.json');
 
 const Command = require('../Command');
 
-const {
-  joinVoiceChannel,
-  createAudioPlayer,
-  createAudioResource,
-  AudioPlayerStatus
-} = require('@discordjs/voice');
-
 const MusicSingleton = require('../../util/MusicSingleton');
 const musicHandler = new MusicSingleton();
 

@@ -9,7 +9,6 @@ const {
 const { EmbedBuilder } = require('discord.js');
 
 const ytdl = require('@distube/ytdl-core');
-const play = require('play-dl');
 
 // see https://stackoverflow.com/a/59626464
 class MusicSingleton {
@@ -178,7 +177,7 @@ class MusicSingleton {
     }
     if (this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
       this.audioPlayer.unpause();
-      return message.reply("Unpaused!")
+      return message.reply('Unpaused!');
     } else {
       // the above will call announceNowPlaying implicitly, so we put the
       // below call in an else to avoid showing the user what's playing twice
