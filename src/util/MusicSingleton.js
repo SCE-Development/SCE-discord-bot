@@ -8,8 +8,7 @@ const {
 // at the top of your file
 const { EmbedBuilder } = require('discord.js');
 
-const ytdl = require('ytdl-core');
-const play = require('play-dl');
+const ytdl = require('@distube/ytdl-core');
 
 // see https://stackoverflow.com/a/59626464
 class MusicSingleton {
@@ -73,10 +72,8 @@ class MusicSingleton {
       this.alreadyAnnouncedCurrentVideo = this.nowPlayingMetadata && 
         this.nowPlayingMetadata.video_url === metadata.video_url;
       this.nowPlayingMetadata = metadata;
-      let stream = await play.stream(latestTrack);
-      const resource = createAudioResource(stream.stream, {
-        inputType: stream.type,
-      });
+      let stream = ytdl(latestTrack, { filter: 'audioonly' });
+      const resource = createAudioResource(stream);
       originalThis.audioPlayer.play(resource);
     }
     else if (this.botWasKicked) {
@@ -180,6 +177,7 @@ class MusicSingleton {
     }
     if (this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
       this.audioPlayer.unpause();
+      return message.reply('Unpaused!');
     } else {
       // the above will call announceNowPlaying implicitly, so we put the
       // below call in an else to avoid showing the user what's playing twice
@@ -209,6 +207,7 @@ class MusicSingleton {
       }
       const isInPlayingState =
         this.audioPlayer.state.status === AudioPlayerStatus.Playing;
+
       if (isInPlayingState) {
         this.upcoming.push({ 
           url, 
@@ -242,9 +241,9 @@ class MusicSingleton {
         message.channel.send({ embeds: [embeddedQueue] });
       } else {
         this.nowPlayingMetadata = { ...videoDetails, repetitions: 1 };
-        const stream = await play.stream(url);
+        const stream = ytdl(url, { filter: 'audioonly' });
         this.audioPlayer.play(
-          createAudioResource(stream.stream, { inputType: stream.type })
+          createAudioResource(stream)
         );
         if (repetitions > 1) {
           this.playOrAddYouTubeUrlToQueue(message, url, repetitions - 1);

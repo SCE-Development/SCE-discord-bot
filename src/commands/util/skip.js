@@ -3,7 +3,6 @@ const { prefix } = require('../../../config.json');
 const Command = require('../Command');
 
 const MusicSingleton = require('../../util/MusicSingleton');
-
 const musicHandler = new MusicSingleton();
 
 module.exports = new Command({
